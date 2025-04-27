@@ -4,14 +4,14 @@
     margin-bottom: 20px;
     cursor: pointer;
 }
-  
+
 .dropdown-label {
     padding: 8px 12px;
     border: 1px solid #ccc;
     background-color: #fff;
     width: 200px;
 }
-  
+
 .dropdown-content {
     position: absolute;
     z-index: 1;
@@ -20,12 +20,21 @@
     width: 100%;
     display: block;
 }
-  
+
 .dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
 }
-  
+
 .dropdown-item:hover {
-    background-color: #eee;
+    background-color: #ccc;
+}
+
+.dropdown-item.focused {
+    background-color: #f0f0f0;
+    outline: none;
+}
+
+.dropdown-item:focus {
+    outline: 2px solid grey;
 }
