@@ -9,4 +9,4 @@
 
 // DELETE /api/messages/:messageId/user1
 // DELETE /api/messages/:messageId/user2
-// "Soft delete" a message from User 1’s or User 2’s perspective
+// Users can only delete their own messages
