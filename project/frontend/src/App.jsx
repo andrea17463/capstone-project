@@ -1,3 +1,4 @@
+// frontend/src/App.jsx
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -7,11 +8,9 @@ import UserProfile from './components/UserProfile/UserProfile';
 import UserConnections from './components/UserConnections/UserConnections';
 import ChatMessages from './components/ChatMessages/ChatMessages';
 import GamePlay from './components/GamePlay/GamePlay';
-
-// import './styles/global.css';
+import GuessingGame from './components/GuessingGame/GuessingGame';
 
 import * as sessionActions from './store/session';
-import { useParams } from 'react-router-dom';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -31,24 +30,6 @@ function Layout() {
   );
 }
 
-function ChatBox() {
-  const { user1Id, user2Id } = useParams();
-  return <ChatMessages user1Id={user1Id} user2Id={user2Id} />;
-}
-
-function GameWrapper() {
-  const { gameId } = useParams();
-  return gameId ? <GamePlay gameId={gameId} /> : <div>Game not found</div>;
-}
-
-function ChatMessagesIntro() {
-  return (
-    <div>
-      <h2>Select a chat from connections to start messaging</h2>
-    </div>
-  );
-}
-
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -56,9 +37,9 @@ const router = createBrowserRouter([
       { path: '/', element: <LandingPage /> },
       { path: '/profile', element: <UserProfile /> },
       { path: '/connections', element: <UserConnections /> },
-      { path: '/chats', element: <ChatMessagesIntro /> },
-      { path: '/chat/:user1Id/:user2Id', element: <ChatBox /> },
-      { path: '/game/:gameId', element: <GameWrapper /> }
+      { path: '/chats', element: <ChatMessages /> },
+      { path: '/game/789', element: <GuessingGame /> },
+      { path: '/game/:gameId', element: <GamePlay /> }
     ]
   }
 ]);

@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import HoverClickDropdown from './HoverClickDropdown';
+import HoverDropdown from './HoverDropdown';
 
-function UserProfile() {
-  // const [results, setResults] = useState([]);
-  const [setResults] = useState([]);
+function InterestsForm() {
+  const [results, setResults] = useState([]);
   const [formData, setFormData] = useState({
     interests: '',
     objectives: '',
@@ -35,7 +34,7 @@ function UserProfile() {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <HoverClickDropdown
+        <HoverDropdown
           label="Interests"
           name="interests"
           options={[
@@ -46,7 +45,7 @@ function UserProfile() {
           onChange={handleDropdownChange}
         />
 
-        <HoverClickDropdown
+        <HoverDropdown
           label="Objectives"
           name="objectives"
           options={[
@@ -59,7 +58,7 @@ function UserProfile() {
           onChange={handleDropdownChange}
         />
 
-        <HoverClickDropdown
+        <HoverDropdown
           label="Location"
           name="location"
           options={[
@@ -70,7 +69,7 @@ function UserProfile() {
           onChange={handleDropdownChange}
         />
 
-        <HoverClickDropdown
+        <HoverDropdown
           label="Location Radius"
           name="location-radius"
           options={[
@@ -91,12 +90,12 @@ function UserProfile() {
 
       <h3>Filtered Results:</h3>
       <ul>
-        {/* {results.map((item, index) => (
+        {results.map((item, index) => (
           <li key={index}>{item.name}</li>
-        ))} */}
+        ))}
       </ul>
     </>
   );
 }
 
-export default UserProfile;
+export default InterestsForm;
