@@ -8,35 +8,35 @@ const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
 
 // Action Creators
-// export const setSpots = (spots) => ({
-//   type: SET_SPOTS,
-//   payload: spots,
-// });
+export const setConnections = (connections) => ({
+    type: SET_CONNECTIONS,
+    payload: connections,
+});
 
-// export const addSpot = (spot) => ({
-//   type: ADD_SPOT,
-//   payload: spot,
-// });
+export const addConnection = (connection) => ({
+    type: ADD_CONNECTION,
+    payload: connection,
+});
 
-// export const updateSpot = (spot) => ({
-//   type: UPDATE_SPOT,
-//   payload: spot,
-// });
+export const updateConnection = (connection) => ({
+    type: UPDATE_CONNECTION,
+    payload: connection,
+});
 
-// export const deleteSpot = (id) => ({
-//   type: DELETE_SPOT,
-//   payload: id,
-// });
+export const deleteConnection = (id) => ({
+    type: DELETE_CONNECTION,
+    payload: id,
+});
 
-// export const setLoading = (loading) => ({
-//   type: SET_LOADING,
-//   payload: loading,
-// });
+export const setLoading = (loading) => ({
+    type: SET_LOADING,
+    payload: loading,
+});
 
-// export const setError = (error) => ({
-//   type: SET_ERROR,
-//   payload: error,
-// });
+export const setError = (error) => ({
+    type: SET_ERROR,
+    payload: error,
+});
 
 // // Thunk Action Creators
 // export const fetchAllSpots = () => async (dispatch) => {

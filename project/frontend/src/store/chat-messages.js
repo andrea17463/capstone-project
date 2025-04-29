@@ -102,7 +102,7 @@ export const editMessage = (messageId, updatedMessage) => async (dispatch) => {
     }
 };
 
-export const deleteMessage = (messageId) => async (dispatch) => {
+export const deleteMessage = (messageId, userId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
         const response = await fetch(`/api/messages/${messageId}/${userId}`, {
