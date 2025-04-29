@@ -1,12 +1,13 @@
-// // Action Types
-// const SET_SPOTS = 'SET_SPOTS';
-// const ADD_SPOT = 'ADD_SPOT';
-// const UPDATE_SPOT = 'UPDATE_SPOT';
-// const DELETE_SPOT = 'DELETE_SPOT';
-// const SET_LOADING = 'SET_LOADING';
-// const SET_ERROR = 'SET_ERROR';
+// frontend/src/store/user-connections.js
+// Action Types
+const SET_CONNECTIONS = 'SET_CONNECTIONS';
+const ADD_CONNECTION = 'ADD_CONNECTION';
+const UPDATE_CONNECTION = 'UPDATE_CONNECTION';
+const DELETE_CONNECTION = 'DELETE_CONNECTION';
+const SET_LOADING = 'SET_LOADING';
+const SET_ERROR = 'SET_ERROR';
 
-// // Action Creators
+// Action Creators
 // export const setSpots = (spots) => ({
 //   type: SET_SPOTS,
 //   payload: spots,
@@ -132,3 +133,5 @@
 // };
 
 // export default spotsReducer;
+
+export default userConnectionsReducer;
