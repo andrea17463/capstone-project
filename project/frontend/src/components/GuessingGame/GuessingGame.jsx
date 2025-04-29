@@ -94,8 +94,7 @@ const GamePlay = () => {
         { prompt: "Planner vs. Go with the flow", options: ['Planner', 'Go with the flow'] },
         { prompt: "Has a routine vs. Lives spontaneously", options: ['Has a routine', 'Lives spontaneously'] },
         {
-          prompt: "Sleep is sacred vs. Can function on little sleep", options:
-            ['Sleep is sacred', 'Can function on little sleep']
+          prompt: "Sleep is sacred vs. Can function on little sleep", options: ['Sleep is sacred', 'Can function on little sleep']
         },
         { prompt: "Dreamer vs. Doer", options: ['Dreamer', 'Doer'] },
         { prompt: "Workaholic vs. Work to live", options: ['Workaholic', 'Work to live'] },
@@ -566,7 +565,10 @@ const GamePlay = () => {
   useEffect(() => {
     let total = 0;
     for (const category in allCards) {
-      total += allCards[category].length;
+      const count = allCards[category].length;
+      console.log(`${category}: ${count} cards`);
+      // total += allCards[category].length;
+      total += count;
     }
     setTotalCards(total);
     setRemainingCards(total - usedCards.length);
