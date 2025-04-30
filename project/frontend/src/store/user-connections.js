@@ -1,33 +1,15 @@
 // frontend/src/store/user-connections.js
 // Action Types
-const SET_CONNECTIONS = 'SET_CONNECTIONS';
-const ADD_CONNECTION = 'ADD_CONNECTION';
-const UPDATE_CONNECTION = 'UPDATE_CONNECTION';
-const DELETE_CONNECTION = 'DELETE_CONNECTION';
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
+const GET_CONNECTIONS = 'GET_CONNECTIONS';
+const ADD_CONNECTION = 'ADD_CONNECTION';
+const UPDATE_CONNECTION_STATUS = 'UPDATE_CONNECTION_STATUS';
+const UPDATE_MEETING_STATUS = 'UPDATE_MEETING_STATUS';
+const UPDATE_CONNECTION_FEEDBACK = 'UPDATE_CONNECTION_FEEDBACK';
+const DELETE_CONNECTION = 'DELETE_CONNECTION';
 
 // Action Creators
-export const setConnections = (connections) => ({
-    type: SET_CONNECTIONS,
-    payload: connections,
-});
-
-export const addConnection = (connection) => ({
-    type: ADD_CONNECTION,
-    payload: connection,
-});
-
-export const updateConnection = (connection) => ({
-    type: UPDATE_CONNECTION,
-    payload: connection,
-});
-
-export const deleteConnection = (id) => ({
-    type: DELETE_CONNECTION,
-    payload: id,
-});
-
 export const setLoading = (loading) => ({
     type: SET_LOADING,
     payload: loading,
@@ -38,100 +20,179 @@ export const setError = (error) => ({
     payload: error,
 });
 
-// // Thunk Action Creators
-// export const fetchAllSpots = () => async (dispatch) => {
-//   dispatch(setLoading(true));
-//   try {
-//     const response = await fetch('/api/spots');
-//     if (!response.ok) {
-//       throw new Error('Failed to fetch spots');
-//     }
-//     const spotsdata = await response.json();
-//     // console.log("Fetched spots:", spotsdata);
+// Thunk Action Creators
+export const fetchAllConnections = () => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch('/api/connections');
+        if (!res.ok) throw new Error('Failed to fetch connections');
+        const data = await res.json();
+        dispatch({
+            type: GET_CONNECTIONS,
+            payload: data
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-//     if (!Array.isArray(spotsdata.Spots)) {
-//       throw new Error('Invalid data received for spots');
-//     }
+export const addConnection = (connectionData) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch('/api/connections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(connectionData),
+        });
 
-//     dispatch(setSpots(spotsdata.Spots));
-//   } catch (error) {
-//     console.error(error);
-//     dispatch(setError(error.message));
-//   } finally {
-//     dispatch(setLoading(false));
-//   }
-// };
+        if (!res.ok) throw new Error('Failed to create connection');
+        const data = await res.json();
+        dispatch({
+            type: ADD_CONNECTION,
+            payload: data
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-// export const fetchSpotById = (id) => async (dispatch) => {
-// //   console.log('fetchSpotById called with id:', id);
-// //   console.log('Call stack:', new Error().stack);
+export const updateConnectionStatus = (connectionId, status) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch(`/api/connections/${connectionId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+        });
 
-//   if (!id) return;
-//   dispatch(setLoading(true));
-//   try {
-//     const response = await fetch(`/api/spots/${id}`);
-//     if (response.ok) {
-//       const spotdata = await response.json();
-//       console.log('SPOT DATA:', spotdata);
-//       dispatch(setSpots({spotdata}));
-//     } else {
-//       dispatch(setError('Spot not found'));
-//     }
-//   } catch (error) {
-//     dispatch(setError('Error fetching spot by ID'));
-//   } finally {
-//     dispatch(setLoading(false));
-//   }
-// };
+        if (!res.ok) throw new Error('Failed to update connection status');
+        const data = await res.json();
+        dispatch({
+            type: UPDATE_CONNECTION_STATUS,
+            payload: data
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-// const initialState = {
-//   spots: [],
-//   loading: false,
-//   error: null,
-// };
+export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch(`/api/connections/${connectionId}/meeting`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ meetingStatus }),
+        });
 
-// // Reducer
-// const spotsReducer = (state = initialState, action) => {
-//   let spotsData;
-//   switch (action.type) {
+        if (!res.ok) throw new Error('Failed to update meeting status');
+        const data = await res.json();
+        dispatch({
+            type: UPDATE_MEETING_STATUS,
+            payload: data
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-//     case SET_SPOTS:
-//     //   console.log('SET_SPOTS action received with payload:', action.payload);
-//     //   console.log('Payload type:', typeof action.payload);
-//     //   console.log('Is Array?', Array.isArray(action.payload));
-//       spotsData = Array.isArray(action.payload)
-//         ? action.payload
-//         : [action.payload];
-//       return { ...state, spots: spotsData, error: null };
+export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch(`/api/connections/${connectionId}/feedback`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedback }),
+        });
 
-//     case ADD_SPOT:
-//       return { ...state, spots: [...state.spots, action.payload] };
+        if (!res.ok) throw new Error('Failed to update feedback');
+        const data = await res.json();
+        dispatch({
+            type: UPDATE_CONNECTION_FEEDBACK,
+            payload: data
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-//     case UPDATE_SPOT:
-//       return {
-//         ...state,
-//         spots: state.spots.map(spot =>
-//           spot.id === action.payload.id ? action.payload : spot
-//         ),
-//       };
+export const removeConnection = (connectionId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await fetch(`/api/connections/${connectionId}`, {
+            method: 'DELETE',
+        });
 
-//     case DELETE_SPOT:
-//       return {
-//         ...state,
-//         spots: state.spots.filter(spot => spot.id !== action.payload),
-//       };
+        if (!res.ok) throw new Error('Failed to delete connection');
+        dispatch({
+            type: DELETE_CONNECTION,
+            payload: connectionId
+        });
+    } catch (err) {
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
 
-//     case SET_LOADING:
-//       return { ...state, loading: action.payload };
+const initialState = {
+    connections: [],
+    loading: false,
+    error: null,
+};
 
-//     case SET_ERROR:
-//       return { ...state, error: action.payload };
-
-//     default:
-//       return state;
-//   }
-// };
-
-// export default spotsReducer;
+// Reducer
+const userConnectionsReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case SET_LOADING:
+            return { ...state, loading: action.payload };
+        case SET_ERROR:
+            return { ...state, error: action.payload };
+        case GET_CONNECTIONS:
+            return { ...state, connections: action.payload, error: null };
+        case ADD_CONNECTION:
+            return { ...state, connections: [...state.connections, action.payload] };
+        case UPDATE_CONNECTION_STATUS:
+            return {
+                ...state,
+                connections: state.connections.map((conn) =>
+                    conn.id === action.payload.id ? action.payload : conn
+                ),
+            };
+        case UPDATE_MEETING_STATUS:
+            return {
+                ...state,
+                connections: state.connections.map((conn) =>
+                    conn.id === action.payload.id ? action.payload : conn
+                ),
+            };
+        case UPDATE_CONNECTION_FEEDBACK:
+            return {
+                ...state,
+                connections: state.connections.map((conn) =>
+                    conn.id === action.payload.id ? action.payload : conn
+                ),
+            };
+        case DELETE_CONNECTION:
+            return {
+                ...state,
+                connections: state.connections.filter(
+                    (conn) => conn.id !== action.payload
+                ),
+            };
+        default:
+            return state;
+    }
+};
 
 export default userConnectionsReducer;

@@ -9,11 +9,12 @@ const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
 
 // Action Creators
-const setLoading = (isLoading) => ({
+export const setLoading = (isLoading) => ({
     type: SET_LOADING,
     payload: isLoading
 });
-const setError = (error) => ({
+
+export const setError = (error) => ({
     type: SET_ERROR,
     payload: error
 });

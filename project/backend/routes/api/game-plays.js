@@ -13,4 +13,5 @@
 // PUT /api/game-plays/:gamePlayId/prompt
 // Update the "talk-about" or "roast" prompt post-guess
 
+// DELETE /api/game-plays
 // Automatically deletes all game rounds after the meeting ends (batch delete)
