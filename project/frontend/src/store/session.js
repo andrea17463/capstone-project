@@ -94,15 +94,14 @@ export const logout = () => async (dispatch) => {
   }
 };
 
+// Initial State
 const initialState = { user: null };
 
 // SESSION REDUCER
 const sessionReducer = (state = initialState, action) => {
   // console.log("Received action in sessionReducer:", action);
-  if (!action || !action.type || action.type.startsWith('@@redux/')) {
-    console.error('Received undefined or invalid action in session reducer:', action);
-    return state;
-  }
+  // if (!action || typeof action.type !== 'string') return state;
+  if (action.type.startsWith('@@redux/')) return state;
 
   switch (action.type) {
     case SET_USER:

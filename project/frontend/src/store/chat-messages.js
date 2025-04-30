@@ -19,6 +19,7 @@ export const setError = (error) => ({
     payload: error
 });
 
+// Thunk Action Creators
 export const sendMessage = (messageData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
@@ -123,6 +124,7 @@ export const deleteMessage = (messageId, userId) => async (dispatch) => {
     }
 };
 
+// Initial State
 const initialState = {
     messages: [],
     chatHistory: [],
@@ -132,6 +134,7 @@ const initialState = {
 
 // Reducer
 const chatMessagesReducer = (state = initialState, action) => {
+    // if (!action || typeof action.type !== 'string') return state;
     if (action.type.startsWith('@@redux/')) return state;
 
     switch (action.type) {

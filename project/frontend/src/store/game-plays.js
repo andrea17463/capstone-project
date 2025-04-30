@@ -145,6 +145,7 @@ export const deleteAllGamePlays = () => async (dispatch) => {
     }
 };
 
+// Initial State
 const initialState = {
     gamePlays: [],
     currentGamePlay: null,
@@ -154,6 +155,9 @@ const initialState = {
 
 // Reducer
 const gamePlaysReducer = (state = initialState, action) => {
+    // if (!action || typeof action.type !== 'string') return state;
+    if (action.type.startsWith('@@redux/')) return state;
+
     switch (action.type) {
         case START_GAME:
             return {

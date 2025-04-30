@@ -145,6 +145,7 @@ export const removeConnection = (connectionId) => async (dispatch) => {
     }
 };
 
+// Initial State
 const initialState = {
     connections: [],
     loading: false,
@@ -153,6 +154,9 @@ const initialState = {
 
 // Reducer
 const userConnectionsReducer = (state = initialState, action) => {
+    // if (!action || typeof action.type !== 'string') return state;
+    if (action.type.startsWith('@@redux/')) return state;
+
     switch (action.type) {
         case SET_LOADING:
             return { ...state, loading: action.payload };
