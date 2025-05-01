@@ -8,7 +8,8 @@
     "start": "per-env",
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
-    "build": "node psql-setup-script.js"
+    "build": "node psql-setup-script.js",
+    "websocket": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +28,8 @@
     "morgan": "^1.10.0",
     "per-env": "^1.0.2",
     "pg": "^8.15.6",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",

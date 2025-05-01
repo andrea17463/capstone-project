@@ -43,6 +43,17 @@ app.use(
 
 app.use(routes);
 
+// Serve static files from React in production
+if (isProduction) {
+  const path = require('path');
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  });
+}
+
+// Error handling
 app.use((_req, _res, next) => {
   const err = new Error("The requested resource couldn't be found.");
   err.title = "Resource Not Found";

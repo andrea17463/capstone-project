@@ -11,6 +11,7 @@ import ChatMessages from './components/ChatMessages/ChatMessages';
 import GuessingGame from './components/GuessingGame/GuessingGame';
 import * as sessionActions from './store/session';
 import { useParams } from 'react-router-dom';
+import ChatBoxMock from './components/ChatBox/ChatBoxMock';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -58,8 +59,10 @@ const router = createBrowserRouter([
       { path: '/chats', element: <ChatMessagesIntro /> },
       // { path: '/chat/:user1Id/:user2Id', element: <ChatBox /> },
       { path: '/chat/123/456', element: <ChatBox /> },
+      { path: '/chat-mock', element: <ChatBoxMock /> },
       // { path: '/game/:gameId', element: <GameWrapper /> }
       { path: '/game/789', element: <GuessingGame /> },
+
     ]
   }
 ]);

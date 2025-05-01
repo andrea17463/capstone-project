@@ -85,15 +85,20 @@ const validateUserInput = [
     .withMessage('Password must be at least 6 characters long'),
 ];
 
-// GET /api/users — Retrieve the logged-in user's profile
+// GET /api/users
+// Retrieve the logged-in user's profile
 
-// POST /api/users — Create a new user in the database
+// POST /api/users
+// Create a new user in the database
 
-// PUT /api/users — Update the logged-in user's profile (e.g., interests, availability)
+// PUT /api/users
+// Update the logged-in user's profile (e.g., interests, availability)
 
-// DELETE /api/users — Delete the logged-in user's own account from the system
+// DELETE /api/users
+// Delete the logged-in user's own account from the system
 
-// GET /api/users — Retrieve the logged-in user's profile
+// GET /api/users
+// Retrieve the logged-in user's profile
 router.get('/users', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
@@ -111,7 +116,8 @@ router.get('/users', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/users — Create a new user in the database
+// POST /api/users
+// Create a new user in the database
 router.post('/users', async (req, res) => {
   const {
     full_name,
@@ -147,7 +153,8 @@ router.post('/users', async (req, res) => {
   }
 });
 
-// PUT /api/users — Update the logged-in user's profile (e.g., interests, availability)
+// PUT /api/users
+// Update the logged-in user's profile (e.g., interests, availability)
 router.put('/users', requireAuth, async (req, res) => {
   const {
     first_name,
@@ -177,7 +184,8 @@ router.put('/users', requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/users — Delete the logged-in user's own account from the system
+// DELETE /api/users
+// Delete the logged-in user's own account from the system
 router.delete('/users', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);

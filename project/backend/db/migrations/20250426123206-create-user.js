@@ -13,7 +13,14 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true,
+        allowNull: false
+      },
+      fullName: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      firstName: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       username: {
@@ -26,16 +33,28 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      hashedPassword: {
+      passwordHash: {
         type: Sequelize.STRING.BINARY,
         allowNull: false
       },
-      firstName: {
+      location: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      lastName: {
-        type: Sequelize.STRING,
+      locationRadius: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      availability: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      interests: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      objectives: {
+        type: Sequelize.TEXT,
         allowNull: false
       },
       createdAt: {
@@ -47,7 +66,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
+      }
     }, options);
   },
 

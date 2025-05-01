@@ -1,3 +1,4 @@
+// backend/db/models/index.js
 'use strict';
 
 const fs = require('fs');

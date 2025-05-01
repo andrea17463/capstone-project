@@ -6,7 +6,7 @@ import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
-  
+
   return (
     <ul>
       <li>
@@ -24,6 +24,9 @@ function Navigation({ isLoaded }) {
       )}
       <li>
         <NavLink to="/connections">Connections</NavLink>
+      </li>
+      <li>
+        <NavLink to="/chat-mock">Mock Chat</NavLink>
       </li>
       <li>
         <NavLink to="/chats">All Chats</NavLink>
