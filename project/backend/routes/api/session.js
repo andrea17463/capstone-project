@@ -12,16 +12,16 @@ const router = express.Router();
 
 router.use(restoreUser);
 
-const validateLogin = [
-  check('credential')
-    .exists({ checkFalsy: true })
-    .notEmpty()
-    .withMessage("Email or username is required"),
-  check('password')
-    .exists({ checkFalsy: true })
-    .withMessage("Password is required"),
-  handleValidationErrors
-];
+// const validateLogin = [
+//   check('credential')
+//     .exists({ checkFalsy: true })
+//     .notEmpty()
+//     .withMessage("Email or username is required"),
+//   check('password')
+//     .exists({ checkFalsy: true })
+//     .withMessage("Password is required"),
+//   handleValidationErrors
+// ];
 
 // Get the Current User / Restore session
 router.get("/", (req, res) => {

@@ -2,7 +2,7 @@
 
 ## Database Schema Design
 
-![](https://res.cloudinary.com/dk6ayq1by/image/upload/v1746016529/capstone-project-database-schema_shng4p.png)
+![](https://res.cloudinary.com/dk6ayq1by/image/upload/capstone-project-database-schema_e0x0or.png)
 
 Render.com database:
 

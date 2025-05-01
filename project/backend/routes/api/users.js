@@ -112,8 +112,6 @@ router.get('/users', requireAuth, async (req, res) => {
 });
 
 // POST /api/users — Create a new user in the database
-const bcrypt = require('bcryptjs');
-
 router.post('/users', async (req, res) => {
   const {
     full_name,
@@ -123,7 +121,8 @@ router.post('/users', async (req, res) => {
     location,
     location_radius,
     availability,
-    interests
+    interests,
+    objectives
   } = req.body;
 
   try {
@@ -137,7 +136,8 @@ router.post('/users', async (req, res) => {
       location,
       location_radius,
       availability,
-      interests
+      interests,
+      objectives
     });
 
     res.status(201).json({ message: 'User created successfully', userId: newUser.id });
@@ -154,7 +154,8 @@ router.put('/users', requireAuth, async (req, res) => {
     location,
     location_radius,
     availability,
-    interests
+    interests,
+    objectives
   } = req.body;
 
   try {
@@ -166,6 +167,7 @@ router.put('/users', requireAuth, async (req, res) => {
     user.location_radius = location_radius ?? user.location_radius;
     user.availability = availability ?? user.availability;
     user.interests = interests ?? user.interests;
+    user.objectives = objectives ?? user.objectives;
 
     await user.save();
     res.json({ message: 'Profile updated', user });
