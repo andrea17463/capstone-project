@@ -1,101 +1,65 @@
 import { useState } from 'react';
-import HoverClickDropdown from './HoverClickDropdown';
+import UserConnectionsForms from '../UserConnections/UserConnectionsForms';
 
 function UserProfile() {
-  // const [results, setResults] = useState([]);
-  const [setResults] = useState([]);
-  const [formData, setFormData] = useState({
-    interests: '',
-    objectives: '',
-    location: '',
-    'location-radius': '',
-  });
+  const [results, setResults] = useState([]);
+  const [interests, setInterests] = useState('');
+  const [objectives, setObjectives] = useState('');
+  const [location, setLocation] = useState('');
+  const [locationRadius, setLocationRadius] = useState(0);
+  const [matchType, setMatchType] = useState('any');
 
-  const handleDropdownChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleFilterResults = async () => {
+    const response = await fetch('/api/filter-results', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        interests,
+        objectives,
+        location,
+        locationRadius,
+        matchType,
+      }),
+    });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const data = await response.json();
+    console.log(data);
 
-    try {
-      const response = await fetch('/api/filter-results', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      setResults(data);
-    } catch (error) {
-      console.error('Error fetching results:', error);
-    }
+    setResults(data);
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <HoverClickDropdown
-          label="Interests"
-          name="interests"
-          options={[
-            { value: 'tech', label: 'Technology' },
-            { value: 'sports', label: 'Sports' },
-            { value: 'other', label: 'Other' },
-          ]}
-          onChange={handleDropdownChange}
-        />
+    <div>
+      <h2>User Profile</h2>
 
-        <HoverClickDropdown
-          label="Objectives"
-          name="objectives"
-          options={[
-            { value: 'networking', label: 'Networking' },
-            { value: 'learning', label: 'Learning' },
-            { value: 'having lunch', label: 'Having lunch' },
-            { value: 'venting to someone', label: 'Venting to someone' },
-            { value: 'other', label: 'Other' },
-          ]}
-          onChange={handleDropdownChange}
-        />
-
-        <HoverClickDropdown
-          label="Location"
-          name="location"
-          options={[
-            { value: 'ny', label: 'New York' },
-            { value: 'sf', label: 'San Francisco' },
-            { value: 'other', label: 'Other' },
-          ]}
-          onChange={handleDropdownChange}
-        />
-
-        <HoverClickDropdown
-          label="Location Radius"
-          name="location-radius"
-          options={[
-            { value: '10', label: '10 miles' },
-            { value: '15', label: '15 miles' },
-            { value: '20', label: '20 miles' },
-            { value: '25', label: '25 miles' },
-            { value: 'other', label: 'Other' },
-          ]}
-          onChange={handleDropdownChange}
-        />
-
-        <br />
-        <input type="submit" value="Submit" />
-      </form>
+      <UserConnectionsForms
+        setInterests={setInterests}
+        setObjectives={setObjectives}
+        setLocation={setLocation}
+        setLocationRadius={setLocationRadius}
+        setMatchType={setMatchType}
+        setResults={setResults}
+      />
 
       <hr />
 
+      <button onClick={handleFilterResults}>Filter Results</button>
+
       <h3>Filtered Results:</h3>
-      <ul>
-        {/* {results.map((item, index) => (
-          <li key={index}>{item.name}</li>
-        ))} */}
-      </ul>
-    </>
+      {results.length > 0 ? (
+        <ul>
+          {results.map((item, index) => (
+            <li key={index}>
+              <strong>{item.username}</strong> ({item.firstName}) — Interests: {item.interests}, Objectives: {item.objectives}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No results yet. Submit the form above.</p>
+      )}
+    </div>
   );
 }
 

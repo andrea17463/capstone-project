@@ -1,94 +1,159 @@
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  sendMessage,
+  getMessages,
+  editMessage,
+  deleteMessage,
+  addIncomingMessage
+} from '../../store/chat-messages';
+import { selectMessages } from '../../store/selectors';
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+const ChatBox = ({ user1Id, user2Id }) => {
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.chatMessages?.loading);
+  const error = useSelector((state) => state.chatMessages?.error);
+  const messages = useSelector(selectMessages);
 
-const ChatBox = () => {
-  const { user1Id, user2Id } = useParams();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [isSending, setIsSending] = useState(false);
   const socketRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
+  // Setup WebSocket connection
   useEffect(() => {
-    const loadMessages = async () => {
-      const res = await fetch(`/api/messages/${user2Id}`);
-      const data = await res.json();
-      setMessages(data);
-    };
-    loadMessages();
-  }, [user2Id]);
+    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:3001';
+    socketRef.current = new WebSocket(WS_BASE_URL);
 
-  useEffect(() => {
-    socketRef.current = new WebSocket('ws://localhost:8080');
     socketRef.current.onopen = () => {
-      socketRef.current.send(JSON.stringify({ type: 'join', userId: user1Id }));
-    };
-    socketRef.current.onmessage = (event) => {
-      const incoming = JSON.parse(event.data);
-      if (incoming.type === 'chat') {
-        setMessages((prev) => [...prev, incoming]);
+      console.log('WebSocket connected');
+      if (user1Id) {
+        socketRef.current.send(JSON.stringify({ type: 'join', userId: user1Id }));
       }
     };
-    return () => socketRef.current?.close();
-  }, [user1Id]);
 
-  const sendMessage = async () => {
+    socketRef.current.onmessage = (event) => {
+      try {
+        const incoming = JSON.parse(event.data);
+        if (incoming.type === 'chat') {
+          dispatch(addIncomingMessage(incoming));
+        } else if (incoming.type === 'typing') {
+          console.log(`${incoming.userId} is typing...`);
+        }
+      } catch (err) {
+        console.error('Invalid message format:', err);
+      }
+    };
+
+    socketRef.current.onerror = (err) => {
+      console.error('WebSocket error:', err);
+    };
+
+    socketRef.current.onclose = () => {
+      console.warn('WebSocket disconnected.');
+    };
+
+    return () => {
+      socketRef.current?.close();
+      clearTimeout(typingTimeoutRef.current);
+    };
+  }, [user1Id, dispatch]);
+
+  useEffect(() => {
+    if (user2Id) {
+      dispatch(getMessages(user2Id));
+    }
+  }, [user2Id, dispatch]);
+
+  const handleSendMessage = useCallback(async () => {
     if (!message.trim()) return;
 
-    if (editingIndex !== null) {
-      const msgToEdit = messages[editingIndex];
-      const res = await fetch(`/api/messages/${msgToEdit.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: message }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        const newMessages = [...messages];
-        newMessages[editingIndex] = updated;
-        setMessages(newMessages);
+    setIsSending(true);
+
+    try {
+      if (editingIndex !== null) {
+        const msgToEdit = messages[editingIndex];
+        await dispatch(editMessage(msgToEdit._id, { content: message }));
         setEditingIndex(null);
-        setMessage('');
+      } else {
+        await dispatch(sendMessage({ receiverId: user2Id, content: message }));
       }
-      return;
-    }
 
-    const res = await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ receiverId: user2Id, content: message }),
-    });
-    if (res.ok) {
-      const newMsg = await res.json();
-      socketRef.current.send(JSON.stringify({ ...newMsg, type: 'chat' }));
-      setMessages((prev) => [...prev, newMsg]);
+      // Send WebSocket broadcast
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.send(
+          JSON.stringify({
+            type: 'chat',
+            userId: user1Id,
+            receiverId: user2Id,
+            content: message
+          })
+        );
+      }
+
       setMessage('');
+    } finally {
+      setIsSending(false);
     }
-  };
+  }, [message, editingIndex, user2Id, user1Id, dispatch, messages]);
 
-  const editMessage = (index) => {
-    setEditingIndex(index);
-    setMessage(messages[index].content);
-  };
+  const handleTyping = useCallback(() => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
-  const cancelEdit = () => {
+    typingTimeoutRef.current = setTimeout(() => {
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.send(
+          JSON.stringify({
+            type: 'typing',
+            userId: user1Id,
+            receiverId: user2Id
+          })
+        );
+      }
+    }, 500);
+  }, [user1Id, user2Id]);
+
+  const formatTimestamp = useCallback((timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  }, []);
+
+  const handleCancelEdit = () => {
     setEditingIndex(null);
     setMessage('');
   };
 
-  const deleteMessage = async (index) => {
-    const msg = messages[index];
-    const res = await fetch(`/api/messages/${msg.id}`, { method: 'DELETE' });
-    if (res.ok) {
-      const updated = messages.filter((_, i) => i !== index);
-      setMessages(updated);
-    }
-  };
+  const renderedMessages = useMemo(() => {
+    const handleEdit = (index) => {
+      setEditingIndex(index);
+      setMessage(messages[index].content);
+    };
 
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
-  };
+    const handleDelete = async (index) => {
+      const msg = messages[index];
+      await dispatch(deleteMessage(msg.id, user1Id));
+    };
+
+    return messages.map((msg, index) => (
+      <li key={msg.id}>
+        <div>
+          <strong>{msg.sender?.username || msg.senderId}</strong>: {msg.content}
+        </div>
+        <div style={{ fontSize: '0.8em', color: '#666' }}>
+          {formatTimestamp(msg.createdAt || msg.timestamp)}
+        </div>
+        {String(msg.senderId) === String(user1Id) && (
+          <div>
+            <button onClick={() => handleEdit(index)}>Edit</button>
+            <button onClick={() => handleDelete(index)}>Delete</button>
+          </div>
+        )}
+      </li>
+    ));
+  }, [messages, formatTimestamp, dispatch, user1Id]);
 
   return (
     <div>
@@ -96,34 +161,26 @@ const ChatBox = () => {
 
       <textarea
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={(e) => {
+          setMessage(e.target.value);
+          handleTyping();
+        }}
         placeholder="Type a message..."
       />
+
       <div>
-        <button onClick={sendMessage}>
-          {editingIndex !== null ? 'Save' : 'Send'}
+        <button onClick={handleSendMessage} disabled={isSending}>
+          {isSending ? 'Sending...' : editingIndex !== null ? 'Save' : 'Send'}
         </button>
-        {editingIndex !== null && <button onClick={cancelEdit}>Cancel</button>}
+        {editingIndex !== null && (
+          <button onClick={handleCancelEdit}>Cancel</button>
+        )}
       </div>
 
-      <ul>
-        {messages.map((msg, index) => (
-          <li key={msg.id}>
-            <div>
-              <strong>{msg.sender?.username || msg.senderId}</strong>: {msg.content}
-            </div>
-            <div style={{ fontSize: '0.8em', color: '#666' }}>
-              {formatTimestamp(msg.createdAt || msg.timestamp)}
-            </div>
-            {String(msg.senderId) === String(user1Id) && (
-              <div>
-                <button onClick={() => editMessage(index)}>Edit</button>
-                <button onClick={() => deleteMessage(index)}>Delete</button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      {loading && <div>Loading...</div>}
+      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+
+      <ul>{renderedMessages}</ul>
     </div>
   );
 };

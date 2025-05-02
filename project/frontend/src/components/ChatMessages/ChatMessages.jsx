@@ -9,7 +9,8 @@ const ChatMessages = () => {
 
   // WebSocket setup
   useEffect(() => {
-    const socketConnection = new WebSocket('ws://localhost:8080');
+    // const socketConnection = new WebSocket('ws://localhost:8080');
+    const socketConnection = new WebSocket('ws://localhost:3001');
 
     socketConnection.onopen = () => {
       console.log('WebSocket connection established');

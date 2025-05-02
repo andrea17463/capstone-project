@@ -26,16 +26,13 @@ function Navigation({ isLoaded }) {
         <NavLink to="/connections">Connections</NavLink>
       </li>
       <li>
-        <NavLink to="/chat-mock">Mock Chat</NavLink>
-      </li>
-      <li>
         <NavLink to="/chats">All Chats</NavLink>
       </li>
       <li>
-        <NavLink to="/chat/123/456">Specific Chats</NavLink>
+        <NavLink to="/chat/:user1Id/:user2Id">Specific Chats</NavLink>
       </li>
       <li>
-        <NavLink to="/game/789">Guess Me Game</NavLink>
+        <NavLink to="/game/:gameId">Guess Me Game</NavLink>
       </li>
     </ul>
   );
