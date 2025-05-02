@@ -1,6 +1,7 @@
 // frontend/src/store/chat-messages.js
 // Action Types
 const SEND_MESSAGE = 'SEND_MESSAGE';
+const ADD_INCOMING_MESSAGE = 'ADD_INCOMING_MESSAGE';
 const GET_MESSAGES = 'GET_MESSAGES';
 const EDIT_MESSAGE = 'EDIT_MESSAGE';
 const DELETE_MESSAGE = 'DELETE_MESSAGE';
@@ -17,6 +18,11 @@ export const setLoading = (isLoading) => ({
 export const setError = (error) => ({
     type: SET_ERROR,
     payload: error
+});
+
+export const addIncomingMessage = (message) => ({
+    type: ADD_INCOMING_MESSAGE,
+    payload: message
 });
 
 // Thunk Action Creators
@@ -36,6 +42,7 @@ export const sendMessage = (messageData) => async (dispatch) => {
             type: SEND_MESSAGE,
             payload: data
         });
+        return data;
     } catch (error) {
         dispatch(setError(error.message));
     } finally {
@@ -104,10 +111,12 @@ export const editMessage = (messageId, updatedMessage) => async (dispatch) => {
     }
 };
 
-export const deleteMessage = (messageId, userId) => async (dispatch) => {
+export const deleteMessage = (messageId) => async (dispatch) => {
+
     dispatch(setLoading(true));
     try {
-        const response = await fetch(`/api/messages/${messageId}/${userId}`, {
+        const response = await fetch(`/api/messages/${messageId}`, {
+
             method: 'DELETE',
         });
 
@@ -144,6 +153,12 @@ const chatMessagesReducer = (state = initialState, action) => {
                 messages: [...state.messages, action.payload],
                 error: null,
             };
+        case ADD_INCOMING_MESSAGE:
+            return {
+                ...state,
+                messages: [...state.messages, action.payload],
+                error: null
+            };
         case GET_MESSAGES:
             return {
                 ...state,
@@ -160,14 +175,14 @@ const chatMessagesReducer = (state = initialState, action) => {
             return {
                 ...state,
                 messages: state.messages.map((msg) =>
-                    msg._id === action.payload._id ? action.payload : msg
+                    msg.id === action.payload._id ? action.payload : msg
                 ),
                 error: null,
             };
         case DELETE_MESSAGE:
             return {
                 ...state,
-                messages: state.messages.filter((msg) => msg._id !== action.payload),
+                messages: state.messages.filter((msg) => msg.id !== action.payload),
                 error: null,
             };
         case SET_LOADING:

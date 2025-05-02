@@ -73,7 +73,7 @@ router.get('/game-plays', requireAuth, async (req, res) => {
 // Start a new game round (requires active meeting)
 router.post('/game-plays', requireAuth, async (req, res) => {
   const userId = req.user.id;
-  const { user_1_id, user_2_id, trait_name, trait_description, interaction_type } = req.body;
+  const { user_1_id, user_2_id, traitName, traitDescription, interactionType } = req.body;
 
   try {
     if (![user_1_id, user_2_id].includes(userId)) {
@@ -86,8 +86,8 @@ router.post('/game-plays', requireAuth, async (req, res) => {
           { user_1_id, user_2_id },
           { user_1_id: user_2_id, user_2_id: user_1_id }
         ],
-        connection_status: 'active',
-        meeting_status: 'active'
+        connectionStatus: 'active',
+        meetingStatus: 'active'
       }
     });
 
@@ -98,9 +98,9 @@ router.post('/game-plays', requireAuth, async (req, res) => {
     const newGame = await GamePlay.create({
       user_1_id,
       user_2_id,
-      trait_name,
-      trait_description,
-      interaction_type,
+      traitName,
+      traitDescription,
+      interactionType,
       status: 'active'
     });
 
@@ -115,15 +115,15 @@ router.post('/game-plays', requireAuth, async (req, res) => {
 // Update a guess result (e.g., correct/incorrect)
 router.put('/game-plays/:gamePlayId/guess', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
-  const { guessed_value, is_correct, user_id } = req.body;
+  const { guessedValue, isCorrect, user_id } = req.body;
 
   try {
     const game = await GamePlay.findByPk(gamePlayId);
 
     if (!game) return res.status(404).json({ error: 'Game not found' });
 
-    game.guessed_value = guessed_value;
-    game.is_correct = is_correct;
+    game.guessedValue = guessedValue;
+    game.isCorrect = isCorrect;
     game.user_id = user_id;
     await game.save();
 
@@ -138,14 +138,14 @@ router.put('/game-plays/:gamePlayId/guess', requireAuth, async (req, res) => {
 // Update the "talk-about" or "roast" prompt post-guess
 router.put('/game-plays/:gamePlayId/prompt', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
-  const { prompt_text, user_id } = req.body;
+  const { promptText, user_id } = req.body;
 
   try {
     const game = await GamePlay.findByPk(gamePlayId);
 
     if (!game) return res.status(404).json({ error: 'Game not found' });
 
-    game.prompt_text = prompt_text;
+    game.promptText = promptText;
     game.user_id = user_id;
     game.status = 'completed';
     await game.save();

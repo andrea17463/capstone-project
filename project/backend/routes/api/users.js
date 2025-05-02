@@ -103,7 +103,7 @@ router.get('/users', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
       attributes: {
-        exclude: ['password_hash', 'full_name', 'email']
+        exclude: ['hashedPassword', 'fullName', 'email']
       }
     });
 
@@ -120,12 +120,12 @@ router.get('/users', requireAuth, async (req, res) => {
 // Create a new user in the database
 router.post('/users', async (req, res) => {
   const {
-    full_name,
-    first_name,
+    fullName,
+    firstName,
     email,
     password,
     location,
-    location_radius,
+    locationRadius,
     availability,
     interests,
     objectives
@@ -135,12 +135,12 @@ router.post('/users', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      full_name,
-      first_name,
+      fullName,
+      firstName,
       email,
-      password_hash: hashedPassword,
+      hashedPassword,
       location,
-      location_radius,
+      locationRadius,
       availability,
       interests,
       objectives
@@ -159,7 +159,7 @@ router.put('/users', requireAuth, async (req, res) => {
   const {
     first_name,
     location,
-    location_radius,
+    locationRadius,
     availability,
     interests,
     objectives
@@ -171,7 +171,7 @@ router.put('/users', requireAuth, async (req, res) => {
 
     user.first_name = first_name ?? user.first_name;
     user.location = location ?? user.location;
-    user.location_radius = location_radius ?? user.location_radius;
+    user.locationRadius = locationRadius ?? user.locationRadius;
     user.availability = availability ?? user.availability;
     user.interests = interests ?? user.interests;
     user.objectives = objectives ?? user.objectives;
@@ -196,6 +196,30 @@ router.delete('/users', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
+// POST /api/filter-results
+router.post('/filter-results', async (req, res) => {
+  const { interests, objectives, location, locationRadius } = req.body;
+
+  try {
+    const filteredUsers = await User.findAll({
+      where: {
+        interests: { [Op.like]: `%${interests.toLowerCase()}%` },
+        objectives: { [Op.like]: `%${objectives.toLowerCase()}%` },
+        location: { [Op.like]: `%${location.toLowerCase()}%` },
+        locationRadius: {
+          [Op.lte]: parseInt(locationRadius) || 0
+        }
+      },
+      attributes: ['id', 'username', 'location', 'interests', 'objectives']
+    });
+
+    return res.json(filteredUsers);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

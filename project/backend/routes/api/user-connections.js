@@ -2,9 +2,10 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const { requireAuth, restoreUser } = require('../../utils/auth');
-const { Connection, User } = require('../../db/models');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
+// const { UserConnection, User } = require('../../db/models');
+const { UserConnection } = require('../../db/models');
+// const { check } = require('express-validator');
+// const { handleValidationErrors } = require('../../utils/validation');
 
 const router = express.Router();
 router.use(restoreUser);
@@ -84,17 +85,17 @@ router.get('/connections/:userId', requireAuth, async (req, res) => {
 // Create a new connection (e.g., a match or meeting request)
 router.post('/connections', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
-  const { user_2_id, suggested_activity, meeting_time } = req.body;
+  const { user_2_id, suggestedActivity, meetingTime } = req.body;
 
   try {
     const newConnection = await UserConnection.create({
       user_1_id: user1Id,
       user_2_id,
       connection_status: 'pending',
-      chat_enabled: false,
-      meeting_status: 'pending',
-      suggested_activity,
-      meeting_time
+      chatEnabled: false,
+      meetingStatus: 'pending',
+      suggestedActivity,
+      meetingTime
     });
 
     res.status(201).json(newConnection);
@@ -108,13 +109,13 @@ router.post('/connections', requireAuth, async (req, res) => {
 // Update connection status (e.g., "pending" → "accepted")
 router.put('/connections/:connectionId/status', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
-  const { connection_status } = req.body;
+  const { connectionStatus } = req.body;
 
   try {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    connection.connection_status = connection_status;
+    connection.connectionStatus = connectionStatus;
     await connection.save();
 
     res.json(connection);
@@ -128,13 +129,13 @@ router.put('/connections/:connectionId/status', requireAuth, async (req, res) =>
 // Update meeting status (e.g., "pending" → "confirmed")
 router.put('/connections/:connectionId/meeting', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
-  const { meeting_status } = req.body;
+  const { meetingStatus } = req.body;
 
   try {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    connection.meeting_status = meeting_status;
+    connection.meetingStatus = meetingStatus;
     await connection.save();
 
     res.json(connection);
@@ -156,9 +157,9 @@ router.put('/connections/:connectionId/feedback', requireAuth, async (req, res) 
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
     if (userId === connection.user_1_id) {
-      connection.meet_again_choice_user_1 = meetAgain;
+      connection.meetAgainChoiceUser1 = meetAgain;
     } else if (userId === connection.user_2_id) {
-      connection.meet_again_choice_user_2 = meetAgain;
+      connection.meetAgainChoiceUser2 = meetAgain;
     } else {
       return res.status(403).json({ error: 'Not authorized to give feedback on this connection' });
     }

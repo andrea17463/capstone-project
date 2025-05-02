@@ -2,14 +2,12 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { thunk } from 'redux-thunk';
 import sessionReducer from './session';
-// import <name-of-reducer>Reducer from './<name-of-model-plural>';
 import chatMessagesReducer from './chat-messages';
 import gamePlaysReducer from './game-plays';
 import userConnectionsReducer from './user-connections';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
-  // <name-of-model-plural>: <name-of-reducer>Reducer
   chatmessages: chatMessagesReducer,
   gameplays: gamePlaysReducer,
   userconnections: userConnectionsReducer

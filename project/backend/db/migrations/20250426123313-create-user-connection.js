@@ -49,11 +49,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       },
-      meet_again_choice_user_1: {
+      meetAgainChoiceUser1: {
         type: Sequelize.BOOLEAN,
         allowNull: true
       },
-      meet_again_choice_user_2: {
+      meetAgainChoiceUser2: {
         type: Sequelize.BOOLEAN,
         allowNull: true
       },
@@ -69,7 +69,6 @@ module.exports = {
       },
     }, options);
   },
-
   async down(queryInterface, Sequelize) {
     options.tableName = "UserConnections";
     return queryInterface.dropTable(options);

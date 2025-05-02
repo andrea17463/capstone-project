@@ -1,15 +1,19 @@
 // backend/server.js
-const express = require('express');
+// const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const { sequelize } = require('./db/models');
 const app = require('./app');
 
-const PORT = process.env.PORT || 3001; // HTTP server port
-const WS_PORT = 8080;  // WebSocket server port
+const PORT = process.env.PORT || 3001;  // HTTP and WebSocket on the same port
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ port: WS_PORT });
+const wss = new WebSocket.Server({ server }); // Use the HTTP server for WebSocket
+
+// Start WebSocket server
+wss.on('listening', () => {
+    console.log(`WebSocket server is running (shared with HTTP on port ${PORT})`);
+});
 
 wss.on('connection', (ws) => {
     console.log('WebSocket client connected.');
@@ -47,6 +51,6 @@ sequelize.sync().then(() => {
     });
     // Start WebSocket server
     wss.on('listening', () => {
-        console.log(`WebSocket server running on port ${WS_PORT}`);
+        console.log(`WebSocket server running on port ${PORT}`);
     });
 });

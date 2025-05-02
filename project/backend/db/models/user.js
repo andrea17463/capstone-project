@@ -1,12 +1,20 @@
 'use strict';
 
-const { Model, Validator } = require('sequelize');
+const { Model } = require('sequelize');
+const Validator = require('validator');
 // const sequelize = require('../../config/database');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // // define association here
+      User.hasMany(models.UserConnection, {
+        foreignKey: 'user_1_id',
+        as: 'connectionsAsUser1'
+      });
+      User.hasMany(models.UserConnection, {
+        foreignKey: 'user_2_id',
+        as: 'connectionsAsUser2'
+      });
     }
   }
   User.init({
@@ -18,10 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         len: [4, 30],
         isNotEmail(value) {
           if (Validator.isEmail(value)) {
-            throw new Error('Cannot be an email.');
+            throw new Error('Username cannot be an email.');
           }
-        },
-      },
+        }
+      }
     },
     email: {
       type: DataTypes.STRING,
@@ -29,38 +37,63 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       validate: {
         len: [3, 256],
-        isEmail: true,
-      },
+        isEmail: true
+      }
     },
     hashedPassword: {
-      type: DataTypes.STRING.BINARY,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [60, 60],
-      },
+        len: [60, 60]
+      }
     },
     firstName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
-    lastName: {
+    fullName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true
     },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    locationRadius: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    availability: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    interests: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    objectives: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
   }, {
-      sequelize,
-      modelName: 'User',
-      tableName: 'Users',
-      defaultScope: {
-        attributes: {
-          exclude: [
-            'hashedPassword',
-            'email',
-            'createdAt',
-            'updatedAt'],
-        }
+    sequelize,
+    modelName: 'User',
+    tableName: 'Users',
+    underscored: false,
+    defaultScope: {
+      attributes: {
+        exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt']
+      }
+    },
+    scopes: {
+      currentUser: {
+        attributes: { exclude: ['hashedPassword'] }
+      },
+      loginUser: {
+        attributes: {}
       }
     }
-  );
+  });
+
   return User;
 };

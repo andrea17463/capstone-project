@@ -16,28 +16,32 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       },
-      sender_id: {
+      senderId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: 'Users', key: 'id' },
         onDelete: 'CASCADE'
       },
-      receiver_id: {
+      receiverId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: 'Users', key: 'id' },
         onDelete: 'CASCADE'
       },
-      message: {
+      content: {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      deleted_by_sender: {
+      editedAt: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      deletedBySender: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      deleted_by_receiver: {
+      deletedByReceiver: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
@@ -52,9 +56,8 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    }, options);
+    });
   },
-
   async down(queryInterface, Sequelize) {
     options.tableName = "ChatMessages";
     return queryInterface.dropTable(options);

@@ -6,10 +6,16 @@ router.use(restoreUser);
 
 const sessionRouter = require('./session.js');
 const usersRouter = require('./users.js');
-// const <name-of-model-plural>Router = require('/<name-of-model-plural>');
+const chatMessagesRouter = require('./chat-messages.js');
+const gameplaysRouter = require('./game-plays.js');
+const userconnectionsRouter = require('./user-connections.js');
+const filterResultsRouter = require('./filter-results');
 
 router.use('/session', sessionRouter);
 router.use('/users', usersRouter);
-// router.use('/<name-of-model-plural>', <name-of-model-plural>Router);
+router.use('/chat-messages', chatMessagesRouter);
+router.use('/game-plays', gameplaysRouter);
+router.use('/user-connections', userconnectionsRouter);
+router.use('/filter-results', filterResultsRouter);
 
 module.exports = router;
