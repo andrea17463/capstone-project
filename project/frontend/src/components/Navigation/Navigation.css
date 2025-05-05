@@ -1,27 +1,40 @@
+/* frontend/src/components/Navigation/Navigation.css */
 div {
-    width: 50vw;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    padding: 10px;
-  }
+  width: 50vw;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 10px;
+}
 
-  a {
-    color: rgb(77, 74, 74);
-    text-decoration: none;
-    font-size: 1.1em;
-  }
+a {
+  /* color: rgb(77, 74, 74); */
+  background: black;
+  color: white;
+  text-decoration: none;
+  font-size: 1.1em;
+}
 
-  .active {
-    color: rgb(51, 51, 51);
-    font-weight: bold;
-    font-size: 1.2em;
-    padding: 1px;
-  }
+.active {
+  /* color: rgb(51, 51, 51); */
+  /* color: #1a1a1a; */
+  /* color: #2b2b2b; */
+  /* color: red; */
+  /* color: #2E003E; */
+  /* color: #311B3F; */
+  /* color: #702963; */
+  color: #003153;
+  /* background: black; */
+  /* color: white; */
+  font-weight: bold;
+  font-size: 1.2em;
+  padding: 1px;
+}
 
-  li {
-    color: rgb(77, 74, 74);
-  }
+li {
+  /* color: rgb(77, 74, 74); */
+  color: black;
+}
 
 /*
   form {
@@ -36,20 +49,43 @@ div {
   }
 */
 
-  input {
-    width: 100%;
-    padding: 0.5rem;
-  }
+input {
+  width: 100%;
+  padding: 0.5rem;
+}
 
-  .profile-dropdown {
-    position: absolute;
-    background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    list-style: none;
-    padding: 10px;
-    border-radius: 5px;
-  }
+.profile-dropdown {
+  position: absolute;
+  background-color: white;
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+  box-shadow: 0 4px 6px black;
+  list-style: none;
+  padding: 10px;
+  border-radius: 5px;
+}
 
-  .hidden {
-    display: none;
-  }
+.hidden {
+  display: none;
+}
+
+.profile-dropdown li {
+  background: white;
+  color: black;
+}
+
+.navigation span {
+  display: inline-block;
+  /* margin-right: 15px; */
+  margin-right: 200px;
+  margin-left: 200px;
+}
+
+/* .profile-dropdown .focused {
+  position: absolute;
+  background-color: white;
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+/*   box-shadow: 0 4px 6px black;
+  list-style: none;
+  padding: 10px;
+  border-radius: 5px;
+} */

@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import UserConnectionsForms from '../UserConnections/UserConnectionsForms';
+import { restoreUser } from '../../store/session';
 
 function UserProfile() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.session.user);
   const [results, setResults] = useState([]);
   const [interests, setInterests] = useState('');
   const [objectives, setObjectives] = useState('');
@@ -9,25 +14,44 @@ function UserProfile() {
   const [locationRadius, setLocationRadius] = useState(0);
   const [matchType, setMatchType] = useState('any');
 
-  const handleFilterResults = async () => {
-    const response = await fetch('/api/filter-results', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        interests,
-        objectives,
-        location,
-        locationRadius,
-        matchType,
-      }),
-    });
+  useExtractCookiesCsrfToken();
 
-    const data = await response.json();
-    console.log(data);
+  useEffect(() => {
+    dispatch(restoreUser());
+  }, [dispatch]);
 
-    setResults(data);
+  const handleCancel = async () => {
+
+    const csrfToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+
+    try {
+      const response = await fetch('/api/filter-results/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          interests,
+          objectives,
+          location,
+          locationRadius,
+          matchType,
+          userId: user?.id,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      setResults(data);
+    } catch (error) {
+      console.error('Failed to reset filter results:', error);
+    }
   };
 
   return (
@@ -45,7 +69,7 @@ function UserProfile() {
 
       <hr />
 
-      <button onClick={handleFilterResults}>Filter Results</button>
+      <button onClick={handleCancel}>Clear Filter Results</button>
 
       <h3>Filtered Results:</h3>
       {results.length > 0 ? (

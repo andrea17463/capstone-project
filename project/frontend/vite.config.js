@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => ({
   // }
   server: {
     proxy: {
-      // '/api': 'http://localhost:8000'
-      '/api': 'http://localhost:3001',
+      '/api': 'http://localhost:8000'
+      // '/api': 'http://localhost:3001',
       // '/ws': 'ws://localhost:8080',
     },
   }

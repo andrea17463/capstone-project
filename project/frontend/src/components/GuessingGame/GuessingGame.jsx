@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-// import './GamePlay.css';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+import './GuessingGame.css';
 
 const GamePlay = () => {
   const allCards =
@@ -561,6 +562,8 @@ const GamePlay = () => {
   const [showAddPlayerForm, setShowAddPlayerForm] = useState(false);
   const [showRemovePlayerForm, setShowRemovePlayerForm] = useState(false);
   const [playerToRemove, setPlayerToRemove] = useState("");
+
+  useExtractCookiesCsrfToken();
 
   useEffect(() => {
     let total = 0;

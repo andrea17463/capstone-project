@@ -1,4 +1,3 @@
-// backend/utils/auth.js
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User } = require('../db/models');
@@ -17,22 +16,25 @@ const setTokenCookie = (res, user) => {
     { expiresIn: parseInt(expiresIn) }
   );
   const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie('token', token, {
     maxAge: expiresIn * 1000,
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction && "Lax"
+    sameSite: isProduction ? "Lax" : "Strict",
   });
+
   return token;
 };
 
 const restoreUser = (req, res, next) => {
   const { token } = req.cookies;
-  // console.log("Token from cookies:", token);
-  // console.log(req.cookies);
+
   req.user = null;
   if (!token) return next();
-  return jwt.verify(token, secret, null, async (err, jwtPayload) => {
+
+  // return jwt.verify(token, secret, null, async (err, jwtPayload) => {
+  return jwt.verify(token, secret, async (err, jwtPayload) => {
     if (err) {
       console.log("JWT Verification Error:", err);
       return next();
@@ -42,17 +44,19 @@ const restoreUser = (req, res, next) => {
       const { id } = jwtPayload.data;
       req.user = await User.findByPk(id, {
         attributes: {
-          include: ['email', 'createdAt', 'updatedAt']
+          include: ['email', 'createdAt', 'updatedAt'],
         }
       });
     } catch (e) {
       console.log("Error finding user:", e);
       res.clearCookie('token');
     }
+
     if (!req.user) {
-      // console.log("User not found, clearing token");
+      console.log("User not found, clearing token");
       res.clearCookie('token');
     }
+
     return next();
   });
 };

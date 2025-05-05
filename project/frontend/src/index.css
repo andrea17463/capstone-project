@@ -1,1 +1,21 @@
 /* TODO: Add sitewide styles */
+html,
+body,
+p,
+h1,
+h2,
+h3,
+h4 {
+  height: 100%;
+  margin: 0;
+  background: black;
+  /* background: #2b2b2b; */
+  color: white;
+}
+
+/* li {
+background-color: black;
+color: white;
+    } */
+
+/* background-color: black; */

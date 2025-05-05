@@ -33,7 +33,7 @@ router.use(restoreUser);
 
 // GET /api/connections
 // Get all connections for the current user
-router.get('/connections', requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -56,7 +56,7 @@ router.get('/connections', requireAuth, async (req, res) => {
 
 // GET /api/connections/:userId
 // Get specific connection between current user and another user
-router.get('/connections/:userId', requireAuth, async (req, res) => {
+router.get('/:userId', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
   const userId2 = req.params.userId;
 
@@ -83,7 +83,7 @@ router.get('/connections/:userId', requireAuth, async (req, res) => {
 
 // POST /api/connections
 // Create a new connection (e.g., a match or meeting request)
-router.post('/connections', requireAuth, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
   const { user_2_id, suggestedActivity, meetingTime } = req.body;
 
@@ -107,7 +107,7 @@ router.post('/connections', requireAuth, async (req, res) => {
 
 // PUT /api/connections/:connectionId/status
 // Update connection status (e.g., "pending" → "accepted")
-router.put('/connections/:connectionId/status', requireAuth, async (req, res) => {
+router.put('/:connectionId/status', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
   const { connectionStatus } = req.body;
 
@@ -127,7 +127,7 @@ router.put('/connections/:connectionId/status', requireAuth, async (req, res) =>
 
 // PUT /api/connections/:connectionId/meeting
 // Update meeting status (e.g., "pending" → "confirmed")
-router.put('/connections/:connectionId/meeting', requireAuth, async (req, res) => {
+router.put('/:connectionId/meeting', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
   const { meetingStatus } = req.body;
 
@@ -147,7 +147,7 @@ router.put('/connections/:connectionId/meeting', requireAuth, async (req, res) =
 
 // PUT /api/connections/:connectionId/feedback
 // Indicate whether the user wants to meet again
-router.put('/connections/:connectionId/feedback', requireAuth, async (req, res) => {
+router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
   const userId = req.user.id;
   const { meetAgain } = req.body;
@@ -174,7 +174,7 @@ router.put('/connections/:connectionId/feedback', requireAuth, async (req, res) 
 
 // DELETE /api/connections/:connectionId
 // Remove/cancel a connection
-router.delete('/connections/:connectionId', requireAuth, async (req, res) => {
+router.delete('/:connectionId', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
 
   try {

@@ -1,40 +1,43 @@
 // frontend/src/components/Navigation/Navigation.jsx
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
 
+  useExtractCookiesCsrfToken();
+
   return (
-    <ul>
-      <li>
+    <nav className="navigation">
+      <span>
         <NavLink to="/">Home</NavLink>
-      </li>
+      </span>
       {isLoaded && (
         <>
-          <li>
+          <span>
             <ProfileButton user={sessionUser} />
-          </li>
-          <li>
+          </span>
+          <span>
             <NavLink to="/profile">Profile</NavLink>
-          </li>
+          </span>
         </>
       )}
-      <li>
+      <span>
         <NavLink to="/connections">Connections</NavLink>
-      </li>
-      <li>
+      </span>
+      <span>
         <NavLink to="/chats">All Chats</NavLink>
-      </li>
-      <li>
+      </span>
+      <span>
         <NavLink to="/chat/:user1Id/:user2Id">Specific Chats</NavLink>
-      </li>
-      <li>
+      </span>
+      <span>
         <NavLink to="/game/:gameId">Guess Me Game</NavLink>
-      </li>
-    </ul>
+      </span>
+    </nav>
   );
 }
 

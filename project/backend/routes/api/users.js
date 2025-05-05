@@ -200,8 +200,14 @@ router.delete('/users', requireAuth, async (req, res) => {
 });
 
 // POST /api/filter-results
-router.post('/filter-results', async (req, res) => {
+router.post('/filter-results', requireAuth, async (req, res) => {
   const { interests, objectives, location, locationRadius } = req.body;
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User not authenticated or invalid user data' });
+  }
 
   try {
     const filteredUsers = await User.findAll({

@@ -53,10 +53,12 @@ module.exports = {
         email: 'user3@user.io',
         username: 'FakeUser3',
         hashedPassword: bcrypt.hashSync('password4'),
-        location: 'San Francisco, CA',
+        // location: 'San Francisco, CA',
+        location: 'New York, NY',
         locationRadius: 35,
         availability: 'Weekdays, 9AM-5PM',
-        interests: 'Art, Hiking, Food',
+        // interests: 'Art, Hiking, Food',
+        interests: 'Art, Hiking, Food, Technology',
         objectives: 'Networking, Personal Growth'
       },
       {

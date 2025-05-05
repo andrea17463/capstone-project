@@ -1,0 +1,11 @@
+/* frontend/src/components/GuessingGame/GuessingGame.css */
+p,
+li,
+body,
+h1,
+h2,
+h3,
+h4 {
+    color: white;
+    background-color: black;
+}
