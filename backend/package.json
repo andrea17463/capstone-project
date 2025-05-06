@@ -11,7 +11,7 @@
     "build": "node psql-setup-script.js",
     "dev": "nodemon ./bin/www",
     "websocket": "node server.js",
-    "resetDb":"npx sequelize db:seed:undo:all && npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all"
+    "resetDb": "npx sequelize db:seed:undo:all && npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all"
   },
   "keywords": [],
   "author": "",
@@ -31,10 +31,10 @@
     "per-env": "^1.0.2",
     "pg": "^8.15.6",
     "sequelize": "^6.37.7",
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "dotenv": "^16.5.0"
   },
   "devDependencies": {
-    "dotenv": "^16.5.0",
     "nodemon": "^3.1.10",
     "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7"
