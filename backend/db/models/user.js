@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'Users',
+    // tableName: 'Users',
     underscored: false,
     defaultScope: {
       attributes: {

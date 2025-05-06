@@ -20,14 +20,14 @@ module.exports = (sequelize, DataTypes) => {
     senderId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id'
       }
     },
     receiverId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id'
       }
     },
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ChatMessage',
-    tableName: 'ChatMessages',
+    // tableName: 'ChatMessages',
     underscored: false,
     timestamps: true
   });
