@@ -32,11 +32,11 @@
     "pg": "^8.15.6",
     "sequelize": "^6.37.7",
     "ws": "^8.18.1",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "sequelize-cli": "^6.6.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
-    "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7"
   }
 }
