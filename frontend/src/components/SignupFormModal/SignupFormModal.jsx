@@ -1,7 +1,6 @@
 // frontend/src/components/SignupFormPage/SignupFormPage.jsx
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-// import { useModal } from '../../context/Modal';
 import { useModal } from '../../context/useModal';
 import * as sessionActions from '../../store/session';
 import './SignupForm.css';
@@ -10,8 +9,7 @@ function SignupFormModal() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -19,29 +17,30 @@ function SignupFormModal() {
   const { closeModal } = useModal();
 
   const handleSubmit = (e) => {
-      e.preventDefault();
-      if (password === confirmPassword) {
-          setErrors({});
-          return dispatch(
-              sessionActions.signup({
-                  email,
-                  username,
-                  firstName,
-                  lastName,
-                  password
-              })
-          )
-              .then(closeModal)
-              .catch(async (res) => {
-                  const data = await res.json();
-                  if (data?.errors) {
-                      setErrors(data.errors);
-                  }
-              });
-      }
-      return setErrors({
-          confirmPassword: "Confirm Password field must be the same as the Password field"
-      });
+    e.preventDefault();
+    if (password === confirmPassword) {
+      setErrors({});
+      return dispatch(
+        sessionActions.signup({
+          email,
+          username,
+          // firstName,
+          // lastName,
+          fullName,
+          password
+        })
+      )
+        .then(closeModal)
+        .catch(async (res) => {
+          const data = await res.json();
+          if (data?.errors) {
+            setErrors(data.errors);
+          }
+        });
+    }
+    return setErrors({
+      confirmPassword: "Confirm Password field must be the same as the Password field"
+    });
   };
 
   return (
@@ -69,25 +68,14 @@ function SignupFormModal() {
         </label>
         {errors.username && <p>{errors.username}</p>}
         <label>
-          First Name
+          Full Name
           <input
             type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
           />
         </label>
-        {errors.firstName && <p>{errors.firstName}</p>}
-        <label>
-          Last Name
-          <input
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </label>
-        {errors.lastName && <p>{errors.lastName}</p>}
         <label>
           Password
           <input
@@ -107,7 +95,7 @@ function SignupFormModal() {
             required
           />
         </label>
-          {errors.confirmPassword && (
+        {errors.confirmPassword && (
           <p>{errors.confirmPassword}</p>
         )}
         <button type="submit">Sign Up</button>

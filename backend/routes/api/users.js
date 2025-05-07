@@ -25,12 +25,15 @@ const validateSignup = [
     .not()
     .isEmail()
     .withMessage('Username cannot be an email.'),
-  check('firstName')
-    .exists({ checkFalsy: true })
-    .withMessage('First Name is required'),
-  check('lastName')
-    .exists({ checkFalsy: true })
-    .withMessage('Last Name is required'),
+  // check('firstName')
+  //   .exists({ checkFalsy: true })
+  //   .withMessage('First Name is required'),
+  // check('lastName')
+  //   .exists({ checkFalsy: true })
+  //   .withMessage('Last Name is required'),
+  check('fullName')
+  .exists({ checkFalsy: true })
+  .withMessage('Full Name is required'),
   check('password')
     .exists({ checkFalsy: true })
     .isLength({ min: 6 })
@@ -38,37 +41,73 @@ const validateSignup = [
   handleValidationErrors
 ];
 
-// Sign up new User
 router.post('/', validateSignup, async (req, res) => {
-  const { firstName, lastName, email, username, password } = req.body;
+  const {
+    email,
+    username,
+    firstName,
+    lastName,
+    fullName,
+    password,
+    location,
+    locationRadius,
+    availability,
+    interests,
+    objectives
+  } = req.body;
+  console.log('signup req body', req.body);
 
   try {
+    // Hash the password
     const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ firstName, lastName, email, username, hashedPassword });
+
+    // Create user with all available fields
+    const user = await User.create({
+      email,
+      username,
+      firstName,
+      lastName,
+      fullName,
+      hashedPassword,
+      location,
+      locationRadius,
+      availability,
+      interests,
+      objectives
+    });
 
     const safeUser = {
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      fullName: user.fullName,
+      // firstName: user.firstName,
+      // lastName: user.lastName,
       email: user.email,
       username: user.username,
+      location: user.location,
+      locationRadius: user.locationRadius,
+      availability: user.availability,
+      interests: user.interests,
+      objectives: user.objectives
     };
 
     await setTokenCookie(res, safeUser);
     return res.status(201).json({ user: safeUser });
 
   } catch (e) {
+    console.error('Signup error:', e);
+
     if (e.name === 'SequelizeUniqueConstraintError') {
-      res.status(500);
+      res.status(400);
       return res.json({
         message: "User already exists",
         errors: {
           email: "User with that email already exists",
           username: "User with that username already exists"
         }
-      })
+      });
     }
-    throw e;
+
+    res.status(500).json({ error: 'Signup failed due to server error' });
   }
 });
 
@@ -103,7 +142,8 @@ router.get('/users', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
       attributes: {
-        exclude: ['hashedPassword', 'fullName', 'email']
+        // exclude: ['hashedPassword', 'fullName', 'email']
+        exclude: ['hashedPassword', 'email']
       }
     });
 
@@ -116,77 +156,63 @@ router.get('/users', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/users
-// Create a new user in the database
-router.post('/users', async (req, res) => {
-  const {
-    fullName,
-    firstName,
-    email,
-    password,
-    location,
-    locationRadius,
-    availability,
-    interests,
-    objectives
-  } = req.body;
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
-      fullName,
-      firstName,
-      email,
-      hashedPassword,
-      location,
-      locationRadius,
-      availability,
-      interests,
-      objectives
-    });
-
-    res.status(201).json({ message: 'User created successfully', userId: newUser.id });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create user' });
-  }
-});
-
 // PUT /api/users
 // Update the logged-in user's profile (e.g., interests, availability)
-router.put('/users', requireAuth, async (req, res) => {
+// router.put('/users', requireAuth, async (req, res) => {
+  router.put('/', requireAuth, async (req, res) => {
   const {
-    first_name,
+    // first_name,
     location,
     locationRadius,
     availability,
     interests,
     objectives
   } = req.body;
+  console.log('update profile req body', req.body);
 
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    user.first_name = first_name ?? user.first_name;
-    user.location = location ?? user.location;
-    user.locationRadius = locationRadius ?? user.locationRadius;
-    user.availability = availability ?? user.availability;
-    user.interests = interests ?? user.interests;
-    user.objectives = objectives ?? user.objectives;
+    // user.first_name = first_name ?? user.first_name;
+    // user.location = location ?? user.location;
+    // user.locationRadius = locationRadius ?? user.locationRadius;
+    // user.availability = availability ?? user.availability;
+    // user.interests = interests ?? user.interests;
+    // user.objectives = objectives ?? user.objectives;
+    if (location) user.location = location;
+    if (locationRadius) user.locationRadius = locationRadius;
+    if (availability) user.availability = availability;
+    if (interests) user.interests = interests;
+    if (objectives) user.objectives = objectives;
 
     await user.save();
-    res.json({ message: 'Profile updated', user });
+
+    const updatedUser = {
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      location: user.location,
+      locationRadius: user.locationRadius,
+      availability: user.availability,
+      interests: user.interests,
+      objectives: user.objectives
+    };
+
+    await setTokenCookie(res, updatedUser);
+
+    // res.json({ message: 'Profile updated', user });
+    res.json({ message: 'Profile updated', user: updatedUser });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating user profile:', err);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
 // DELETE /api/users
 // Delete the logged-in user's own account from the system
-router.delete('/users', requireAuth, async (req, res) => {
+// router.delete('/users', requireAuth, async (req, res) => {
+  router.delete('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -202,6 +228,7 @@ router.delete('/users', requireAuth, async (req, res) => {
 // POST /api/filter-results
 router.post('/filter-results', requireAuth, async (req, res) => {
   const { interests, objectives, location, locationRadius } = req.body;
+  console.log('filter results req body', req.body);
 
   const userId = req.user?.id;
 

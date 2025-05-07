@@ -13,7 +13,7 @@ module.exports = {
     await User.bulkCreate([
       {
         fullName: 'John Smith',
-        firstName: 'John',
+        // firstName: 'John',
         email: 'demo@user.io',
         username: 'Demo-lition',
         hashedPassword: bcrypt.hashSync('password'),
@@ -25,7 +25,7 @@ module.exports = {
       },
       {
         fullName: 'Jane Doe',
-        firstName: 'Jane',
+        // firstName: 'Jane',
         email: 'user1@user.io',
         username: 'FakeUser1',
         hashedPassword: bcrypt.hashSync('password2'),
@@ -37,7 +37,7 @@ module.exports = {
       },
       {
         fullName: 'Ashley Rodriguez',
-        firstName: 'Ashley',
+        // firstName: 'Ashley',
         email: 'user2@user.io',
         username: 'FakeUser2',
         hashedPassword: bcrypt.hashSync('password3'),
@@ -49,7 +49,7 @@ module.exports = {
       },
       {
         fullName: 'Michael Taylor',
-        firstName: 'Michael',
+        // firstName: 'Michael',
         email: 'user3@user.io',
         username: 'FakeUser3',
         hashedPassword: bcrypt.hashSync('password4'),
@@ -63,7 +63,7 @@ module.exports = {
       },
       {
         fullName: 'Samantha Lee',
-        firstName: 'Samantha',
+        // firstName: 'Samantha',
         email: 'user4@user.io',
         username: 'FakeUser4',
         hashedPassword: bcrypt.hashSync('password5'),
@@ -75,7 +75,7 @@ module.exports = {
       },
       {
         fullName: 'David Johnson',
-        firstName: 'David',
+        // firstName: 'David',
         email: 'user5@user.io',
         username: 'FakeUser5',
         hashedPassword: bcrypt.hashSync('password6'),

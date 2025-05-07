@@ -20,10 +20,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      firstName: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
+      // firstName: {
+      //   type: Sequelize.STRING,
+      //   allowNull: false
+      // },
       username: {
         type: Sequelize.STRING(30),
         allowNull: false,
@@ -40,23 +40,23 @@ module.exports = {
       },
       location: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       locationRadius: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       availability: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
       },
       interests: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
       },
       objectives: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
       },
       createdAt: {
         type: Sequelize.DATE,

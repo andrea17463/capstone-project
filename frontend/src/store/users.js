@@ -63,11 +63,22 @@ export const createUser = (userData) => async (dispatch) => {
 };
 
 export const updateUser = (updates) => async (dispatch) => {
+
+    const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('XSRF-TOKEN='))
+        ?.split('=')[1];
+
+    if (!csrfToken) {
+        dispatch(setError('Missing CSRF token'));
+        return;
+    }
+
     dispatch(setLoading(true));
     try {
         const res = await fetch('/api/users', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, },
             credentials: 'include',
             body: JSON.stringify(updates),
         });
@@ -82,10 +93,24 @@ export const updateUser = (updates) => async (dispatch) => {
 };
 
 export const deleteUser = () => async (dispatch) => {
+
+    const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('XSRF-TOKEN='))
+        ?.split('=')[1];
+
+    if (!csrfToken) {
+        dispatch(setError('Missing CSRF token'));
+        return;
+    }
+
     dispatch(setLoading(true));
     try {
         const res = await fetch('/api/users', {
             method: 'DELETE',
+            headers: {
+                'X-CSRF-Token': csrfToken,
+            },
             credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to delete account');
