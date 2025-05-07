@@ -13,13 +13,13 @@ module.exports = (sequelize, DataTypes) => {
     user_1_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: 'users', key: 'id' },
+      references: { model: 'Users', key: 'id' },
       onDelete: 'CASCADE'
     },
     user_2_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: 'users', key: 'id' },
+      references: { model: 'Users', key: 'id' },
       onDelete: 'CASCADE'
     },
     connectionStatus: {

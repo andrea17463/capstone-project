@@ -8,12 +8,13 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    options.tableName = "Users";
+    // options.tableName = "Users";
     await queryInterface.createTable('Users', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
+        autoIncrement: true
       },
       fullName: {
         type: Sequelize.STRING,
@@ -71,7 +72,18 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "Users";
-    return queryInterface.dropTable(options);
+    options.tableName = 'Users';
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        await queryInterface.sequelize.query(`
+          DROP TABLE IF EXISTS ${process.env.SCHEMA}."ChatMessages" CASCADE;
+          DROP TABLE IF EXISTS ${process.env.SCHEMA}."UserConnections" CASCADE;
+          DROP TABLE IF EXISTS ${process.env.SCHEMA}."GamePlays" CASCADE;
+        `);
+      }
+      return queryInterface.dropTable(options);
+    } catch (error) {
+      console.error('Error dropping Users table:', error);
+    }
   }
 };

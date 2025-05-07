@@ -4,8 +4,6 @@
 
 ![](https://res.cloudinary.com/dk6ayq1by/image/upload/capstone-project-database-schema_e0x0or.png)
 
-Render.com database:
-
 ## API Documentation
 
 ## USER AUTHENTICATION/AUTHORIZATION

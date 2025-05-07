@@ -20,14 +20,14 @@ module.exports = (sequelize, DataTypes) => {
     senderId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'users',
+        model: 'Users',
         key: 'id'
       }
     },
     receiverId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'users',
+        model: 'Users',
         key: 'id'
       }
     },
@@ -38,11 +38,21 @@ module.exports = (sequelize, DataTypes) => {
     editedAt: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    deletedBySender: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    deletedByReceiver: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
     modelName: 'ChatMessage',
-    // tableName: 'ChatMessages',
+    tableName: 'ChatMessages',
     underscored: false,
     ...(process.env.NODE_ENV === 'production' && {
       schema: process.env.SCHEMA
