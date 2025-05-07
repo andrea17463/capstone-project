@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream:backend/utils/auth.js
-=======
 // // backend/utils/auth.js
 // const jwt = require('jsonwebtoken');
 // const { jwtConfig } = require('../config');
@@ -76,7 +74,6 @@
 
 
 
->>>>>>> Stashed changes:project/backend/utils/auth.js
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User } = require('../db/models');
@@ -102,11 +99,7 @@ const setTokenCookie = (res, user) => {
     secure: isProduction,
     sameSite: isProduction ? "Lax" : "Strict",
   });
-<<<<<<< Updated upstream:backend/utils/auth.js
 
-=======
-  
->>>>>>> Stashed changes:project/backend/utils/auth.js
   return token;
 };
 
@@ -116,10 +109,6 @@ const restoreUser = (req, res, next) => {
   req.user = null;
   if (!token) return next();
 
-<<<<<<< Updated upstream:backend/utils/auth.js
-  // return jwt.verify(token, secret, null, async (err, jwtPayload) => {
-=======
->>>>>>> Stashed changes:project/backend/utils/auth.js
   return jwt.verify(token, secret, async (err, jwtPayload) => {
     if (err) {
       console.log("JWT Verification Error:", err);
