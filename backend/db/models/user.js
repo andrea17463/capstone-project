@@ -47,10 +47,10 @@ module.exports = (sequelize, DataTypes) => {
         len: [60, 60]
       }
     },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
+    // firstName: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // },
     fullName: {
       type: DataTypes.STRING,
       allowNull: true
@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    // tableName: 'Users',
+    tableName: 'Users',
     underscored: false,
     ...(process.env.NODE_ENV === 'production' && {
       schema: process.env.SCHEMA

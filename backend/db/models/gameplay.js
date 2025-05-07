@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'GamePlay',
-    // tableName: 'GamePlays',
+    tableName: 'GamePlays',
     underscored: false,
     ...(process.env.NODE_ENV === 'production' && {
       schema: process.env.SCHEMA

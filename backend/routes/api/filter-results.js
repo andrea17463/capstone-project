@@ -72,7 +72,8 @@ router.post('/', async (req, res) => {
         break;
       case 'one':
         const allUsers = await User.findAll({
-          attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
+          // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
+          attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
         });
 
         const matchingUsers = allUsers.filter(user => {
@@ -94,14 +95,16 @@ router.post('/', async (req, res) => {
 
         return res.json(matchingUsers.map(user => ({
           username: user.username,
-          firstName: user.firstName,
+          // firstName: user.firstName,
+          fullName: user.fullName,
           interests: user.interests,
           objectives: user.objectives
         })));
 
       case 'more':
         const moreUsers = await User.findAll({
-          attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
+          // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
+          attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
         });
 
         const multipleMatches = moreUsers.filter(user => {
@@ -123,7 +126,8 @@ router.post('/', async (req, res) => {
 
         return res.json(multipleMatches.map(user => ({
           username: user.username,
-          firstName: user.firstName,
+          // firstName: user.firstName,
+          fullName: user.fullName,
           interests: user.interests,
           objectives: user.objectives
         })));
@@ -143,7 +147,8 @@ router.post('/', async (req, res) => {
 
     const filteredUsers = await User.findAll({
       where,
-      attributes: ['username', 'firstName', 'interests', 'objectives']
+      // attributes: ['username', 'firstName', 'interests', 'objectives']
+      attributes: ['username', 'fullName', 'interests', 'objectives']
     });
 
     return res.json(filteredUsers);

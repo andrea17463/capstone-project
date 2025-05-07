@@ -1,47 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
-import { restoreUser } from '../../store/session';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
-function UserConnectionsForms({ setResults }) {
-  const dispatch = useDispatch();
+function UserConnectionsForms({ formData, setFormData, setResults, results }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
 
   useExtractCookiesCsrfToken();
 
-  console.log("User from Redux:", user);
-
-  const [formData, setFormData] = useState({
-    interests: '',
-    objectives: '',
-    location: '',
-    locationRadius: '',
-    matchType: '',
-    customLocationRadius: '',
-  });
-
-  useEffect(() => {
-    dispatch(restoreUser());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (user && user.id) {
-      setFormData((prev) => ({
-        ...prev,
-        userId: user.id,
-      }));
-    }
-  }, [user]);
-
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {
       const newFormData = { ...prev, [name]: value };
-
       if (name === 'locationRadius' && value === 'other') {
         newFormData.customLocationRadius = '';
       }
-
       return newFormData;
     });
   };
@@ -53,122 +27,190 @@ function UserConnectionsForms({ setResults }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
-    console.log("Document cookies:", document.cookie);
+    if (!formData.interests || !formData.objectives || !formData.location || !formData.matchType) {
+      setError('Please fill in all required fields.');
+      setIsSubmitting(false);
+      return;
+    }
 
     const csrfToken = document.cookie
       .split('; ')
       .find((row) => row.startsWith('XSRF-TOKEN='))
       ?.split('=')[1];
 
-      console.log("Extracted CSRF Token:", csrfToken);
-
     try {
-      const locationRadius = formData.locationRadius === 'other' ? parseInt(formData.customLocationRadius) || 0 : parseInt(formData.locationRadius) || 0;
+      const locationRadius =
+        formData.locationRadius === 'other'
+          ? parseInt(formData.customLocationRadius) || 0
+          : parseInt(formData.locationRadius) || 0;
 
-      const response = await fetch('http://localhost:8000/api/filter-results', {
+      const payload = {
+        ...formData,
+        locationRadius,
+        customLocationRadius:
+          formData.locationRadius === 'other' ? formData.customLocationRadius : '',
+        userId: user?.id,
+      };
+
+      const response = await fetch('/api/filter-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken,
         },
         credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          locationRadius,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch filtered results');
-      }
+      if (!response.ok) throw new Error('Server responded with an error');
 
       const data = await response.json();
-      console.log('Filtered results:', data);
-
       setResults(data);
     } catch (error) {
-      console.error('Error fetching results:', error);
+      console.error('Failed to fetch filtered results:', error);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClearResults = async () => {
+    setError(null);
+
+    const csrfToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+
+    try {
+      const response = await fetch('/api/filter-results/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ userId: user?.id }),
+      });
+
+      if (!response.ok) throw new Error('Reset failed');
+
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error('Failed to clear filter results:', error);
+      setError('Failed to clear results.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <HoverClickDropdown
-        label="Interests"
-        name="interests"
-        options={[
-          { value: 'tech', label: 'Technology' },
-          { value: 'sports', label: 'Sports' },
-          { value: 'other', label: 'Other' },
-        ]}
-        onChange={handleDropdownChange}
-      />
+    <div>
+      <form onSubmit={handleSubmit}>
+        <HoverClickDropdown
+          label="Interests"
+          name="interests"
+          options={[
+            { value: 'tech', label: 'Technology' },
+            { value: 'sports', label: 'Sports' },
+            { value: 'other', label: 'Other' },
+          ]}
+          value={formData.interests}
+          onChange={handleDropdownChange}
+        />
 
-      <HoverClickDropdown
-        label="Objectives"
-        name="objectives"
-        options={[
-          { value: 'networking', label: 'Networking' },
-          { value: 'learning', label: 'Learning' },
-          { value: 'having lunch', label: 'Having lunch' },
-          { value: 'venting to someone', label: 'Venting to someone' },
-          { value: 'other', label: 'Other' },
-        ]}
-        onChange={handleDropdownChange}
-      />
+        <HoverClickDropdown
+          label="Objectives"
+          name="objectives"
+          options={[
+            { value: 'networking', label: 'Networking' },
+            { value: 'learning', label: 'Learning' },
+            { value: 'having lunch', label: 'Having lunch' },
+            { value: 'venting to someone', label: 'Venting to someone' },
+            { value: 'other', label: 'Other' },
+          ]}
+          value={formData.objectives}
+          onChange={handleDropdownChange}
+        />
 
-      <HoverClickDropdown
-        label="Location"
-        name="location"
-        options={[
-          { value: 'ny', label: 'New York, NY' },
-          { value: 'sf', label: 'San Francisco, CA' },
-          { value: 'other', label: 'Other' },
-        ]}
-        onChange={handleDropdownChange}
-      />
+        <HoverClickDropdown
+          label="Location"
+          name="location"
+          options={[
+            { value: 'ny', label: 'New York, NY' },
+            { value: 'sf', label: 'San Francisco, CA' },
+            { value: 'other', label: 'Other' },
+          ]}
+          value={formData.location}
+          onChange={handleDropdownChange}
+        />
 
-      <HoverClickDropdown
-        label="Location Radius"
-        name="locationRadius"
-        options={[
-          { value: '10', label: '10 miles' },
-          { value: '15', label: '15 miles' },
-          { value: '20', label: '20 miles' },
-          { value: '25', label: '25 miles' },
-          { value: 'other', label: 'Other' },
-        ]}
-        onChange={handleDropdownChange}
-      />
+        <HoverClickDropdown
+          label="Location Radius"
+          name="locationRadius"
+          options={[
+            { value: '10', label: '10 miles' },
+            { value: '15', label: '15 miles' },
+            { value: '20', label: '20 miles' },
+            { value: '25', label: '25 miles' },
+            { value: 'other', label: 'Other' },
+          ]}
+          value={formData.locationRadius}
+          onChange={handleDropdownChange}
+        />
 
-      {formData.locationRadius === 'other' && (
-        <div>
-          <label>Custom Location Radius (miles):</label>
-          <input
-            type="number"
-            name="customLocationRadius"
-            value={formData.customLocationRadius}
-            onChange={handleInputChange}
-            placeholder="Enter custom radius"
-          />
-        </div>
-      )}
+        {formData.locationRadius === 'other' && (
+          <div>
+            <label>Custom Location Radius (miles):</label>
+            <input
+              type="number"
+              name="customLocationRadius"
+              value={formData.customLocationRadius}
+              onChange={handleInputChange}
+              placeholder="Enter custom radius"
+            />
+          </div>
+        )}
 
-      <HoverClickDropdown
-        label="Match Type"
-        name="matchType"
-        options={[
-          { value: 'any', label: 'Match any' },
-          { value: 'all', label: 'Match all' },
-          { value: 'some', label: 'Match at least two' },
-        ]}
-        onChange={handleDropdownChange}
-      />
+        <HoverClickDropdown
+          label="Match Type"
+          name="matchType"
+          options={[
+            { value: 'any', label: 'Match any' },
+            { value: 'all', label: 'Match all' },
+            { value: 'some', label: 'Match at least two' },
+          ]}
+          value={formData.matchType}
+          onChange={handleDropdownChange}
+        />
 
-      <br />
-      <input type="submit" value="Submit" />
-    </form>
+        <br />
+        <input type="submit" value="Submit" disabled={isSubmitting} />
+      </form>
+
+      <button type="button" onClick={handleClearResults}>
+        Clear Filtered Results
+      </button>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <div>
+        {results && results.length > 0 && (
+          <div>
+            <h3>Filtered Results:</h3>
+            <ul>
+              {results.map((user, index) => (
+                <li key={index}>
+                  {user.firstName} ({user.lastName}) — Interests: {user.interests.join(', ')}, Objectives: {user.objectives.join(', ')}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

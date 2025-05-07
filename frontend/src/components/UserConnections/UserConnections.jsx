@@ -1,8 +1,47 @@
+import { useState } from 'react';
+import UserConnectionsForms from './UserConnectionsForms';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const UserConnections = () => {
   useExtractCookiesCsrfToken();
-  return <h1>UserConnections</h1>;
+
+  const [formData, setFormData] = useState({
+    interests: '',
+    objectives: '',
+    location: '',
+    locationRadius: '',
+    matchType: '',
+    customLocationRadius: '',
+  });
+
+  const [results, setResults] = useState([]);
+
+  return (
+    <div>
+      <h1>UserConnections</h1>
+
+      <UserConnectionsForms
+        formData={formData}
+        setFormData={setFormData}
+        setResults={setResults}
+      />
+
+      <hr />
+
+      <h3>Filtered Results:</h3>
+      {results.length > 0 ? (
+        <ul>
+          {results.map((item, index) => (
+            <li key={index}>
+              <strong>{item.username}</strong> ({item.firstName}) — Interests: {item.interests}, Objectives: {item.objectives}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No results yet. Submit the form above.</p>
+      )}
+    </div>
+  );
 };
 
 // Recommendations
