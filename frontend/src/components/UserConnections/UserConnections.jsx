@@ -1,6 +1,7 @@
-
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const UserConnections = () => {
+  useExtractCookiesCsrfToken();
   return <h1>UserConnections</h1>;
 };
 

@@ -58,6 +58,9 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'UserConnection',
     // tableName: 'UserConnections',
     underscored: false,
+    ...(process.env.NODE_ENV === 'production' && {
+      schema: process.env.SCHEMA
+    }),
     timestamps: true
   });
 

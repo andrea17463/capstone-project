@@ -8,6 +8,7 @@ import {
   addIncomingMessage
 } from '../../store/chat-messages';
 import { selectMessages } from '../../store/selectors';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const ChatBox = ({ user1Id, user2Id }) => {
   const dispatch = useDispatch();
@@ -20,6 +21,8 @@ const ChatBox = ({ user1Id, user2Id }) => {
   const [isSending, setIsSending] = useState(false);
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  useExtractCookiesCsrfToken();
 
   // Setup WebSocket connection
   useEffect(() => {

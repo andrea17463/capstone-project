@@ -8,10 +8,16 @@
     "start": "per-env",
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
+<<<<<<< Updated upstream:backend/package.json
     "build": "node psql-setup-script.js && npx sequelize db:seed:undo:all && npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all",
     "dev": "nodemon ./bin/www",
     "websocket": "node server.js",
     "resetDb": "npx sequelize db:seed:undo:all && npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all"
+=======
+    "build": "node psql-setup-script.js",
+    "dev": "nodemon ./bin/www",
+    "websocket": "node server.js"
+>>>>>>> Stashed changes:project/backend/package.json
   },
   "keywords": [],
   "author": "",

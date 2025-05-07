@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
+import { restoreUser } from '../../store/session';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 function UserConnectionsForms({ setResults }) {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.session.user);
+
+  useExtractCookiesCsrfToken();
+
+  console.log("User from Redux:", user);
+
   const [formData, setFormData] = useState({
     interests: '',
     objectives: '',
@@ -10,6 +20,19 @@ function UserConnectionsForms({ setResults }) {
     matchType: '',
     customLocationRadius: '',
   });
+
+  useEffect(() => {
+    dispatch(restoreUser());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (user && user.id) {
+      setFormData((prev) => ({
+        ...prev,
+        userId: user.id,
+      }));
+    }
+  }, [user]);
 
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {
@@ -31,21 +54,22 @@ function UserConnectionsForms({ setResults }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("Document cookies:", document.cookie);
+
     const csrfToken = document.cookie
       .split('; ')
       .find((row) => row.startsWith('XSRF-TOKEN='))
       ?.split('=')[1];
 
-    const authToken = localStorage.getItem('authToken');
+      console.log("Extracted CSRF Token:", csrfToken);
 
     try {
       const locationRadius = formData.locationRadius === 'other' ? parseInt(formData.customLocationRadius) || 0 : parseInt(formData.locationRadius) || 0;
 
-      const response = await fetch('http://localhost:3001/api/filter-results', {
+      const response = await fetch('http://localhost:8000/api/filter-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
           'X-CSRF-Token': csrfToken,
         },
         credentials: 'include',
@@ -60,7 +84,6 @@ function UserConnectionsForms({ setResults }) {
       }
 
       const data = await response.json();
-
       console.log('Filtered results:', data);
 
       setResults(data);
@@ -99,8 +122,8 @@ function UserConnectionsForms({ setResults }) {
         label="Location"
         name="location"
         options={[
-          { value: 'ny', label: 'New York' },
-          { value: 'sf', label: 'San Francisco' },
+          { value: 'ny', label: 'New York, NY' },
+          { value: 'sf', label: 'San Francisco, CA' },
           { value: 'other', label: 'Other' },
         ]}
         onChange={handleDropdownChange}

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const ChatMessages = () => {
   const { user1Id, user2Id } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [socket, setSocket] = useState(null);
+
+  useExtractCookiesCsrfToken();
 
   // WebSocket setup
   useEffect(() => {

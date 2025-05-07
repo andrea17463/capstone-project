@@ -44,6 +44,9 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'ChatMessage',
     // tableName: 'ChatMessages',
     underscored: false,
+    ...(process.env.NODE_ENV === 'production' && {
+      schema: process.env.SCHEMA
+    }),
     timestamps: true
   });
 
