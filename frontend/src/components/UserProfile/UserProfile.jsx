@@ -39,6 +39,7 @@ function UserProfile() {
         customLocationRadius: '',
       });
     }
+    console.log('User data after update:', user);
   }, [user]);
 
   const handleLocationRadiusChange = (e) => {
@@ -142,7 +143,7 @@ function UserProfile() {
       {user && (
         <div className="user-info">
           <h3>Profile Information</h3>
-          <p><strong>Full Name:</strong> {user.firstName} {user.lastName}</p>
+          <p><strong>Full Name:</strong> {user.fullName || 'N/A'}</p>
           <p><strong>Username:</strong> {user.username}</p>
           <p><strong>Age:</strong> {user.age}</p>
           <p><strong>Interests:</strong> {user.interests || 'No interests added'}</p>
