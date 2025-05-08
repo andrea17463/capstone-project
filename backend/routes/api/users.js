@@ -32,8 +32,8 @@ const validateSignup = [
   //   .exists({ checkFalsy: true })
   //   .withMessage('Last Name is required'),
   check('fullName')
-  .exists({ checkFalsy: true })
-  .withMessage('Full Name is required'),
+    .exists({ checkFalsy: true })
+    .withMessage('Full Name is required'),
   check('password')
     .exists({ checkFalsy: true })
     .isLength({ min: 6 })
@@ -159,9 +159,10 @@ router.get('/users', requireAuth, async (req, res) => {
 // PUT /api/users
 // Update the logged-in user's profile (e.g., interests, availability)
 // router.put('/users', requireAuth, async (req, res) => {
-  router.put('/', requireAuth, async (req, res) => {
+router.put('/', requireAuth, async (req, res) => {
   const {
     // first_name,
+    age,
     location,
     locationRadius,
     availability,
@@ -180,6 +181,7 @@ router.get('/users', requireAuth, async (req, res) => {
     // user.availability = availability ?? user.availability;
     // user.interests = interests ?? user.interests;
     // user.objectives = objectives ?? user.objectives;
+    if (age !== undefined) user.age = age;
     if (location) user.location = location;
     if (locationRadius) user.locationRadius = locationRadius;
     if (availability) user.availability = availability;
@@ -192,6 +194,7 @@ router.get('/users', requireAuth, async (req, res) => {
       id: user.id,
       username: user.username,
       fullName: user.fullName,
+      age: user.age,
       location: user.location,
       locationRadius: user.locationRadius,
       availability: user.availability,
@@ -212,7 +215,7 @@ router.get('/users', requireAuth, async (req, res) => {
 // DELETE /api/users
 // Delete the logged-in user's own account from the system
 // router.delete('/users', requireAuth, async (req, res) => {
-  router.delete('/', requireAuth, async (req, res) => {
+router.delete('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });

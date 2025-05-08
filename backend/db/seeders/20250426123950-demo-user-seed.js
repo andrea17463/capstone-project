@@ -14,6 +14,7 @@ module.exports = {
       {
         fullName: 'John Smith',
         // firstName: 'John',
+        age: 29,
         email: 'demo@user.io',
         username: 'Demo-lition',
         hashedPassword: bcrypt.hashSync('password'),
@@ -26,6 +27,7 @@ module.exports = {
       {
         fullName: 'Jane Doe',
         // firstName: 'Jane',
+        age: 38,
         email: 'user1@user.io',
         username: 'FakeUser1',
         hashedPassword: bcrypt.hashSync('password2'),
@@ -38,6 +40,7 @@ module.exports = {
       {
         fullName: 'Ashley Rodriguez',
         // firstName: 'Ashley',
+        age: 33,
         email: 'user2@user.io',
         username: 'FakeUser2',
         hashedPassword: bcrypt.hashSync('password3'),
@@ -50,6 +53,7 @@ module.exports = {
       {
         fullName: 'Michael Taylor',
         // firstName: 'Michael',
+        age: 35,
         email: 'user3@user.io',
         username: 'FakeUser3',
         hashedPassword: bcrypt.hashSync('password4'),
@@ -64,6 +68,7 @@ module.exports = {
       {
         fullName: 'Samantha Lee',
         // firstName: 'Samantha',
+        age: 39,
         email: 'user4@user.io',
         username: 'FakeUser4',
         hashedPassword: bcrypt.hashSync('password5'),
@@ -76,6 +81,7 @@ module.exports = {
       {
         fullName: 'David Johnson',
         // firstName: 'David',
+        age: 32,
         email: 'user5@user.io',
         username: 'FakeUser5',
         hashedPassword: bcrypt.hashSync('password6'),

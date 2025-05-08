@@ -55,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    age: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },    
     location: {
       type: DataTypes.STRING,
       allowNull: true
