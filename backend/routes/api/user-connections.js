@@ -47,7 +47,21 @@ router.get('/', requireAuth, async (req, res) => {
       order: [['updated_at', 'DESC']]
     });
 
-    res.json(connections);
+    const processedConnections = connections.map(connection => {
+      const user1 = connection.user_1;
+      const user2 = connection.user_2;
+
+      user1.interests = user1.interests ? user1.interests.split(',') : [];
+      user2.interests = user2.interests ? user2.interests.split(',') : [];
+
+      return {
+        ...connection,
+        user_1: user1,
+        user_2: user2,
+      };
+    });
+
+    res.json(processedConnections);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Unable to fetch connections' });
@@ -58,7 +72,9 @@ router.get('/', requireAuth, async (req, res) => {
 // Get specific connection between current user and another user
 router.get('/:userId', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
+  console.log("Received userId1:", req.params.user.id);
   const userId2 = req.params.userId;
+  console.log("Received userId2:", req.params.userId);
 
   try {
     const connection = await UserConnection.findOne({

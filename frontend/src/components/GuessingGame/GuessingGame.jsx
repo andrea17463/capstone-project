@@ -1,8 +1,9 @@
+// frontend/src/components/GuessingGame/GuessingGame.jsx
 import { useState, useEffect, useMemo } from 'react';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import './GuessingGame.css';
 
-const GamePlay = () => {
+const GuessingGame = () => {
   const allCards =
     useMemo(() => ({
       "Personality and Traits": [
@@ -570,7 +571,6 @@ const GamePlay = () => {
     for (const category in allCards) {
       const count = allCards[category].length;
       console.log(`${category}: ${count} cards`);
-      // total += allCards[category].length;
       total += count;
     }
     setTotalCards(total);
@@ -745,11 +745,11 @@ const GamePlay = () => {
             {players.length > 0 ? (
               <div>
                 <h3>Current Players:</h3>
-                <ul>
+                <>
                   {players.map((player, index) => (
-                    <li key={index}>{player}</li>
+                    <p key={index}>{player}</p>
                   ))}
-                </ul>
+                </>
               </div>
             ) : (
               <p>No players added yet. Add at least 2 players to start.</p>
@@ -999,11 +999,12 @@ const GamePlay = () => {
 
           <div className="player-management">
             <h4>Players</h4>
-            <ul>
+            <>
               {players.map((player, index) => (
-                <li key={index}>{player}</li>
+                <p key={index}>{player}</p>
               ))}
-            </ul>
+            </>
+            <br />
 
             <button onClick={() => setShowAddPlayerForm(!showAddPlayerForm)}>
               {showAddPlayerForm ? "Cancel" : "Add Player"}
@@ -1074,4 +1075,4 @@ const GamePlay = () => {
   );
 };
 
-export default GamePlay;
+export default GuessingGame;

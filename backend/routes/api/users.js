@@ -157,7 +157,7 @@ router.get('/users', requireAuth, async (req, res) => {
 });
 
 // PUT /api/users
-// Update the logged-in user's profile (e.g., interests, availability)
+// Update the logged-in user's profile (e.g., interests, objectives, availability)
 // router.put('/users', requireAuth, async (req, res) => {
 router.put('/', requireAuth, async (req, res) => {
   const {
@@ -189,6 +189,7 @@ router.put('/', requireAuth, async (req, res) => {
     if (objectives) user.objectives = objectives;
 
     await user.save();
+    console.log('User after save:', user);
 
     const updatedUser = {
       id: user.id,
@@ -256,6 +257,26 @@ router.post('/filter-results', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/users/:id
+// Retrieve profile info of a user connection
+router.get('/:id', requireAuth, async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+  if (isNaN(userId)) return res.status(400).json({ error: 'Invalid user ID' });
+
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'username', 'fullName', 'age', 'location', 'interests', 'objectives']
+    });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user profile:', err);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
   }
 });
 

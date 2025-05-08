@@ -9,6 +9,7 @@ import UserConnections from './components/UserConnections/UserConnections';
 import ChatMessages from './components/ChatMessages/ChatMessages';
 // import GamePlay from './components/GamePlay/GamePlay';
 import GuessingGame from './components/GuessingGame/GuessingGame';
+import ConnectionProfile from './components/ConnectionProfile/ConnectionProfile';
 import * as sessionActions from './store/session';
 
 function Layout() {
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LandingPage /> },
       { path: '/profile', element: <UserProfile /> },
+      { path: '/profile/:userId', element: <ConnectionProfile /> },
       { path: '/connections', element: <UserConnections /> },
       { path: '/chats', element: <ChatMessagesIntro /> },
       { path: '/chat/:user1Id/:user2Id', element: <ChatBox /> },
