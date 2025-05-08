@@ -1,3 +1,4 @@
+// frontend/src/components/ChatMessages/ChatMessages.jsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
@@ -57,11 +58,11 @@ const ChatMessages = () => {
 
       <div>
         <h3>Messages</h3>
-        <ul>
+        <>
           {messages.map((msg, index) => (
-            <li key={index}>{msg}</li>
+            <p key={index}>{msg}</p>
           ))}
-        </ul>
+        </>
       </div>
     </div>
   );

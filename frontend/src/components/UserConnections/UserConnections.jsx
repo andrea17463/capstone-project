@@ -1,4 +1,6 @@
-import { useState } from 'react';
+// frontend/src/components/UserConnections/UserConnections.jsx
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
@@ -10,33 +12,52 @@ const UserConnections = () => {
     objectives: '',
     location: '',
     locationRadius: '',
-    matchType: '',
     customLocationRadius: '',
+    matchType: '',
   });
 
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState(() => {
+    const stored = localStorage.getItem('filteredResults');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('filteredResults', JSON.stringify(results));
+  }, [results]);
+
+  console.log('Filtered Results:', results);
 
   return (
     <div>
-      <h1>UserConnections</h1>
+      <h1>User Connections</h1>
 
       <UserConnectionsForms
         formData={formData}
         setFormData={setFormData}
         setResults={setResults}
+        results={results}
       />
 
       <hr />
 
       <h3>Filtered Results:</h3>
+      <br />
       {results.length > 0 ? (
-        <ul>
-          {results.map((item, index) => (
-            <li key={index}>
-              <strong>{item.username}</strong> ({item.firstName}) — Interests: {item.interests}, Objectives: {item.objectives}
-            </li>
-          ))}
-        </ul>
+        <>
+          {results.map((item, index) => {
+            if (!item || !item.id || !item.username || !item.fullName) return null;
+
+            return (
+              <p key={index}>
+                <strong>{item.username}</strong> ({item.fullName}) — Interests: {item.interests}, Objectives: {item.objectives}
+                <br />
+                <Link to={`/profile/${item.id}`}>
+                  <button>View Connection Profile</button>
+                </Link>
+              </p>
+            );
+          })}
+        </>
       ) : (
         <p>No results yet. Submit the form above.</p>
       )}

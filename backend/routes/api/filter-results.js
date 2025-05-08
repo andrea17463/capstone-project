@@ -94,6 +94,7 @@ router.post('/', async (req, res) => {
         });
 
         return res.json(matchingUsers.map(user => ({
+          id: user.id,
           username: user.username,
           // firstName: user.firstName,
           fullName: user.fullName,
@@ -125,6 +126,7 @@ router.post('/', async (req, res) => {
         });
 
         return res.json(multipleMatches.map(user => ({
+          id: user.id,
           username: user.username,
           // firstName: user.firstName,
           fullName: user.fullName,
@@ -148,7 +150,7 @@ router.post('/', async (req, res) => {
     const filteredUsers = await User.findAll({
       where,
       // attributes: ['username', 'firstName', 'interests', 'objectives']
-      attributes: ['username', 'fullName', 'interests', 'objectives']
+      attributes: ['id', 'username', 'fullName', 'interests', 'objectives']
     });
 
     return res.json(filteredUsers);

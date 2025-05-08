@@ -1,3 +1,4 @@
+// frontend/src/components/UserProfile/UserProfile.jsx
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
@@ -7,6 +8,9 @@ import { deleteUser } from '../../store/users';
 function UserProfile() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.session.user);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showProfileInfo, setShowProfileInfo] = useState(false);
+
 
   useExtractCookiesCsrfToken();
 
@@ -16,9 +20,9 @@ function UserProfile() {
     objectives: '',
     location: '',
     locationRadius: '',
+    customLocationRadius: '',
     availability: '',
     matchType: 'any',
-    customLocationRadius: '',
   });
 
   useEffect(() => {
@@ -34,10 +38,11 @@ function UserProfile() {
         objectives: user.objectives || '',
         location: user.location || '',
         locationRadius: user.locationRadius?.toString() || '',
+        customLocationRadius: '',
         availability: user.availability || '',
         matchType: 'any',
-        customLocationRadius: '',
       });
+      setShowProfileInfo(true);
     }
     console.log('User data after update:', user);
   }, [user]);
@@ -116,9 +121,10 @@ function UserProfile() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        dispatch({ type: 'user/SET_USER', payload: data.user });
+        await dispatch(restoreUser());
         alert('Profile updated successfully!');
+        setIsEditing(false);
+        setShowProfileInfo(true);
       } else {
         alert('There was an error updating your profile.');
       }
@@ -133,14 +139,16 @@ function UserProfile() {
       <h2>User Profile</h2>
 
       <div>
-        <button onClick={handleEditProfile}>Edit profile</button>
+        <button onClick={() => setIsEditing((prev) => !prev)}>
+          {isEditing ? 'Cancel' : 'Edit profile'}
+        </button>
       </div>
 
       <div>
         <button onClick={handleDeleteProfile}>Delete profile</button>
       </div>
 
-      {user && (
+      {showProfileInfo && !isEditing && (
         <div className="user-info">
           <h3>Profile Information</h3>
           <p><strong>Full Name:</strong> {user.fullName || 'N/A'}</p>
@@ -151,106 +159,108 @@ function UserProfile() {
         </div>
       )}
 
-      <div>
-        <h3>Edit Profile</h3>
-        <form>
-          <label htmlFor="age">Age:</label>
-          <input
-            type="number"
-            id="age"
-            value={formData.age}
-            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-          />
-
-          <label htmlFor="location">Location:</label>
-          <input
-            type="text"
-            id="location"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          />
-
-          <label htmlFor="locationRadius">Location Radius:</label>
-          <select
-            id="locationRadius"
-            value={formData.locationRadius}
-            onChange={handleLocationRadiusChange}
-          >
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-            <option value={20}>20</option>
-            <option value={25}>25</option>
-            <option value="other">Other</option>
-          </select>
-
-          <label htmlFor="availability">Availability:</label>
-          <select
-            id="availability"
-            value={formData.availability}
-            onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-          >
-            <option value="">Select availability</option>
-            <option value="weekdays">Weekdays</option>
-            <option value="weekends">Weekends</option>
-            <option value="mornings">Mornings</option>
-            <option value="evenings">Evenings</option>
-            <option value="flexible">Flexible</option>
-          </select>
-
-          {formData.locationRadius === 'other' && (
+      {isEditing && (
+        <div>
+          <h3>Edit Profile</h3>
+          <form>
+            <label htmlFor="age">Age:</label>
             <input
               type="number"
-              placeholder="Enter custom radius"
-              value={formData.customLocationRadius}
-              onChange={handleCustomLocationRadiusChange}
+              id="age"
+              value={formData.age}
+              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
             />
-          )}
 
-          <label htmlFor="interests">Interests:</label>
-          <select
-            id="interests"
-            value={formData.interests}
-            onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
-          >
-            <option value="">Select interest</option>
-            <option value="sports">Sports</option>
-            <option value="movies">Movies</option>
-            <option value="Art">Art</option>
-            <option value="Cooking">Cooking</option>
-            <option value="Fitness">Fitness</option>
-            <option value="Food">Food</option>
-            <option value="Hiking">Hiking</option>
-            <option value="Music">Music</option>
-            <option value="Photography">Photography</option>
-            <option value="Reading">Reading</option>
-            <option value="Technology">Technology</option>
-            <option value="Traveling">Traveling</option>
-            <option value="Volunteering">Volunteering</option>
-            <option value="Yoga">Yoga</option>
-            <option value="Personal Growth">Personal Growth</option>
-            <option value="Skill Development">Skill Development</option>
-            <option value="other">Other</option>
-          </select>
+            <label htmlFor="location">Location:</label>
+            <input
+              type="text"
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            />
 
-          <label htmlFor="objectives">Objectives:</label>
-          <select
-            id="objectives"
-            value={formData.objectives}
-            onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
-          >
-            <option value="">Select objective</option>
-            <option value="Meeting New People">Meeting New People</option>
-            <option value="Networking">Networking</option>
-            <option value="Skill Development">Skill Development</option>
-            <option value="Personal Growth">Personal Growth</option>
-            <option value="Building Connections">Building Connections</option>
-            <option value="Having Lunch">Having Lunch</option>
-            <option value="Venting to Someone">Venting to Someone</option>
-            <option value="Other">Other</option>
-          </select>
-          <button type="button" onClick={handleEditProfile}>Save Changes</button>
-        </form>
-      </div>
+            <label htmlFor="locationRadius">Location Radius:</label>
+            <select
+              id="locationRadius"
+              value={formData.locationRadius}
+              onChange={handleLocationRadiusChange}
+            >
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+              <option value={20}>20</option>
+              <option value={25}>25</option>
+              <option value="other">Other</option>
+            </select>
+
+            {formData.locationRadius === 'other' && (
+              <input
+                type="number"
+                placeholder="Enter custom radius"
+                value={formData.customLocationRadius}
+                onChange={handleCustomLocationRadiusChange}
+              />
+            )}
+
+            <label htmlFor="availability">Availability:</label>
+            <select
+              id="availability"
+              value={formData.availability}
+              onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
+            >
+              <option value="">Select availability</option>
+              <option value="weekdays">Weekdays</option>
+              <option value="weekends">Weekends</option>
+              <option value="mornings">Mornings</option>
+              <option value="evenings">Evenings</option>
+              <option value="flexible">Flexible</option>
+            </select>
+
+            <label htmlFor="interests">Interests:</label>
+            <select
+              id="interests"
+              value={formData.interests}
+              onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
+            >
+              <option value="">Select interest</option>
+              <option value="sports">Sports</option>
+              <option value="movies">Movies</option>
+              <option value="Art">Art</option>
+              <option value="Cooking">Cooking</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Food">Food</option>
+              <option value="Hiking">Hiking</option>
+              <option value="Music">Music</option>
+              <option value="Photography">Photography</option>
+              <option value="Reading">Reading</option>
+              <option value="Technology">Technology</option>
+              <option value="Traveling">Traveling</option>
+              <option value="Volunteering">Volunteering</option>
+              <option value="Yoga">Yoga</option>
+              <option value="Personal Growth">Personal Growth</option>
+              <option value="Skill Development">Skill Development</option>
+              <option value="other">Other</option>
+            </select>
+
+            <label htmlFor="objectives">Objectives:</label>
+            <select
+              id="objectives"
+              value={formData.objectives}
+              onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
+            >
+              <option value="">Select objective</option>
+              <option value="Meeting New People">Meeting New People</option>
+              <option value="Networking">Networking</option>
+              <option value="Skill Development">Skill Development</option>
+              <option value="Personal Growth">Personal Growth</option>
+              <option value="Building Connections">Building Connections</option>
+              <option value="Having Lunch">Having Lunch</option>
+              <option value="Venting to Someone">Venting to Someone</option>
+              <option value="Other">Other</option>
+            </select>
+            <button type="button" onClick={handleEditProfile}>Save Changes</button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

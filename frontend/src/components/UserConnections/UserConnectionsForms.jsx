@@ -1,9 +1,10 @@
+// frontend/src/components/UserConnectionsForms/UserConnectionsForms.jsx
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
-function UserConnectionsForms({ formData, setFormData, setResults, results }) {
+function UserConnectionsForms({ formData, setFormData, setResults }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
@@ -68,6 +69,7 @@ function UserConnectionsForms({ formData, setFormData, setResults, results }) {
       if (!response.ok) throw new Error('Server responded with an error');
 
       const data = await response.json();
+      console.log('Filtered Data:', data);
       setResults(data);
     } catch (error) {
       console.error('Failed to fetch filtered results:', error);
@@ -195,21 +197,6 @@ function UserConnectionsForms({ formData, setFormData, setResults, results }) {
       </button>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <div>
-        {results && results.length > 0 && (
-          <div>
-            <h3>Filtered Results:</h3>
-            <ul>
-              {results.map((user, index) => (
-                <li key={index}>
-                  {user.firstName} ({user.lastName}) — Interests: {user.interests.join(', ')}, Objectives: {user.objectives.join(', ')}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

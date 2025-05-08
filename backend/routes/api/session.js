@@ -34,6 +34,12 @@ router.get("/", (req, res) => {
       // lastName: user.lastName,
       email: user.email,
       username: user.username,
+      age: user.age,
+      location: user.location,
+      locationRadius: user.locationRadius,
+      availability: user.availability,
+      interests: user.interests,
+      objectives: user.objectives,
     };
     return res.json({
       user: safeUser,
