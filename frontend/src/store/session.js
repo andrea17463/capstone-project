@@ -58,24 +58,24 @@ export const signup = (user) => async (dispatch) => {
   const { username, fullName, email, password } = user;
   try {
     const response = await csrfFetch("/users", {
-            method: "POST",
-            body: JSON.stringify({
-              username,
-              fullName,
-              email,
-              password
-            })
-          });
-      
-          if (!response.ok) throw new Error('Signup failed');
-          const data = await response.json();
-          dispatch(setUser(data.user));
-          return response;
-        } catch (error) {
-          console.error('Signup error:', error);
-          return { error: error.message };
-        }
-      };
+      method: "POST",
+      body: JSON.stringify({
+        username,
+        fullName,
+        email,
+        password
+      })
+    });
+
+    if (!response.ok) throw new Error('Signup failed');
+    const data = await response.json();
+    dispatch(setUser(data.user));
+    return response;
+  } catch (error) {
+    console.error('Signup error:', error);
+    return { error: error.message };
+  }
+};
 
 // Logout Functionality
 export const logout = () => async (dispatch) => {
@@ -98,7 +98,7 @@ const initialState = { user: null };
 
 // SESSION REDUCER
 const sessionReducer = (state = initialState, action) => {
-  // console.log("Received action in sessionReducer:", action);
+  console.log("Received action in sessionReducer:", action);
   // if (!action || typeof action.type !== 'string') return state;
   if (action.type.startsWith('@@redux/')) return state;
 
