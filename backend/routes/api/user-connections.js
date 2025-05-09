@@ -72,9 +72,9 @@ router.get('/', requireAuth, async (req, res) => {
 // Get specific connection between current user and another user
 router.get('/:userId', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
-  console.log("Received userId1:", req.params.user.id);
+  console.log("Received userId1:", req.user.id);
   const userId2 = req.params.userId;
-  console.log("Received userId2:", req.params.userId);
+  console.log("Request received for connection ID:", req.params.userId);
 
   try {
     const connection = await UserConnection.findOne({
@@ -102,6 +102,13 @@ router.get('/:userId', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
   const { user_2_id, suggestedActivity, meetingTime } = req.body;
+  console.log("User ID 1:", user1Id);
+  console.log("User ID 2:", user_2_id);
+
+
+  if (!user_2_id || !suggestedActivity || !meetingTime) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
 
   try {
     const newConnection = await UserConnection.create({
