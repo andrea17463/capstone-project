@@ -9,6 +9,7 @@ import {
 } from '../../store/chat-messages';
 import { selectMessages } from '../../store/selectors';
 import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import { csrfFetch } from '../../utils/csrf';
 
 const ChatBox = ({ user1Id, user2Id }) => {
   const dispatch = useDispatch();

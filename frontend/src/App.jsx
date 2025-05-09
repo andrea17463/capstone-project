@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
+import { restoreCsrf } from './utils/csrf';
 import Navigation from './components/Navigation/Navigation';
 import LandingPage from './components/LandingPage/LandingPage';
 import UserProfile from './components/UserProfile/UserProfile';
@@ -15,6 +16,10 @@ import * as sessionActions from './store/session';
 function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    restoreCsrf();
+  }, []);
 
   useEffect(() => {
     dispatch(sessionActions.restoreUser())

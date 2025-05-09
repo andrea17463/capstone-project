@@ -15,7 +15,7 @@ router.use('/session', sessionRouter);
 router.use('/users', usersRouter);
 router.use('/chat-messages', chatMessagesRouter);
 router.use('/game-plays', gameplaysRouter);
-router.use('/user-connections', userconnectionsRouter);
+router.use('/connections', userconnectionsRouter);
 router.use('/filter-results', filterResultsRouter);
 
 module.exports = router;
