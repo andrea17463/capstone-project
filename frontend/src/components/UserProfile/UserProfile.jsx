@@ -1,7 +1,7 @@
 // frontend/src/components/UserProfile/UserProfile.jsx
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
 
@@ -12,7 +12,7 @@ function UserProfile() {
   const [showProfileInfo, setShowProfileInfo] = useState(false);
 
 
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   const [formData, setFormData] = useState({
     age: '',

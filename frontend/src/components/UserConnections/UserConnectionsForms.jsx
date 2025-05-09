@@ -2,14 +2,14 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 function UserConnectionsForms({ formData, setFormData, setResults }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
 
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {

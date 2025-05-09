@@ -1,4 +1,5 @@
 // frontend/src/store/users.js
+import { csrfFetch } from '../utils/csrf';
 // Action Types
 const SET_LOADING = 'user/SET_LOADING';
 const SET_ERROR = 'user/SET_ERROR';
@@ -29,7 +30,7 @@ export const clearUser = () => ({
 export const fetchUser = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/users', {
+        const res = await csrfFetch('/api/users', {
             credentials: 'include'
         });
 
@@ -47,7 +48,7 @@ export const fetchUser = () => async (dispatch) => {
 export const createUser = (userData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/users', {
+        const res = await csrfFetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
@@ -76,7 +77,7 @@ export const updateUser = (updates) => async (dispatch) => {
 
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/users', {
+        const res = await csrfFetch('/api/users', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, },
             credentials: 'include',
@@ -106,7 +107,7 @@ export const deleteUser = () => async (dispatch) => {
 
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/users', {
+        const res = await csrfFetch('/api/users', {
             method: 'DELETE',
             headers: {
                 'X-CSRF-Token': csrfToken,

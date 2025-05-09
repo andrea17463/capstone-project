@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const UserConnections = () => {
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   const [formData, setFormData] = useState({
     interests: '',

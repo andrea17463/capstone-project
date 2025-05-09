@@ -2,7 +2,6 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const { requireAuth, restoreUser } = require('../../utils/auth');
-// const { UserConnection, User } = require('../../db/models');
 const { UserConnection } = require('../../db/models');
 // const { check } = require('express-validator');
 // const { handleValidationErrors } = require('../../utils/validation');
@@ -44,7 +43,7 @@ router.get('/', requireAuth, async (req, res) => {
           { user_2_id: userId }
         ]
       },
-      order: [['updated_at', 'DESC']]
+      order: [['updated_at', 'DESC']],
     });
 
     const processedConnections = connections.map(connection => {
@@ -102,28 +101,47 @@ router.get('/:userId', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
   const { user_2_id, suggestedActivity, meetingTime } = req.body;
+  console.log('Incoming POST to /api/connections with body:', req.body);
   console.log("User ID 1:", user1Id);
   console.log("User ID 2:", user_2_id);
 
+  const parsedMeetingTime = new Date(meetingTime);
 
-  if (!user_2_id || !suggestedActivity || !meetingTime) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!user_2_id || !suggestedActivity || isNaN(parsedMeetingTime.getTime())) {
+    console.log('Validation failed: Missing or invalid required fields');
+    return res.status(400).json({ error: 'Missing or invalid required fields' });
   }
 
   try {
+    const existingConnection = await UserConnection.findOne({
+      where: {
+        [Op.or]: [
+          { user_1_id: user1Id, user_2_id: user_2_id },
+          { user_1_id: user_2_id, user_2_id: user1Id }
+        ],
+        connectionStatus: { [Op.ne]: 'declined' },
+      }
+    });
+
+    if (existingConnection) {
+      console.log('Connection already exists between these users');
+      return res.status(409).json({ message: "Connection already exists" });
+    }
+
     const newConnection = await UserConnection.create({
       user_1_id: user1Id,
       user_2_id,
-      connection_status: 'pending',
+      connectionStatus: 'pending',
       chatEnabled: false,
       meetingStatus: 'pending',
       suggestedActivity,
-      meetingTime
+      meetingTime: parsedMeetingTime
     });
 
+    console.log('Successfully created new connection:', newConnection);
     res.status(201).json(newConnection);
   } catch (err) {
-    console.error(err);
+    console.error('Error creating connection:', err);
     res.status(500).json({ error: 'Failed to create connection' });
   }
 });
@@ -133,6 +151,7 @@ router.post('/', requireAuth, async (req, res) => {
 router.put('/:connectionId/status', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
   const { connectionStatus } = req.body;
+  console.log('connection status req.body', req.body);
 
   try {
     const connection = await UserConnection.findByPk(connectionId);
@@ -176,8 +195,12 @@ router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
   const { meetAgain } = req.body;
 
   try {
+
     const connection = await UserConnection.findByPk(connectionId);
-    if (!connection) return res.status(404).json({ error: 'Connection not found' });
+
+    if (!connection) {
+      return res.status(404).json({ error: 'Connection not found' });
+    }
 
     if (userId === connection.user_1_id) {
       connection.meetAgainChoiceUser1 = meetAgain;
@@ -188,10 +211,13 @@ router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
     }
 
     await connection.save();
-    res.json(connection);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to submit feedback' });
+
+    return res.status(200).json({ message: 'Feedback recorded successfully' });
+
+  } catch (error) {
+
+    console.error('Error updating feedback:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
