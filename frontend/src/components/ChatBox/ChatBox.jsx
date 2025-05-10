@@ -1,5 +1,7 @@
+// frontend/src/components/ChatBox/ChatBox.jsx
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import {
   sendMessage,
   getMessages,
@@ -8,33 +10,29 @@ import {
   addIncomingMessage
 } from '../../store/chat-messages';
 import { selectMessages } from '../../store/selectors';
-// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
-// import { csrfFetch } from '../../utils/csrf';
 
-const ChatBox = ({ user1Id, user2Id }) => {
+const ChatBox = () => {
+  const { user1Id, user2Id } = useParams();
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.chatMessages?.loading);
-  const error = useSelector((state) => state.chatMessages?.error);
   const messages = useSelector(selectMessages);
+  const loading = useSelector(state => state.chatMessages?.loading);
+  const error = useSelector(state => state.chatMessages?.error);
 
   const [message, setMessage] = useState('');
   const [editingIndex, setEditingIndex] = useState(null);
   const [isSending, setIsSending] = useState(false);
+
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // useExtractCookiesCsrfToken();
-
-  // Setup WebSocket connection
+  // Setup WebSocket
   useEffect(() => {
     const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:3001';
     socketRef.current = new WebSocket(WS_BASE_URL);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connected');
-      if (user1Id) {
-        socketRef.current.send(JSON.stringify({ type: 'join', userId: user1Id }));
-      }
+      socketRef.current.send(JSON.stringify({ type: 'join', userId: user1Id }));
     };
 
     socketRef.current.onmessage = (event) => {
@@ -46,7 +44,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
           console.log(`${incoming.userId} is typing...`);
         }
       } catch (err) {
-        console.error('Invalid message format:', err);
+        console.error('WebSocket message parse error:', err);
       }
     };
 
@@ -72,7 +70,6 @@ const ChatBox = ({ user1Id, user2Id }) => {
 
   const handleSendMessage = useCallback(async () => {
     if (!message.trim()) return;
-
     setIsSending(true);
 
     try {
@@ -84,7 +81,6 @@ const ChatBox = ({ user1Id, user2Id }) => {
         await dispatch(sendMessage({ receiverId: user2Id, content: message }));
       }
 
-      // Send WebSocket broadcast
       if (socketRef.current?.readyState === WebSocket.OPEN) {
         socketRef.current.send(
           JSON.stringify({
@@ -103,10 +99,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
   }, [message, editingIndex, user2Id, user1Id, dispatch, messages]);
 
   const handleTyping = useCallback(() => {
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
+    clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       if (socketRef.current?.readyState === WebSocket.OPEN) {
         socketRef.current.send(
@@ -120,14 +113,14 @@ const ChatBox = ({ user1Id, user2Id }) => {
     }, 500);
   }, [user1Id, user2Id]);
 
-  const formatTimestamp = useCallback((timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
-  }, []);
-
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setMessage('');
+  };
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
   };
 
   const renderedMessages = useMemo(() => {
@@ -144,7 +137,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
     return messages.map((msg, index) => (
       <li key={msg.id}>
         <div>
-          <strong>{msg.sender?.username || msg.senderId}</strong>: {msg.content}
+          <strong>{msg.sender?.username ?? `User ${msg.senderId}`}</strong>: {msg.content}
         </div>
         <div style={{ fontSize: '0.8em', color: '#666' }}>
           {formatTimestamp(msg.createdAt || msg.timestamp)}
@@ -157,7 +150,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
         )}
       </li>
     ));
-  }, [messages, formatTimestamp, dispatch, user1Id]);
+  }, [messages, dispatch, user1Id]);
 
   return (
     <div>
@@ -181,7 +174,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
         )}
       </div>
 
-      {loading && <div>Loading...</div>}
+      {loading && <div>Loading messages...</div>}
       {error && <div style={{ color: 'red' }}>Error: {error}</div>}
 
       <ul>{renderedMessages}</ul>

@@ -42,12 +42,13 @@ export const getConnection = (userId) => async (dispatch) => {
     }
 };
 
-export const fetchAllConnections = () => async (dispatch) => {
+export const fetchAllConnections = (userId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/connections');
+        const res = await fetch(`/api/connections/${userId}`);
         if (!res.ok) throw new Error('Failed to fetch connections');
         const data = await res.json();
+        console.log('Fetched connections:', data);
         dispatch({
             type: GET_CONNECTIONS,
             payload: data

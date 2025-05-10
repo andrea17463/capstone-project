@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.UserConnection, {
         foreignKey: 'user_1_id',
-        as: 'connectionsAsUser1'
+        as: 'connections1'
       });
       User.hasMany(models.UserConnection, {
         foreignKey: 'user_2_id',
-        as: 'connectionsAsUser2'
+        as: 'connections2'
       });
     }
   }
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     age: {
       type: DataTypes.INTEGER,
       allowNull: true,
-    },    
+    },
     location: {
       type: DataTypes.STRING,
       allowNull: true

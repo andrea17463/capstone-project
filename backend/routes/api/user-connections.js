@@ -3,6 +3,7 @@ const express = require('express');
 const { Op } = require('sequelize');
 const { requireAuth, restoreUser } = require('../../utils/auth');
 const { UserConnection } = require('../../db/models');
+// const { User } = require('../../db/models');
 // const { check } = require('express-validator');
 // const { handleValidationErrors } = require('../../utils/validation');
 
@@ -43,24 +44,14 @@ router.get('/', requireAuth, async (req, res) => {
           { user_2_id: userId }
         ]
       },
+      include: [
+        { model: User, as: 'user1', attributes: ['id', 'username', 'interests'] },
+        { model: User, as: 'user2', attributes: ['id', 'username', 'interests'] },
+      ],
       order: [['updated_at', 'DESC']],
     });
 
-    const processedConnections = connections.map(connection => {
-      const user1 = connection.user_1;
-      const user2 = connection.user_2;
-
-      user1.interests = user1.interests ? user1.interests.split(',') : [];
-      user2.interests = user2.interests ? user2.interests.split(',') : [];
-
-      return {
-        ...connection,
-        user_1: user1,
-        user_2: user2,
-      };
-    });
-
-    res.json(processedConnections);
+    res.json(connections);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Unable to fetch connections' });
