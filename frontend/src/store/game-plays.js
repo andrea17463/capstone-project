@@ -1,4 +1,5 @@
 // frontend/src/store/game-plays.js
+import { csrfFetch } from '../utils/csrf';
 // Action Types
 const START_GAME = 'START_GAME';
 const GET_GAME_PLAY = 'GET_GAME_PLAY';
@@ -24,7 +25,7 @@ export const setError = (error) => ({
 export const startGame = (gameData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/game-plays', {
+        const res = await csrfFetch('/api/game-plays', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(gameData),
@@ -83,7 +84,7 @@ export const getUserGamePlays = () => async (dispatch) => {
 export const updateGuess = (gamePlayId, guessResult) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/game-plays/${gamePlayId}/guess`, {
+        const res = await csrfFetch(`/api/game-plays/${gamePlayId}/guess`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(guessResult),
@@ -106,7 +107,7 @@ export const updateGuess = (gamePlayId, guessResult) => async (dispatch) => {
 export const updatePrompt = (gamePlayId, promptData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/game-plays/${gamePlayId}/prompt`, {
+        const res = await csrfFetch(`/api/game-plays/${gamePlayId}/prompt`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(promptData),
@@ -129,7 +130,7 @@ export const updatePrompt = (gamePlayId, promptData) => async (dispatch) => {
 export const deleteAllGamePlays = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/game-plays', {
+        const res = await csrfFetch('/api/game-plays', {
             method: 'DELETE',
         });
 
