@@ -1,4 +1,5 @@
 // frontend/src/store/chat-messages.js
+import { csrfFetch } from '../utils/csrf';
 // Action Types
 const SEND_MESSAGE = 'SEND_MESSAGE';
 const ADD_INCOMING_MESSAGE = 'ADD_INCOMING_MESSAGE';
@@ -29,7 +30,7 @@ export const addIncomingMessage = (message) => ({
 export const sendMessage = (messageData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await fetch('/api/messages', {
+        const response = await csrfFetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
@@ -91,7 +92,7 @@ export const getChatHistory = (userId) => async (dispatch) => {
 export const editMessage = (messageId, updatedMessage) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await fetch(`api/messages/${messageId}`, {
+        const response = await csrfFetch(`api/messages/${messageId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedMessage),
@@ -115,7 +116,7 @@ export const deleteMessage = (messageId) => async (dispatch) => {
 
     dispatch(setLoading(true));
     try {
-        const response = await fetch(`/api/messages/${messageId}`, {
+        const response = await csrfFetch(`/api/messages/${messageId}`, {
 
             method: 'DELETE',
         });

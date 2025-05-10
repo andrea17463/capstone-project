@@ -8,7 +8,7 @@ import {
   addIncomingMessage
 } from '../../store/chat-messages';
 import { selectMessages } from '../../store/selectors';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 // import { csrfFetch } from '../../utils/csrf';
 
 const ChatBox = ({ user1Id, user2Id }) => {
@@ -23,7 +23,7 @@ const ChatBox = ({ user1Id, user2Id }) => {
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   // Setup WebSocket connection
   useEffect(() => {

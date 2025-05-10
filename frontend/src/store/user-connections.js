@@ -1,7 +1,9 @@
 // frontend/src/store/user-connections.js
+import { csrfFetch } from '../utils/csrf';
 // Action Types
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
+const GET_CONNECTION = 'GET_CONNECTION';
 const GET_CONNECTIONS = 'GET_CONNECTIONS';
 const ADD_CONNECTION = 'ADD_CONNECTION';
 const UPDATE_CONNECTION_STATUS = 'UPDATE_CONNECTION_STATUS';
@@ -21,6 +23,25 @@ export const setError = (error) => ({
 });
 
 // Thunk Action Creators
+export const getConnection = (userId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await csrfFetch(`/api/connections/${userId}`);
+        if (!res.ok) throw new Error('Failed to fetch connection');
+        const data = await res.json();
+        dispatch({
+            type: GET_CONNECTION,
+            payload: data,
+        });
+        console.log('Fetched connection data:', data);
+    } catch (err) {
+        console.error('Error:', err);
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
+
 export const fetchAllConnections = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
@@ -32,6 +53,7 @@ export const fetchAllConnections = () => async (dispatch) => {
             payload: data
         });
     } catch (err) {
+        console.error('Error:', err);
         dispatch(setError(err.message));
     } finally {
         dispatch(setLoading(false));
@@ -41,20 +63,28 @@ export const fetchAllConnections = () => async (dispatch) => {
 export const addConnection = (connectionData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/connections', {
+        const res = await csrfFetch('/api/connections', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(connectionData),
         });
 
-        if (!res.ok) throw new Error('Failed to create connection');
-        const data = await res.json();
-        dispatch({
-            type: ADD_CONNECTION,
-            payload: data
-        });
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Unknown server error');
+        }
+
+        const newConnection = await res.json();
+        dispatch({ type: 'ADD_CONNECTION', payload: newConnection });
     } catch (err) {
-        dispatch(setError(err.message));
+        console.error('Connection creation failed:', err);
+
+        if (err.status === 409 || err?.response?.status === 409) {
+            await dispatch(getConnection(connectionData.user_2_id));
+            dispatch(setError('Connection already exists'));
+        } else {
+            const errorMessage = err?.message || 'Unknown error';
+            dispatch(setError(errorMessage));
+        }
     } finally {
         dispatch(setLoading(false));
     }
@@ -63,10 +93,10 @@ export const addConnection = (connectionData) => async (dispatch) => {
 export const updateConnectionStatus = (connectionId, status) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/connections/${connectionId}/status`, {
+        const res = await csrfFetch(`/api/connections/${connectionId}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify({ connectionStatus: status }),
         });
 
         if (!res.ok) throw new Error('Failed to update connection status');
@@ -76,6 +106,7 @@ export const updateConnectionStatus = (connectionId, status) => async (dispatch)
             payload: data
         });
     } catch (err) {
+        console.error('Error:', err);
         dispatch(setError(err.message));
     } finally {
         dispatch(setLoading(false));
@@ -85,7 +116,7 @@ export const updateConnectionStatus = (connectionId, status) => async (dispatch)
 export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/connections/${connectionId}/meeting`, {
+        const res = await csrfFetch(`/api/connections/${connectionId}/meeting`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ meetingStatus }),
@@ -98,6 +129,7 @@ export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispa
             payload: data
         });
     } catch (err) {
+        console.error('Error:', err);
         dispatch(setError(err.message));
     } finally {
         dispatch(setLoading(false));
@@ -107,7 +139,7 @@ export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispa
 export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/connections/${connectionId}/feedback`, {
+        const res = await csrfFetch(`/api/connections/${connectionId}/feedback`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ feedback }),
@@ -120,6 +152,7 @@ export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
             payload: data
         });
     } catch (err) {
+        console.error('Error:', err);
         dispatch(setError(err.message));
     } finally {
         dispatch(setLoading(false));
@@ -129,7 +162,7 @@ export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
 export const removeConnection = (connectionId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/connections/${connectionId}`, {
+        const res = await csrfFetch(`/api/connections/${connectionId}`, {
             method: 'DELETE',
         });
 
@@ -139,6 +172,7 @@ export const removeConnection = (connectionId) => async (dispatch) => {
             payload: connectionId
         });
     } catch (err) {
+        console.error('Error:', err);
         dispatch(setError(err.message));
     } finally {
         dispatch(setLoading(false));
@@ -162,10 +196,28 @@ const userConnectionsReducer = (state = initialState, action) => {
             return { ...state, loading: action.payload };
         case SET_ERROR:
             return { ...state, error: action.payload };
+        case GET_CONNECTION: {
+            const exists = state.connections.find(conn => conn.id === action.payload.id);
+            return {
+                ...state,
+                connections: exists
+                    ? state.connections.map(conn =>
+                        conn.id === action.payload.id ? action.payload : conn
+                    )
+                    : [...state.connections, action.payload],
+            };
+        }
         case GET_CONNECTIONS:
+            console.log('Received GET_CONNECTION action payload:', action.payload);
             return { ...state, connections: action.payload, error: null };
         case ADD_CONNECTION:
-            return { ...state, connections: [...state.connections, action.payload] };
+            return {
+                ...state,
+                connections: [
+                    ...state.connections.filter(conn => conn.id !== action.payload.id),
+                    action.payload
+                ]
+            };
         case UPDATE_CONNECTION_STATUS:
             return {
                 ...state,

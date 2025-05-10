@@ -1,6 +1,6 @@
 // frontend/src/components/GuessingGame/GuessingGame.jsx
 import { useState, useEffect, useMemo } from 'react';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import './GuessingGame.css';
 
 const GuessingGame = () => {
@@ -564,7 +564,7 @@ const GuessingGame = () => {
   const [showRemovePlayerForm, setShowRemovePlayerForm] = useState(false);
   const [playerToRemove, setPlayerToRemove] = useState("");
 
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   useEffect(() => {
     let total = 0;

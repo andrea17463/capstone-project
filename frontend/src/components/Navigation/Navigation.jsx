@@ -1,14 +1,14 @@
 // frontend/src/components/Navigation/Navigation.jsx
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
 
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
 
   return (
     <nav className="navigation">

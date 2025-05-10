@@ -1,10 +1,10 @@
 // src/components/LandingPage/LandingPage.jsx
 import './LandingPage.css';
 import { Link } from 'react-router-dom';
-import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
+// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const LandingPage = () => {
-  useExtractCookiesCsrfToken();
+  // useExtractCookiesCsrfToken();
   return (
     <div>
       <h1>Welcome to the App!</h1>
