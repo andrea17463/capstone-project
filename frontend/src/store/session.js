@@ -94,7 +94,7 @@ export const logout = () => async (dispatch) => {
 };
 
 // Initial State
-const initialState = { user: null };
+const initialState = { user: null, gamePlayId: null };
 
 // SESSION REDUCER
 const sessionReducer = (state = initialState, action) => {
