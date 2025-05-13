@@ -1,26 +1,13 @@
 // frontend/src/components/Navigation/Navigation.jsx
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useEffect, useRef } from 'react';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
-  const gamePlayId = useSelector(state => state.gameplays.gamePlayId);
-  const currentUser = useSelector((state) => state.session.user);
-  const connectionRef = useRef(null);
   const connections = useSelector((state) => state.userconnections.connections || []);
-
-  useEffect(() => {
-    connectionRef.current = new WebSocket('ws://localhost:3001');
-
-    connectionRef.current.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    return () => connectionRef.current?.close();
-  }, []);
+  console.log('Navigation component connections:', connections);
 
   return (
     <nav className="navigation">
@@ -43,28 +30,31 @@ function Navigation({ isLoaded }) {
       <span>
         <NavLink to="/chats">All Chats</NavLink>
       </span>
+      <span>Specific Chats</span>
+      <ul>
+        {connections
+          .filter((connection) => connection.connectionStatus === 'accepted')
+          .map((connection) => {
+            if (!connection.user1 || !connection.user2 || !sessionUser) return null;
+
+            const otherUser = sessionUser.id === connection.user1.id ? connection.user2 : connection.user1;
+
+            console.log('Inspecting Navigation component connection:', connection);
+            console.log('sessionUser:', sessionUser);
+            console.log('otherUser', otherUser);
+            return (
+              <li key={connection.id}>
+                <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                  Chat with {otherUser.username || `User ${otherUser.id}`}
+                </NavLink>
+              </li>
+            );
+          })}
+      </ul>
       <span>
-        {connections.map((connection) => {
-          if (!connection.user1 || !connection.user2) return null;
-          const otherUser = currentUser.id === connection.user1.id ? connection.user2 : connection.user1;
-
-          console.log(`Chat Link: /chat/${currentUser.id}/${otherUser.id}`);
-          <NavLink to="/chat/:user1Id/:user2Id">Specific Chats</NavLink>
-
-          return (
-            <span key={connection.id}>
-              <NavLink to={`/chat/${currentUser.id}/${otherUser.id}`}>
-                Chat with {otherUser.username || `User ${otherUser.id}`}
-              </NavLink>
-            </span>
-          );
-        })}
+        <NavLink to="/game/guess-me-game">Guess Me Game</NavLink>
       </span>
       <span>
-        <NavLink to={`/game/${gamePlayId}`}>Guess Me Game</NavLink>
-      </span>
-      <span>
-        {/* <NavLink to="/game/resume-or-create">Guess Me Game</NavLink> */}
       </span>
     </nav>
   );

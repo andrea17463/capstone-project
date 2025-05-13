@@ -15,6 +15,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_2_id',
         as: 'connections2'
       });
+      // Future feature
+      // User.hasMany(models.UserBlock, { foreignKey: 'blockerId', as: 'blockedUsers' });
     }
   }
   User.init({

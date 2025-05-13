@@ -1,5 +1,6 @@
 // frontend/src/store/game-plays.js
 import { csrfFetch } from '../utils/csrf';
+
 // Action Types
 const START_GAME = 'START_GAME';
 const GET_GAME_PLAY = 'GET_GAME_PLAY';
@@ -9,6 +10,7 @@ const UPDATE_PROMPT = 'UPDATE_PROMPT';
 const DELETE_ALL_GAME_PLAYS = 'DELETE_ALL_GAME_PLAYS';
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
+const SET_GAME = 'SET_GAME';
 
 // Action Creators
 export const setLoading = (isLoading) => ({
@@ -19,6 +21,11 @@ export const setLoading = (isLoading) => ({
 export const setError = (error) => ({
     type: SET_ERROR,
     payload: error,
+});
+
+export const setGame = (game) => ({
+    type: SET_GAME,
+    game,
 });
 
 // Thunk Action Creators
@@ -152,6 +159,7 @@ const initialState = {
     currentGamePlay: null,
     loading: false,
     error: null,
+    game: null,
 };
 
 // Reducer
@@ -212,6 +220,8 @@ const gamePlaysReducer = (state = initialState, action) => {
                 ...state,
                 error: action.payload,
             };
+        case SET_GAME:
+            return { ...state, game: action.game };
         default:
             return state;
     }

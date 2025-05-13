@@ -1,7 +1,6 @@
 // frontend/src/components/UserProfile/UserProfile.jsx
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
 
@@ -10,9 +9,6 @@ function UserProfile() {
   const user = useSelector((state) => state.session.user);
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
-
-
-  // useExtractCookiesCsrfToken();
 
   const [formData, setFormData] = useState({
     age: '',

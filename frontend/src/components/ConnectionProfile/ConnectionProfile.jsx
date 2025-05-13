@@ -18,19 +18,29 @@ function ConnectionProfile() {
   const dispatch = useDispatch();
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [suggestedActivityInput, setSuggestedActivityInput] = useState('');
+  const [meetingTimeInput, setMeetingTimeInput] = useState('');
+  const [activityError, setActivityError] = useState('');
+  const [timeError, setTimeError] = useState('');
+  const [statusType, setStatusType] = useState('');
 
   const connections = useSelector((state) => state.userconnections?.connections || []);
   const userIdNumber = Number(userId);
+  const currentUserId = useSelector(state => state.session.user?.id);
   const connection = connections.find(
     (conn) => conn.user_2_id === userIdNumber || conn.user_1_id === userIdNumber
   );
 
-  const userconnections = useSelector(state => state.userconnections);
-  console.log('Userconnections:', userconnections);
+  console.log('Redux state:', useSelector(state => state));
   console.log('All connections:', connections);
   console.log('userIdNumber:', userIdNumber);
   console.log('Current connection:', connection);
+
+  const clearMessages = () => {
+    setStatusMessage('');
+    setMessage('');
+  };
 
   useEffect(() => {
     if (userId) {
@@ -41,13 +51,14 @@ function ConnectionProfile() {
             const data = await profileRes.json();
             console.log('API response data:', data);
             setProfile(data);
-            setError(null);
+            setStatusMessage('');
           } else {
             throw new Error('Failed to load profile');
           }
         } catch (err) {
           console.error(err);
-          setError(err.message);
+          setStatusMessage(err.message);
+          setStatusType('error');
         }
       };
 
@@ -58,6 +69,7 @@ function ConnectionProfile() {
   }, [userId, dispatch]);
 
   const handleAcceptConnection = async () => {
+    clearMessages();
     if (connection) {
       await dispatch(updateConnectionStatus(connection.id, 'accepted'));
       setMessage('Connection accepted.');
@@ -67,6 +79,7 @@ function ConnectionProfile() {
   };
 
   const handleDeclineConnection = async () => {
+    clearMessages();
     if (connection) {
       await dispatch(updateConnectionStatus(connection.id, 'declined'));
       setMessage('Connection declined.');
@@ -74,6 +87,7 @@ function ConnectionProfile() {
   };
 
   const handleCancelRequest = async () => {
+    clearMessages();
     if (!connection) {
       console.log("No connection found to cancel");
       setMessage("No connection request to cancel.");
@@ -85,6 +99,8 @@ function ConnectionProfile() {
       try {
         await dispatch(removeConnection(connection.id));
         setMessage('Connection request canceled.');
+        setSuggestedActivityInput('');
+        setMeetingTimeInput('');
       } catch (err) {
         console.error('Error canceling connection request:', err);
         setMessage('Failed to cancel the connection request.');
@@ -94,25 +110,54 @@ function ConnectionProfile() {
     }
   };
 
-  const handleWantToMeet = () => {
-    const user_2_id = parseInt(userId);
-    const suggestedActivity = "Coffee chat";
-    const meetingTime = new Date().toISOString();
+  const handleWantToMeet = async () => {
+    clearMessages();
+    const user2Id = parseInt(userId);
+    const suggestedActivity = suggestedActivityInput.trim();
+    const rawDate = new Date(meetingTimeInput);
 
-    if (!user_2_id || !suggestedActivity || isNaN(new Date(meetingTime))) {
-      setError("Missing or invalid connection fields");
-      return;
+    console.log("Suggested activity:", `"${suggestedActivity}"`);
+    console.log("Meeting time input:", meetingTimeInput);
+    console.log("Raw date is valid:", !isNaN(rawDate));
+
+    let hasError = false;
+    setActivityError('');
+    setTimeError('');
+
+    if (!suggestedActivity || suggestedActivity.length < 3) {
+      setActivityError("Please enter a valid activity (at least 3 characters).");
+      hasError = true;
     }
 
+    if (isNaN(rawDate)) {
+      setTimeError("Please select a valid meeting time.");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    const meetingTime = rawDate.toISOString();
+
     if (!connection) {
-      dispatch(addConnection({ user_2_id, suggestedActivity, meetingTime }));
+      await dispatch(
+        addConnection(
+          {
+            user1Id: currentUserId, user2Id, suggestedActivity, meetingTime
+          },
+          (errMsg) => setStatusMessage(errMsg)
+        )
+      );
+      await dispatch(getConnection(userId));
       setMessage('Connection request sent!');
+      setSuggestedActivityInput('');
+      setMeetingTimeInput('');
     } else {
       setMessage('You already have a connection with this user.');
     }
   };
 
   const handleConfirmMeeting = async () => {
+    clearMessages();
     if (connection) {
       await dispatch(updateMeetingStatus(connection.id, 'confirmed'));
       setMessage('Meeting confirmed.');
@@ -120,6 +165,7 @@ function ConnectionProfile() {
   };
 
   const handleMeetAgain = async () => {
+    clearMessages();
     if (connection) {
       await dispatch(updateFeedback(connection.id, true));
       setMessage('Your interest in meeting again has been noted.');
@@ -127,6 +173,7 @@ function ConnectionProfile() {
   };
 
   const handleEndMeeting = async () => {
+    clearMessages();
     if (connection) {
       await dispatch(removeConnection(connection.id));
       setMessage('Meeting ended and connection removed.');
@@ -134,6 +181,7 @@ function ConnectionProfile() {
   };
 
   const handleCancelMeeting = async () => {
+    clearMessages();
     if (connection) {
       const confirmed = window.confirm('Are you sure you want to cancel the meeting?');
       if (!confirmed) return;
@@ -150,8 +198,6 @@ function ConnectionProfile() {
 
   if (loading) return <p>Loading connection...</p>;
 
-  if (error) return <p style={{ color: 'red' }}>Error loading profile: {error}</p>;
-
   if (!profile) return <p>Loading...</p>;
 
   return (
@@ -161,10 +207,47 @@ function ConnectionProfile() {
       <p>Interests: {profile.interests}</p>
       <p>Objectives: {profile.objectives}</p>
       <br />
+      {statusMessage && (
+        <p style={{ color: statusType === 'error' ? 'red' : 'green' }}>
+          {statusMessage}
+        </p>
+      )}
       {message && <p style={{ color: 'green' }}>{message}</p>}
+      < br />
+      <label>
+        Suggested Activity:
+        <input
+          type="text"
+          value={suggestedActivityInput}
+          onChange={(e) => {
+            setSuggestedActivityInput(e.target.value);
+            setStatusMessage('');
+          }}
+          placeholder="e.g., Coffee chat"
+        />
+      </label>
+      {activityError && <p style={{ color: 'red' }}>{activityError}</p>}
+      < br />
 
-      <button onClick={handleWantToMeet}>Want to meet</button>
-      {/* <button disabled>Request sent</button> */}
+      <label>
+        Meeting Time:
+        <input
+          type="datetime-local"
+          value={meetingTimeInput}
+          onChange={(e) => {
+            setMeetingTimeInput(e.target.value);
+            setStatusMessage('');
+          }}
+        />
+      </label>
+      {timeError && <p style={{ color: 'red' }}>{timeError}</p>}
+      < br />
+
+      {!connection ? (
+        <button onClick={handleWantToMeet}>Want to meet</button>
+      ) : (
+        <button disabled>Request already sent</button>
+      )}
       <button onClick={handleCancelRequest}>Cancel request</button>
       <button onClick={handleAcceptConnection}>Accept Connection</button>
       <button onClick={handleDeclineConnection}>Decline Connection</button>

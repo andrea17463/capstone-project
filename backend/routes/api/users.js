@@ -58,10 +58,8 @@ router.post('/', validateSignup, async (req, res) => {
   console.log('signup req body', req.body);
 
   try {
-    // Hash the password
     const hashedPassword = bcrypt.hashSync(password);
 
-    // Create user with all available fields
     const user = await User.create({
       email,
       username,
@@ -75,6 +73,7 @@ router.post('/', validateSignup, async (req, res) => {
       interests,
       objectives
     });
+    console.log('signed up user', user);
 
     const safeUser = {
       id: user.id,
@@ -111,7 +110,6 @@ router.post('/', validateSignup, async (req, res) => {
   }
 });
 
-// Validation middleware
 const validateUserInput = [
   check('email')
     .isEmail()
@@ -138,7 +136,7 @@ const validateUserInput = [
 
 // GET /api/users
 // Retrieve the logged-in user's profile
-router.get('/users', requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
       attributes: {
@@ -146,6 +144,7 @@ router.get('/users', requireAuth, async (req, res) => {
         exclude: ['hashedPassword', 'email']
       }
     });
+    console.log('Retrieve the logged-in user\'s profile of user', user);
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -173,14 +172,10 @@ router.put('/', requireAuth, async (req, res) => {
 
   try {
     const user = await User.findByPk(req.user.id);
+    console.log('Update the logged-in user\'s profile of user', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // user.first_name = first_name ?? user.first_name;
-    // user.location = location ?? user.location;
-    // user.locationRadius = locationRadius ?? user.locationRadius;
-    // user.availability = availability ?? user.availability;
-    // user.interests = interests ?? user.interests;
-    // user.objectives = objectives ?? user.objectives;
     if (age !== undefined) user.age = age;
     if (location) user.location = location;
     if (locationRadius) user.locationRadius = locationRadius;
@@ -205,7 +200,6 @@ router.put('/', requireAuth, async (req, res) => {
 
     await setTokenCookie(res, updatedUser);
 
-    // res.json({ message: 'Profile updated', user });
     res.json({ message: 'Profile updated', user: updatedUser });
   } catch (err) {
     console.error('Error updating user profile:', err);
@@ -219,6 +213,7 @@ router.put('/', requireAuth, async (req, res) => {
 router.delete('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
+    console.log('Delete the logged-in user\'s profile of user', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     await user.destroy();
@@ -230,6 +225,7 @@ router.delete('/', requireAuth, async (req, res) => {
 });
 
 // POST /api/filter-results
+// Filter user connections by interests, objectives, location, and/or location radius
 router.post('/filter-results', requireAuth, async (req, res) => {
   const { interests, objectives, location, locationRadius } = req.body;
   console.log('filter results req body', req.body);
@@ -270,6 +266,7 @@ router.get('/:id', requireAuth, async (req, res) => {
     const user = await User.findByPk(userId, {
       attributes: ['id', 'username', 'fullName', 'age', 'location', 'interests', 'objectives']
     });
+    console.log('Retrieve profile info of a user connection user', user);
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -279,5 +276,76 @@ router.get('/:id', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user profile' });
   }
 });
+
+// Future features
+// // Block a user
+// router.post('blocks', async (req, res) => {
+//   const { blockerId, blockedId } = req.body;
+
+//   if (!blockerId || !blockedId) {
+// return res.status(400).json({ error: 'blockerId and blockedId are required' });
+// }
+// 
+//   try {
+//   const [block, created] = await UserBlock.findOrCreate({
+//     where: { userId: blockerId, blockedUserId: blockedId }
+//   });
+
+//   if (!created) {
+//   return res.status(200).json({ message: 'User is already blocked', block });
+// }
+
+// res.status(201).json(block);
+// } catch (error) {
+//     console.error('Block error:', err);
+//     res.status(500).json({ error: 'Failed to block user' });
+//   // res.json({ message: 'User blocked', block });
+//   }
+// });
+
+// // GET /api/users/:userId/blocked-users
+// Retrieve a list of blocked users
+// router.get('/:userId/blocked-users', async (req, res) => {
+//   try {
+//     const blocks = await UserBlock.findAll({
+//       where: { userId: req.params.userId },
+//       include: [{
+//         model: User,
+//         as: 'BlockedUser',
+//         attributes: ['id', 'username', 'email']
+//       }]
+//     });
+
+//     res.json(blocks);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Failed to fetch blocked users' });
+//   }
+// });
+
+// // Report a user
+// router.post('/:id/report', async (req, res) => {
+//   const reporterId = req.user.id;
+//   const reportedId = parseInt(req.params.id, 10);
+//   const { reason } = req.body;
+
+//   if (!reason || reason.trim().length < 3) {
+//     return res.status(400).json({ error: 'A valid reason is required' });
+//   }
+
+//   try {
+//
+//   await UserReport.create({
+//     reporterId,
+//     reportedId,
+//     reason
+//   });
+//   console.log(`User ${reporterId} reported ${reportedId}. Reason: ${reason}`);
+//   res.status(201).json({ message: 'Report submitted' });
+// } catch (err) {
+//   console.error('Report error:', err);
+//   res.status(500).json({ error: 'Failed to submit report' });
+// }
+// });
 
 module.exports = router;

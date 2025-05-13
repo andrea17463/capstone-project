@@ -89,3 +89,17 @@ input {
   padding: 10px;
   border-radius: 5px;
 } */
+
+/* .specific-chats-section {
+  margin-top: 10px;
+  padding: 5px;
+} */
+
+.specific-chats-section ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.specific-chats-section li {
+  margin: 4px 0;
+}

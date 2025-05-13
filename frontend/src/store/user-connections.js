@@ -1,5 +1,6 @@
 // frontend/src/store/user-connections.js
 import { csrfFetch } from '../utils/csrf';
+
 // Action Types
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
@@ -42,13 +43,12 @@ export const getConnection = (userId) => async (dispatch) => {
     }
 };
 
-export const fetchAllConnections = (userId) => async (dispatch) => {
+export const fetchAllConnections = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch(`/api/connections/${userId}`);
+        const res = await fetch('/api/connections');
         if (!res.ok) throw new Error('Failed to fetch connections');
         const data = await res.json();
-        console.log('Fetched connections:', data);
         dispatch({
             type: GET_CONNECTIONS,
             payload: data
@@ -61,33 +61,43 @@ export const fetchAllConnections = (userId) => async (dispatch) => {
     }
 };
 
-export const addConnection = (connectionData) => async (dispatch) => {
-    dispatch(setLoading(true));
+export const addConnection = (connectionData, onError) => async (dispatch, getState) => {
+    const state = getState();
+    const currentUserId = state.session?.user?.id;
+
+    if (!currentUserId) {
+        const errorMsg = "User is not logged in.";
+        if (onError) onError(errorMsg);
+        console.error(errorMsg);
+        return;
+    }
+
     try {
+        const { user2Id, suggestedActivity, meetingTime } = connectionData;
         const res = await csrfFetch('/api/connections', {
             method: 'POST',
-            body: JSON.stringify(connectionData),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user2Id, suggestedActivity, meetingTime }),
         });
 
         if (!res.ok) {
             const errorData = await res.json();
-            throw new Error(errorData.error || 'Unknown server error');
+            const errorMsg = errorData.message || 'Failed to add connection.';
+            if (onError) onError(errorMsg);
+            console.error(errorMsg);
+            return;
         }
 
         const newConnection = await res.json();
-        dispatch({ type: 'ADD_CONNECTION', payload: newConnection });
-    } catch (err) {
-        console.error('Connection creation failed:', err);
+        dispatch({ type: ADD_CONNECTION, payload: newConnection });
+        dispatch(getConnection(user2Id));
 
-        if (err.status === 409 || err?.response?.status === 409) {
-            await dispatch(getConnection(connectionData.user_2_id));
-            dispatch(setError('Connection already exists'));
-        } else {
-            const errorMessage = err?.message || 'Unknown error';
-            dispatch(setError(errorMessage));
-        }
-    } finally {
-        dispatch(setLoading(false));
+    } catch (err) {
+        const errorMsg = err.message || 'A connection now exists.';
+        if (onError) onError(errorMsg);
+        console.error(errorMsg);
     }
 };
 
@@ -97,7 +107,7 @@ export const updateConnectionStatus = (connectionId, status) => async (dispatch)
         const res = await csrfFetch(`/api/connections/${connectionId}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ connectionStatus: status }),
+            body: JSON.stringify({ status }),
         });
 
         if (!res.ok) throw new Error('Failed to update connection status');
@@ -143,11 +153,12 @@ export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
         const res = await csrfFetch(`/api/connections/${connectionId}/feedback`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ feedback }),
+            body: JSON.stringify({ meetAgain: feedback }),
         });
 
         if (!res.ok) throw new Error('Failed to update feedback');
         const data = await res.json();
+        console.log('Updated connection:', data);
         dispatch({
             type: UPDATE_CONNECTION_FEEDBACK,
             payload: data

@@ -2,14 +2,11 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
-// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 function UserConnectionsForms({ formData, setFormData, setResults }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
-
-  // useExtractCookiesCsrfToken();
 
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {
@@ -100,8 +97,9 @@ function UserConnectionsForms({ formData, setFormData, setResults }) {
 
       if (!response.ok) throw new Error('Reset failed');
 
-      const data = await response.json();
-      setResults(data);
+      await response.json();
+      setResults([]);
+      localStorage.removeItem(`filteredResults-${user.id}`);
     } catch (error) {
       console.error('Failed to clear filter results:', error);
       setError('Failed to clear results.');

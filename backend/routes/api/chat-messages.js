@@ -23,7 +23,7 @@ const router = express.Router();
 
 // GET /api/messages/:userId
 // Get chat history between current user and another user
-router.get('/messages/:userId2', requireAuth, async (req, res) => {
+router.get('/:userId2', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
   const userId2 = parseInt(req.params.userId2);
 
@@ -54,7 +54,7 @@ router.get('/messages/:userId2', requireAuth, async (req, res) => {
 
 // PUT /api/messages/:messageId
 // Edit a message (only by sender)
-router.put('/messages/:messageId', requireAuth, async (req, res) => {
+router.put('/:messageId', requireAuth, async (req, res) => {
   const { messageId } = req.params;
   const { content } = req.body;
 
@@ -87,7 +87,7 @@ router.put('/messages/:messageId', requireAuth, async (req, res) => {
 
 // POST /api/messages
 // Send a message between two users
-router.post('/messages', requireAuth, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   const senderId = req.user.id;
   const { receiverId, content } = req.body;
 
@@ -126,7 +126,7 @@ router.post('/messages', requireAuth, async (req, res) => {
 
 // DELETE /api/messages/:messageId
 // Only the sender can delete their own message permanently
-router.delete('/messages/:messageId', requireAuth, async (req, res) => {
+router.delete('/:messageId', requireAuth, async (req, res) => {
   const { messageId } = req.params;
   const userId = req.user.id;
 
