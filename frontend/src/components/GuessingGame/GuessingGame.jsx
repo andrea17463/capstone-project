@@ -1,6 +1,5 @@
 // frontend/src/components/GuessingGame/GuessingGame.jsx
 import { useState, useEffect, useMemo } from 'react';
-// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 import './GuessingGame.css';
 
 const GuessingGame = () => {
@@ -540,14 +539,13 @@ const GuessingGame = () => {
     "What card do you think is most unlike me?"
   ];
 
+  const [showSettings, setShowSettings] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [players, setPlayers] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [playerScores, setPlayerScores] = useState({});
   const [roundNumber, setRoundNumber] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [userGuess, setUserGuess] = useState('');
   const [showPrompts, setShowPrompts] = useState(false);
   const [isMatch, setIsMatch] = useState(null);
   const [isRoastMode, setIsRoastMode] = useState(false);
@@ -556,26 +554,102 @@ const GuessingGame = () => {
   const [usedCards, setUsedCards] = useState([]);
   const [remainingCards, setRemainingCards] = useState(0);
   const [totalCards, setTotalCards] = useState(0);
+  const [userGuess, setUserGuess] = useState(null);
   const [showPlayerForm, setShowPlayerForm] = useState(true);
-  const [newPlayerName, setNewPlayerName] = useState("");
+  const [newPlayerName, setNewPlayerName] = useState('');
   const [showRules, setShowRules] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showAddPlayerForm, setShowAddPlayerForm] = useState(false);
   const [showRemovePlayerForm, setShowRemovePlayerForm] = useState(false);
-  const [playerToRemove, setPlayerToRemove] = useState("");
-
-  // useExtractCookiesCsrfToken();
+  const [playerToRemove, setPlayerToRemove] = useState('');
+  const [hasRestored, setHasRestored] = useState(false);
 
   useEffect(() => {
+    const saved = localStorage.getItem("guessMeGameData");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setPlayers(data.players || []);
+        setCurrentPlayer(data.currentPlayer ?? 0);
+        setUsedCards(data.usedCards || []);
+        setRoundNumber(data.roundNumber || 1);
+        setGameStarted(data.gameStarted ?? false);
+        setIsRoastMode(data.isRoastMode ?? false);
+        setSelectedCategory(data.selectedCategory || null);
+        setSelectedCard(data.selectedCard || null);
+        setShowPrompts(data.showPrompts ?? false);
+        setUserGuess(data.userGuess ?? null);
+        setIsMatch(data.isMatch ?? null);
+        setForcedMatch(data.forcedMatch ?? false);
+        setOriginalMatchState(data.originalMatchState ?? null);
+        setTotalCards(data.totalCards || 0);
+        setRemainingCards(data.remainingCards || 0);
+        setShowPlayerForm(!data.gameStarted);
+        setHasRestored(true);
+      } catch (e) {
+        console.error("Failed to parse game data:", e);
+        setHasRestored(true);
+      }
+    } else {
+      setHasRestored(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasRestored) return;
+    const gameData = {
+      players,
+      currentPlayer,
+      usedCards,
+      roundNumber,
+      gameStarted,
+      isRoastMode,
+      selectedCategory,
+      selectedCard,
+      showPrompts,
+      userGuess,
+      isMatch,
+      forcedMatch,
+      originalMatchState,
+      showSettings,
+      totalCards,
+      remainingCards
+    };
+
+    console.log("Saving game data:", gameData);
+    localStorage.setItem("guessMeGameData", JSON.stringify(gameData));
+  }, [
+    hasRestored,
+    players,
+    currentPlayer,
+    usedCards,
+    roundNumber,
+    gameStarted,
+    isRoastMode,
+    selectedCategory,
+    selectedCard,
+    showPrompts,
+    userGuess,
+    isMatch,
+    forcedMatch,
+    originalMatchState,
+    showSettings,
+    totalCards,
+    remainingCards
+  ]);
+
+  useEffect(() => {
+    if (!allCards || Object.keys(allCards).length === 0) return;
     let total = 0;
     for (const category in allCards) {
-      const count = allCards[category].length;
-      console.log(`${category}: ${count} cards`);
-      total += count;
+      total += allCards[category].length;
     }
     setTotalCards(total);
     setRemainingCards(total - usedCards.length);
   }, [usedCards.length, allCards]);
+
+  useEffect(() => {
+    console.log("Current player is now:", players[currentPlayer]);
+  }, [currentPlayer, players]);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -597,6 +671,7 @@ const GuessingGame = () => {
   };
 
   const handleUserGuess = (guess) => {
+    if (!selectedCard || !selectedCard.options) return;
     const matchResult = guess === selectedCard.options[0];
     setUserGuess(guess);
     setIsMatch(matchResult);
@@ -626,9 +701,9 @@ const GuessingGame = () => {
     setOriginalMatchState(null);
   };
 
-  const resetCurrentCard = () => {
+  const resetGamePlay = () => {
     setShowPrompts(false);
-    setUserGuess('');
+    setUserGuess(null)
     setIsMatch(null);
     setForcedMatch(false);
     setOriginalMatchState(null);
@@ -686,10 +761,6 @@ const GuessingGame = () => {
     e.preventDefault();
     if (newPlayerName.trim()) {
       setPlayers([...players, newPlayerName.trim()]);
-      setPlayerScores(prev => ({
-        ...prev,
-        [newPlayerName.trim()]: 0
-      }));
       setNewPlayerName("");
       setShowAddPlayerForm(false);
     }
@@ -700,11 +771,6 @@ const GuessingGame = () => {
     if (playerToRemove) {
       const updatedPlayers = players.filter(player => player !== playerToRemove);
       setPlayers(updatedPlayers);
-
-      const updatedScores = { ...playerScores };
-      delete updatedScores[playerToRemove];
-      setPlayerScores(updatedScores);
-
       setPlayerToRemove("");
       setShowRemovePlayerForm(false);
     }
@@ -724,14 +790,24 @@ const GuessingGame = () => {
   };
 
   const nextPlayerTurn = () => {
+    console.log("Next player turn triggered");
+    if (players.length === 0) return;
     const nextPlayer = (currentPlayer + 1) % players.length;
+    console.log("Next player index:", nextPlayer);
+    if (nextPlayer === 0 && selectedCard && selectedCategory) {
+      setUsedCards((prev) => [
+        ...prev,
+        `${selectedCategory}:${selectedCard.prompt}`
+      ]);
+    }
+
     setCurrentPlayer(nextPlayer);
 
     if (nextPlayer === 0) {
       setRoundNumber(prevRound => prevRound + 1);
     }
 
-    resetCurrentCard();
+    resetGamePlay();
   };
 
   return (
@@ -765,7 +841,7 @@ const GuessingGame = () => {
             />
 
             {players.length >= 2 && (
-              <button className="start-game-btn" onClick={startGame}>
+              <button type="button" className="start-game-btn" onClick={startGame}>
                 Start Game
               </button>
             )}
@@ -812,7 +888,7 @@ const GuessingGame = () => {
       {gameStarted && (
         <div className="game-play">
           <div className="game-header">
-            <h2>Round {roundNumber}</h2>
+            <h2>Round {roundNumber - 1}</h2>
             <p>Current Player: {players[currentPlayer]}</p>
             <p>Cards Remaining: {remainingCards} / {totalCards}</p>
             <button onClick={toggleRoastMode}>
@@ -824,7 +900,7 @@ const GuessingGame = () => {
             <div className="category-selection">
               <h3>Select a Category</h3>
               <div className="categories-grid">
-                {Object.keys(allCards).map((category) => (
+                {allCards && Object.keys(allCards).map((category) => (
                   <button
                     key={category}
                     onClick={() => handleCategorySelect(category)}
@@ -968,7 +1044,7 @@ const GuessingGame = () => {
               )}
 
               <div className="navigation-buttons">
-                <button onClick={resetCurrentCard} className="try-again-btn">
+                <button onClick={resetGamePlay} className="try-again-btn">
                   Try Again
                 </button>
                 <button onClick={() => setSelectedCard(null)} className="another-card-btn">
@@ -1048,7 +1124,7 @@ const GuessingGame = () => {
 
           <div className="game-progress">
             <h4>Game Progress</h4>
-            <p>Round: {roundNumber}</p>
+            <p>Round: {roundNumber - 1}</p>
             <p>Current Player: {players[currentPlayer]}</p>
             <p>Cards Used: {usedCards.length} / {totalCards}</p>
             <p>Cards Remaining: {remainingCards}</p>
@@ -1056,21 +1132,34 @@ const GuessingGame = () => {
 
           <button
             onClick={() => {
-              if (window.confirm("Are you sure you want to reset the game? All progress will be lost.")) {
-                setGameStarted(false);
-                setShowPlayerForm(true);
-                setSelectedCategory(null);
-                setSelectedCard(null);
-                setUsedCards([]);
-                setRoundNumber(1);
+              if (window.confirm("Clear saved game? This will reset everything.")) {
+                localStorage.removeItem("guessMeGameData");
+                window.location.reload();
               }
             }}
-            className="reset-game-btn"
+            className="reset-saved-game-btn"
           >
-            Reset Game
+            Clear Saved Game
           </button>
         </div>
       )}
+
+      <button
+        onClick={() => {
+          if (window.confirm("Are you sure you want to reset the game? All progress will be lost.")) {
+            setGameStarted(false);
+            setShowPlayerForm(true);
+            setSelectedCategory(null);
+            setSelectedCard(null);
+            setUserGuess(null);
+            setUsedCards([]);
+            setRoundNumber(1);
+          }
+        }}
+        className="reset-game-btn"
+      >
+        Reset Game
+      </button>
     </div>
   );
 };

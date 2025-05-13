@@ -12,11 +12,10 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     try {
       const users = await User.findAll({
-        attributes: ['id', 'username'],
-        limit: 3
+        attributes: ['id', 'username']
       });
 
-      if (users.length < 3) {
+      if (users.length < 2) {
         console.error('Not enough users found in the database for seeding connections');
         return;
       }
@@ -25,14 +24,17 @@ module.exports = {
       const user1 = users.find(u => u.username === 'FakeUser1') || users[1];
       const user2 = users.find(u => u.username === 'FakeUser2') || users[2];
 
+      if (!demoUser || !user1 || !user2) {
+        console.error('Required seed users not found');
+        return;
+      }
+
       await UserConnection.bulkCreate([
         {
-          // user_1_id: 1,
-          // user_2_id: 2,
           user_1_id: demoUser.id,
           user_2_id: user1.id,
           connectionStatus: 'pending',
-          chatEnabled: false,
+          // chatEnabled: false,
           meetingStatus: 'pending',
           suggestedActivity: 'Coffee chat at local cafe',
           meetingTime: new Date('2025-05-10T14:00:00Z'),
@@ -40,12 +42,10 @@ module.exports = {
           meetAgainChoiceUser2: null
         },
         {
-          // user_1_id: 2,
-          // user_2_id: 3,
           user_1_id: user1.id,
           user_2_id: user2.id,
           connectionStatus: 'accepted',
-          chatEnabled: true,
+          // chatEnabled: true,
           meetingStatus: 'confirmed',
           suggestedActivity: 'Hiking at local trail',
           meetingTime: new Date('2025-05-12T09:00:00Z'),
@@ -53,12 +53,10 @@ module.exports = {
           meetAgainChoiceUser2: null
         },
         {
-          // user_1_id: 1,
-          // user_2_id: 3,
           user_1_id: demoUser.id,
           user_2_id: user2.id,
           connectionStatus: 'accepted',
-          chatEnabled: true,
+          // chatEnabled: true,
           meetingStatus: 'completed',
           suggestedActivity: 'Lunch at local deli',
           meetingTime: new Date('2025-04-30T12:00:00Z'),
@@ -94,18 +92,12 @@ module.exports = {
       return queryInterface.bulkDelete(options, {
         [Op.or]: [
           {
-            // user_1_id: 1,
-            // user_2_id: 2,
             meetingTime: new Date('2025-05-10T14:00:00Z')
           },
           {
-            // user_1_id: 2,
-            // user_2_id: 3,
             meetingTime: new Date('2025-05-12T09:00:00Z')
           },
           {
-            // user_1_id: 1,
-            // user_2_id: 3,
             meetingTime: new Date('2025-04-30T12:00:00Z')
           }
         ]

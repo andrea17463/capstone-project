@@ -4,7 +4,7 @@ import { csrfFetch } from '../utils/csrf';
 // Action Types
 const SET_LOADING = 'user/SET_LOADING';
 const SET_ERROR = 'user/SET_ERROR';
-const SET_PROFILE_USER = 'user/SET_PROFILE_USER';
+const SET_USER = 'user/SET_USER';
 const CLEAR_USER = 'user/CLEAR_USER';
 
 // Action Creators
@@ -18,8 +18,8 @@ export const setError = (error) => ({
     payload: error,
 });
 
-const setProfileUser = (user) => ({
-    type: SET_PROFILE_USER,
+const setUser = (user) => ({
+    type: SET_USER,
     payload: user,
 });
 
@@ -38,7 +38,7 @@ export const fetchUser = () => async (dispatch) => {
         if (!res.ok) throw new Error('Failed to fetch user');
 
         const data = await res.json();
-        dispatch(setProfileUser(data));
+        dispatch(setUser(data));
     } catch (err) {
         dispatch(setError(err.message));
     } finally {
@@ -56,7 +56,7 @@ export const createUser = (userData) => async (dispatch) => {
         });
         if (!res.ok) throw new Error('Failed to create user');
         const data = await res.json();
-        dispatch(setProfileUser({ id: data.userId }));
+        dispatch(setUser({ id: data.userId }));
     } catch (err) {
         dispatch(setError(err.message));
     } finally {
@@ -86,7 +86,7 @@ export const updateUser = (updates) => async (dispatch) => {
         });
         if (!res.ok) throw new Error('Failed to update profile');
         const data = await res.json();
-        dispatch(setProfileUser(data.user));
+        dispatch(setUser(data.user));
     } catch (err) {
         dispatch(setError(err.message));
     } finally {
@@ -141,7 +141,7 @@ const usersReducer = (state = initialState, action) => {
             return { ...state, loading: action.payload };
         case SET_ERROR:
             return { ...state, error: action.payload };
-        case SET_PROFILE_USER:
+        case SET_USER:
             return { ...state, user: action.payload, error: null };
         case CLEAR_USER:
             return { ...state, user: null, error: null };

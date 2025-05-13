@@ -1,11 +1,11 @@
 // frontend/src/components/UserConnections/UserConnections.jsx
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
-// import useExtractCookiesCsrfToken from '../../hooks/extract-cookies-csrf-token';
 
 const UserConnections = () => {
-  // useExtractCookiesCsrfToken();
+  const user = useSelector(state => state.session.user);
 
   const [formData, setFormData] = useState({
     interests: '',
@@ -17,15 +17,35 @@ const UserConnections = () => {
   });
 
   const [results, setResults] = useState(() => {
-    const stored = localStorage.getItem('filteredResults');
-    return stored ? JSON.parse(stored) : [];
+    if (user) {
+      const stored = localStorage.getItem(`filteredResults-${user.id}`);
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
   });
 
   useEffect(() => {
-    localStorage.setItem('filteredResults', JSON.stringify(results));
-  }, [results]);
-
+    if (user) {
+      localStorage.setItem(`filteredResults-${user.id}`, JSON.stringify(results));
+    }
+  }, [results, user]);
   console.log('Filtered Results:', results);
+
+  useEffect(() => {
+    if (!user) {
+      const keys = Object.keys(localStorage);
+      keys.forEach((key) => {
+        if (key.startsWith('filteredResults-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      setResults([]);
+    }
+  }, [user]);
+
+  if (!user) {
+    return <p>Please log in to view and manage your connection results.</p>;
+  }
 
   return (
     <div>

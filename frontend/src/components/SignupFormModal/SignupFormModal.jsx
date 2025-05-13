@@ -1,7 +1,7 @@
-// frontend/src/components/SignupFormPage/SignupFormPage.jsx
+// frontend/src/components/SignupFormModal/SignupFormModal.jsx
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useModal } from '../../context/useModal';
+import { useModal } from '../../context/Modal';
 import * as sessionActions from '../../store/session';
 import './SignupForm.css';
 
@@ -9,11 +9,11 @@ function SignupFormModal() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
-
   const { closeModal } = useModal();
 
   const handleSubmit = (e) => {
@@ -24,9 +24,8 @@ function SignupFormModal() {
         sessionActions.signup({
           email,
           username,
-          // firstName,
-          // lastName,
-          fullName,
+          firstName,
+          lastName,
           password
         })
       )
@@ -68,14 +67,25 @@ function SignupFormModal() {
         </label>
         {errors.username && <p>{errors.username}</p>}
         <label>
-          Full Name
+          First Name
           <input
             type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             required
           />
         </label>
+        {errors.firstName && <p>{errors.firstName}</p>}
+        <label>
+          Last Name
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+        </label>
+        {errors.lastName && <p>{errors.lastName}</p>}
         <label>
           Password
           <input

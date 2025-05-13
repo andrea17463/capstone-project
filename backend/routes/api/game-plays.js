@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const { requireAuth } = require('../../utils/auth');
 // const { handleValidationErrors } = require('../../utils/validation');
 // const { validateGamePlays } = require('../../utils/post-validators');
-const { GamePlay, UserConnection } = require('../../db/models');
+const { GamePlay, UserConnection, User } = require('../../db/models');
 
 const router = express.Router();
 
@@ -28,11 +28,16 @@ const router = express.Router();
 
 // GET /api/game-plays/:gamePlayId
 // Get specific game round (if meeting is active)
-router.get('/game-plays/:gamePlayId', requireAuth, async (req, res) => {
+router.get('/:gamePlayId', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
 
   try {
-    const game = await GamePlay.findByPk(gamePlayId);
+    const game = await GamePlay.findByPk(gamePlayId, {
+      include: [
+        { model: User, as: 'user1', attributes: ['id', 'username'] },
+        { model: User, as: 'user2', attributes: ['id', 'username'] }
+      ]
+    });
 
     if (!game || game.status !== 'active') {
       return res.status(404).json({ error: 'Active game round not found' });
@@ -47,7 +52,7 @@ router.get('/game-plays/:gamePlayId', requireAuth, async (req, res) => {
 
 // GET /api/game-plays
 // Get all game rounds involving the user (active meetings only)
-router.get('/game-plays', requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -59,6 +64,10 @@ router.get('/game-plays', requireAuth, async (req, res) => {
           { user_2_id: userId }
         ]
       },
+      include: [
+        { model: User, as: 'user1', attributes: ['id', 'username'] },
+        { model: User, as: 'user2', attributes: ['id', 'username'] }
+      ],
       order: [['created_at', 'DESC']]
     });
 
@@ -71,7 +80,7 @@ router.get('/game-plays', requireAuth, async (req, res) => {
 
 // POST /api/game-plays
 // Start a new game round (requires active meeting)
-router.post('/game-plays', requireAuth, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   const userId = req.user.id;
   const { user_1_id, user_2_id, traitName, traitDescription, interactionType } = req.body;
 
@@ -113,7 +122,7 @@ router.post('/game-plays', requireAuth, async (req, res) => {
 
 // PUT /api/game-plays/:gamePlayId/guess
 // Update a guess result (e.g., correct/incorrect)
-router.put('/game-plays/:gamePlayId/guess', requireAuth, async (req, res) => {
+router.put('/:gamePlayId/guess', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
   const { guessedValue, isCorrect, user_id } = req.body;
 
@@ -136,7 +145,7 @@ router.put('/game-plays/:gamePlayId/guess', requireAuth, async (req, res) => {
 
 // PUT /api/game-plays/:gamePlayId/prompt
 // Update the "talk-about" or "roast" prompt post-guess
-router.put('/game-plays/:gamePlayId/prompt', requireAuth, async (req, res) => {
+router.put('/:gamePlayId/prompt', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
   const { promptText, user_id } = req.body;
 
@@ -159,7 +168,7 @@ router.put('/game-plays/:gamePlayId/prompt', requireAuth, async (req, res) => {
 
 // DELETE /api/game-plays
 // Automatically deletes all game rounds after the meeting ends (batch delete)
-router.delete('/game-plays', requireAuth, async (req, res) => {
+router.delete('/', requireAuth, async (req, res) => {
   const { user_1_id, user_2_id } = req.body;
 
   try {

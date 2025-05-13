@@ -19,26 +19,24 @@ module.exports = {
       user_1_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
       user_2_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
@@ -46,11 +44,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      chatEnabled: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
+      // chatEnabled: {
+      //   type: Sequelize.BOOLEAN,
+      //   allowNull: false,
+      //   defaultValue: false
+      // },
       meetingStatus: {
         type: Sequelize.STRING,
         allowNull: true

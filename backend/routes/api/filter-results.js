@@ -1,11 +1,12 @@
 // backend/routes/api/filter-results.js
 const { User } = require('../../db/models');
 const { Op } = require('sequelize');
+const { requireAuth } = require('../../utils/auth');
 
 const router = require('express').Router();
 
 // POST /api/filter-results
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   console.log('Request body:', req.body);
   const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
   const parsedUserId = parseInt(userId);
@@ -162,7 +163,8 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/filter-results/reset
-router.post('/reset', async (req, res) => {
+// Clear filtered results
+router.post('/reset', requireAuth, async (req, res) => {
   console.log('Request body:', req.body);
   const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
   const parsedUserId = parseInt(userId);
@@ -172,6 +174,7 @@ router.post('/reset', async (req, res) => {
 
   try {
     const user = await User.findByPk(parsedUserId);
+    console.log('Clear filtered results of user', user);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
