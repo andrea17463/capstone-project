@@ -1,8 +1,10 @@
 // frontend/src/components/GuessingGame/GuessingGame.jsx
 import { useState, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import './GuessingGame.css';
 
 const GuessingGame = () => {
+  const user = useSelector(state => state.session.user);
   const allCards =
     useMemo(() => ({
       "Personality and Traits": [
@@ -809,6 +811,10 @@ const GuessingGame = () => {
 
     resetGamePlay();
   };
+
+  if (!user) {
+    return <p>Please sign up or log in to start or resume a game.</p>;
+  }
 
   return (
     <div className="game-container">

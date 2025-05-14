@@ -130,6 +130,10 @@ function UserProfile() {
     }
   };
 
+  if (!user) {
+    return <p>Please sign up or log in to view your profile.</p>;
+  }
+
   return (
     <div>
       <h2>User Profile</h2>

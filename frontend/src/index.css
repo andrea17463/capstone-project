@@ -1,17 +1,16 @@
 /* TODO: Add sitewide styles */
 html,
-body,
-p,
-h1,
-h2,
-h3,
-h4 {
+body {
   height: 100%;
   margin: 0;
   background: black;
-  /* background: #2b2b2b; */
-  color: white;
+  color: black;
 }
+
+/* h1,
+{
+
+} */
 
 /* li {
 background-color: black;
