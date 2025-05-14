@@ -2,11 +2,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import './Chat.css';
 
 function Chat() {
   const { user1Id, user2Id } = useParams();
   const currentUserId = useSelector((state) => state.session.user?.id);
-  const user = useSelector((state) => state.session.user);
+  const sessionUser = useSelector((state) => state.session.user);
 
   const id1 = parseInt(user1Id, 10);
   const id2 = parseInt(user2Id, 10);
@@ -17,16 +18,11 @@ function Chat() {
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editedContent, setEditedContent] = useState('');
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [, setIsEditing] = useState(false);
+  const [chatPartnerUsername, setChatPartnerUsername] = useState('');
 
   const messagesEndRef = useRef(null);
   const debounceTimerRef = useRef(null);
-
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -152,8 +148,6 @@ function Chat() {
     return () => clearInterval(interval);
   }, [chatPartnerId]);
 
-  useEffect(scrollToBottom, [messages]);
-
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -162,7 +156,25 @@ function Chat() {
     };
   }, []);
 
-  if (!user) return <div>Loading user...</div>;
+  useEffect(() => {
+    const fetchChatPartner = async () => {
+      try {
+        const res = await fetch(`/api/users/${chatPartnerId}`);
+        if (!res.ok) throw new Error('Failed to fetch user info');
+        const userData = await res.json();
+        setChatPartnerUsername(userData.username);
+      } catch (err) {
+        console.error(err);
+        setChatPartnerUsername('Unknown User');
+      }
+    };
+
+    if (chatPartnerId) {
+      fetchChatPartner();
+    }
+  }, [chatPartnerId]);
+
+  if (!sessionUser) return <div>Loading user...</div>;
 
   const isParticipant = currentUserId === id1 || currentUserId === id2;
   if (!isParticipant) {
@@ -170,75 +182,76 @@ function Chat() {
   }
 
   return (
-    <div className="chat-box" style={{ border: '1px solid #ccc', padding: '10px' }}>
-      <div className="messages" style={{ height: '300px', overflowY: 'scroll' }}>
-        {messages.map((msg) => {
-          const created = new Date(msg.createdAt).toLocaleString();
-          const edited = msg.editedAt
-            ? ` (edited: ${new Date(msg.editedAt).toLocaleString()})`
-            : '';
+    <div className="chat-box-container">
+      <div className="chat-box-outer-theme">
+        <div className="chat-header">Instant Messenger</div>
 
-          return (
-            <div key={msg.id} style={{ marginBottom: '10px' }}>
-              <div>
-                <strong>{msg.sender?.username || 'Unknown'}:</strong>{' '}
+        <div className="chat-box-outer-theme">
+          <div className="chat-header">Chat with {chatPartnerUsername || '...'}</div>
+
+          <div className="messages">
+            {messages.map((msg) => (
+              <div className="message-bubble" key={msg.id}>
+                <div className="message-meta">{msg.sender?.username}</div>
                 {editingMessageId === msg.id ? (
                   <>
                     <textarea
-                      rows={2}
-                      style={{ width: '100%' }}
+                      className="edit-textarea"
                       value={editedContent}
-                      onChange={(e) => setEditedContent(e.target.value)}
+                      onChange={(e) => {
+                        setEditedContent(e.target.value);
+                        debouncedEditMessage(msg.id);
+                      }}
+                      rows={2}
                     />
-                    <button
-                      onClick={() => debouncedEditMessage(msg.id)}
-                      disabled={isEditing}
-                    >
-                      {isEditing ? 'Saving...' : 'Save'}
+                    <button onClick={() => {
+                      setEditingMessageId(null);
+                      setEditedContent('');
+                    }}>
+                      Cancel
                     </button>
-                    <button onClick={() => setEditingMessageId(null)}>Cancel</button>
                   </>
                 ) : (
                   <>
-                    {msg.content}{' '}
-                    {msg.senderId === user.id && (
-                      <>
-                        <button
-                          onClick={() => {
-                            setEditingMessageId(msg.id);
-                            setEditedContent(msg.content);
-                          }}
-                        >
-                          Edit
-                        </button>
+                    <div className="message-content">
+                      {editingMessageId === msg.id ? editedContent : msg.content}
+                    </div>
+                    {msg.senderId === sessionUser.id && (
+                      <div className="message-actions">
+                        <button onClick={() => {
+                          setEditingMessageId(msg.id);
+                          setEditedContent(msg.content);
+                        }}>Edit</button>
                         <button onClick={() => handleDeleteMessage(msg.id)}>Delete</button>
-                      </>
+                      </div>
                     )}
                   </>
                 )}
+                <div className="timestamp">{new Date(msg.createdAt).toLocaleString()}
+                  {msg.editedAt &&
+                    ` (edited: ${new Date(msg.editedAt).toLocaleString()})`}
+                </div>
               </div>
-              <div style={{ fontSize: '0.8em', color: '#666' }}>
-                Sent: {created}
-                {edited}
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form className="chat-input-form" onSubmit={handleSendMessage}>
+            <textarea
+              className="chat-input"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              rows={2}
+              placeholder="Type your message..."
+            />
+            <button className="send-button" type="submit" disabled={!newMessage.trim()}>
+              Send
+            </button>
+          </form>
+
+          {error && <p className="error-text">{error}</p>}
+        </div>
       </div>
-
-      <form onSubmit={handleSendMessage} style={{ marginTop: '10px' }}>
-        <textarea
-          rows={2}
-          style={{ width: '80%' }}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
-        />
-        <button type="submit" disabled={!newMessage.trim()}>Send</button>
-      </form>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }

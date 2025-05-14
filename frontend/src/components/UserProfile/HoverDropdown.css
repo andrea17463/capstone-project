@@ -10,8 +10,8 @@
     padding: 8px 12px;
     border: 1px solid #ccc;
     /* border: 1px solid black; */
-    /* background-color: #fff; */
-    background-color: black;
+    background-color: #fff;
+    /* background-color: black; */
     width: 200px;
 }
 
@@ -20,8 +20,8 @@
     z-index: 1;
     /* border: 1px solid #ccc; */
     border: 1px solid black;
-    /* background-color: white; */
-    background-color: black;
+    background-color: white;
+    /* background-color: black; */
     width: 100%;
     display: block;
 }
@@ -38,9 +38,10 @@
 }
 
 .dropdown-item.focused {
-    background-color: #f0f0f0;
-    /* background-color: black; */
-    color: black;
+    /* background-color: #f0f0f0; */
+    background-color: black;
+    /* color: black; */
+    color: white;
     outline: none;
 }
 
