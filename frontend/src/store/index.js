@@ -7,9 +7,9 @@ import userConnectionsReducer from './user-connections';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
-  chatmessages: chatMessagesReducer,
-  gameplays: gamePlaysReducer,
-  userconnections: userConnectionsReducer
+  chatNessages: chatMessagesReducer,
+  gamePlays: gamePlaysReducer,
+  userConnections: userConnectionsReducer
 });
 
 export default rootReducer;

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
+import { csrfFetch } from '../../store/csrf';
 import './UserConnectionsForms.css';
 
 function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSuccess,
@@ -49,11 +50,6 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
       return;
     }
 
-    const csrfToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('XSRF-TOKEN='))
-      ?.split('=')[1];
-
     try {
       const locationRadius =
         formData.locationRadius === 'other'
@@ -68,13 +64,11 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
         userId: user?.id,
       };
 
-      const response = await fetch('/api/filter-results', {
+      const response = await csrfFetch('/filter-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
         },
-        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
@@ -95,19 +89,12 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
   const handleClearResults = async () => {
     setError(null);
 
-    const csrfToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('XSRF-TOKEN='))
-      ?.split('=')[1];
-
     try {
-      const response = await fetch('/api/filter-results/reset', {
+      const response = await csrfFetch('/filter-results/reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
         },
-        credentials: 'include',
         body: JSON.stringify({ userId: user?.id }),
       });
 

@@ -7,7 +7,7 @@ import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
-  const connections = useSelector((state) => state.userconnections.connections || []);
+  const connections = useSelector((state) => state.userConnections.connections || []);
   const [showSpecificChats, setShowSpecificChats] = useState(true);
 
   const location = useLocation();

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
+import { csrfFetch } from '../../store/csrf';
 import './UserProfile.css';
 
 function UserProfile() {
@@ -59,18 +60,12 @@ function UserProfile() {
 
   const handleDeleteProfile = async () => {
     if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
-      const csrfToken = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('XSRF-TOKEN='))
-        ?.split('=')[1];
 
       try {
-        const response = await fetch('/api/users', {
+        const response = await csrfFetch('/users', {
           method: 'DELETE',
           headers: {
-            'X-CSRF-Token': csrfToken,
           },
-          credentials: 'include',
         });
 
         if (response.ok) {
@@ -102,18 +97,12 @@ function UserProfile() {
     };
 
     try {
-      const csrfToken = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('XSRF-TOKEN='))
-        ?.split('=')[1];
 
-      const response = await fetch('/api/users', {
+      const response = await csrfFetch('/users', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
         },
-        credentials: 'include',
         body: JSON.stringify(updates),
       });
 

@@ -93,7 +93,7 @@ const UserConnections = () => {
 
             return (
               <p key={index}>
-                <strong>{item.username}</strong> ({item.fullName}) — Interests: {item.interests}, Objectives: {item.objectives}
+                <strong>{item.username}</strong> ({item.fullName}) — Interests: {item.interests} — Objectives: {item.objectives}
                 <br />
                 <Link to={`/profile/${item.id}`}>
                   <button>View Connection Profile</button>

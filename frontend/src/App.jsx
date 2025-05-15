@@ -45,7 +45,7 @@ function ChatMessagesIntro() {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.session.user);
   console.log("Current user in session in App component:", currentUser);
-  const connections = useSelector((state) => state.userconnections.connections || []);
+  const connections = useSelector((state) => state.userConnections.connections || []);
 
   useEffect(() => {
     if (currentUser?.id) {
