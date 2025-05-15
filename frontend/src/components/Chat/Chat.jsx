@@ -1,11 +1,12 @@
 // frontend/src/components/Chat/Chat.jsx
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './Chat.css';
 
 function Chat() {
   const { user1Id, user2Id } = useParams();
+  const navigate = useNavigate();
   const currentUserId = useSelector((state) => state.session.user?.id);
   const sessionUser = useSelector((state) => state.session.user);
 
@@ -162,17 +163,18 @@ function Chat() {
         const res = await fetch(`/api/users/${chatPartnerId}`);
         if (!res.ok) throw new Error('Failed to fetch user info');
         const userData = await res.json();
+        if (!userData?.id) throw new Error('User not found');
         setChatPartnerUsername(userData.username);
       } catch (err) {
         console.error(err);
-        setChatPartnerUsername('Unknown User');
+        navigate('/chats');
       }
     };
 
     if (chatPartnerId) {
       fetchChatPartner();
     }
-  }, [chatPartnerId]);
+  }, [chatPartnerId, navigate]);
 
   if (!sessionUser) return <div>Loading user...</div>;
 

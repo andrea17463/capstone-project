@@ -28,13 +28,17 @@ module.exports = (sequelize, DataTypes) => {
       // defaultValue: 'pending'
       defaultValue: 'pending',
       validate: {
-        isIn: [['pending', 'accepted', 'declined', 'completed']]
+        isIn: [['pending', 'accepted', 'declined']]
       }
     },
     meetingStatus: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'pending'
+      defaultValue: 'pending',
+      validate: {
+        isIn: [['pending', 'accepted',
+          'canceled', 'completed']]
+      }
     },
     // chatEnabled: {
     //   type: DataTypes.BOOLEAN,
