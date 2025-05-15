@@ -1,6 +1,6 @@
 // backend/routes/api/filter-results.js
 const { User } = require('../../db/models');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const { requireAuth } = require('../../utils/auth');
 
 const router = require('express').Router();
@@ -11,21 +11,44 @@ router.post('/', requireAuth, async (req, res) => {
   const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
   const parsedUserId = parseInt(userId);
   console.log('userId:', userId, 'parsedUserId:', parsedUserId);
-  console.log('Received userId from client:', userId);
+
   if (isNaN(parsedUserId)) {
     return res.status(400).json({ error: 'Invalid userId' });
   }
 
   const filters = [];
 
-  if (interests) {
-    filters.push({ interests: { [Op.like]: `%${interests.toLowerCase()}%` } });
+  if (Array.isArray(interests) && interests.length > 0) {
+    filters.push({
+      [Op.or]: interests.map(i =>
+        Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('interests')),
+          { [Op.like]: `%${i.toLowerCase()}%` }
+        )
+      )
+    });
   }
-  if (objectives) {
-    filters.push({ objectives: { [Op.like]: `%${objectives.toLowerCase()}%` } });
+
+  if (Array.isArray(objectives) && objectives.length > 0) {
+    filters.push({
+      [Op.or]: objectives.map(o =>
+        Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('objectives')),
+          { [Op.like]: `%${o.toLowerCase()}%` }
+        )
+      )
+    });
   }
-  if (location) {
-    filters.push({ location: { [Op.like]: `%${location.toLowerCase()}%` } });
+
+  if (Array.isArray(location) && location.length > 0) {
+    filters.push({
+      [Op.or]: location.map(l =>
+        Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('location')),
+          { [Op.like]: `%${l.toLowerCase()}%` }
+        )
+      )
+    });
   }
 
   let radiusInt = parseInt(locationRadius);
@@ -39,39 +62,25 @@ router.post('/', requireAuth, async (req, res) => {
   } else if (radiusInt === 25) {
     filters.push({ locationRadius: { [Op.gte]: 25 } });
   } else if (locationRadius === "Other") {
-    filters.push({
-      locationRadius: {
-        [Op.notBetween]: [10, 14]
-      }
-    });
-    filters.push({
-      locationRadius: {
-        [Op.notBetween]: [15, 19]
-      }
-    });
-    filters.push({
-      locationRadius: {
-        [Op.notBetween]: [20, 24]
-      }
-    });
-    filters.push({
-      locationRadius: {
-        [Op.lt]: 10
-      }
-    });
+    filters.push({ locationRadius: { [Op.notBetween]: [10, 14] } });
+    filters.push({ locationRadius: { [Op.notBetween]: [15, 19] } });
+    filters.push({ locationRadius: { [Op.notBetween]: [20, 24] } });
+    filters.push({ locationRadius: { [Op.lt]: 10 } });
   }
 
   try {
     let where = {};
 
-    switch (matchType) {
+    switch (Array.isArray(matchType) ? matchType[0] : matchType) {
       case 'any':
         where = { [Op.or]: filters };
         break;
+
       case 'all':
         where = { [Op.and]: filters };
         break;
-      case 'one':
+
+      case 'one': {
         const allUsers = await User.findAll({
           // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
           attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
@@ -79,16 +88,28 @@ router.post('/', requireAuth, async (req, res) => {
 
         const matchingUsers = allUsers.filter(user => {
           console.log('Checking user:', user.id, user.username, 'vs', parsedUserId);
-
           if (user.id === parsedUserId) {
             console.log('Skipping self-match:', user.username);
             return false;
           }
 
           let matchCount = 0;
-          if (interests && user.interests?.toLowerCase().includes(interests.toLowerCase())) matchCount++;
-          if (objectives && user.objectives?.toLowerCase().includes(objectives.toLowerCase())) matchCount++;
-          if (location && user.location?.toLowerCase().includes(location.toLowerCase())) matchCount++;
+
+          if (Array.isArray(interests)) {
+            const userInterests = user.interests?.toLowerCase() || '';
+            if (interests.some(i => userInterests.includes(i.toLowerCase()))) matchCount++;
+          }
+
+          if (Array.isArray(objectives)) {
+            const userObjectives = user.objectives?.toLowerCase() || '';
+            if (objectives.some(o => userObjectives.includes(o.toLowerCase()))) matchCount++;
+          }
+
+          if (Array.isArray(location)) {
+            const userLocation = user.location?.toLowerCase() || '';
+            if (location.some(l => userLocation.includes(l.toLowerCase()))) matchCount++;
+          }
+
           if (!isNaN(radiusInt) && user.locationRadius <= radiusInt) matchCount++;
 
           return matchCount === 1;
@@ -102,14 +123,15 @@ router.post('/', requireAuth, async (req, res) => {
           interests: user.interests,
           objectives: user.objectives
         })));
+      }
 
-      case 'more':
-        const moreUsers = await User.findAll({
+      case 'more': {
+        const allUsers = await User.findAll({
           // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
           attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
         });
 
-        const multipleMatches = moreUsers.filter(user => {
+        const multipleMatches = allUsers.filter(user => {
           console.log('Checking user:', user.id, user.username, 'vs', parsedUserId);
 
           if (user.id === parsedUserId) {
@@ -118,9 +140,22 @@ router.post('/', requireAuth, async (req, res) => {
           }
 
           let matchCount = 0;
-          if (interests && user.interests?.toLowerCase().includes(interests.toLowerCase())) matchCount++;
-          if (objectives && user.objectives?.toLowerCase().includes(objectives.toLowerCase())) matchCount++;
-          if (location && user.location?.toLowerCase().includes(location.toLowerCase())) matchCount++;
+
+          if (Array.isArray(interests)) {
+            const userInterests = user.interests?.toLowerCase() || '';
+            if (interests.some(i => userInterests.includes(i.toLowerCase()))) matchCount++;
+          }
+
+          if (Array.isArray(objectives)) {
+            const userObjectives = user.objectives?.toLowerCase() || '';
+            if (objectives.some(o => userObjectives.includes(o.toLowerCase()))) matchCount++;
+          }
+
+          if (Array.isArray(location)) {
+            const userLocation = user.location?.toLowerCase() || '';
+            if (location.some(l => userLocation.includes(l.toLowerCase()))) matchCount++;
+          }
+
           if (!isNaN(radiusInt) && user.locationRadius <= radiusInt) matchCount++;
 
           return matchCount > 1;
@@ -134,6 +169,7 @@ router.post('/', requireAuth, async (req, res) => {
           interests: user.interests,
           objectives: user.objectives
         })));
+      }
 
       default:
         where = { [Op.and]: filters };
@@ -165,8 +201,8 @@ router.post('/', requireAuth, async (req, res) => {
 // POST /api/filter-results/reset
 // Clear filtered results
 router.post('/reset', requireAuth, async (req, res) => {
+  const { userId } = req.body;
   console.log('Request body:', req.body);
-  const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
   const parsedUserId = parseInt(userId);
   if (isNaN(parsedUserId)) {
     return res.status(400).json({ error: 'Invalid userId' });

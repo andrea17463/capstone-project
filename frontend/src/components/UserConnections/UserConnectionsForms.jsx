@@ -2,18 +2,28 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
+import './UserConnectionsForms.css';
 
-function UserConnectionsForms({ formData, setFormData, setResults }) {
+function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSuccess,
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
 
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {
-      const newFormData = { ...prev, [name]: value };
+      const newFormData = { ...prev };
+
+      if (['interests', 'objectives'].includes(name)) {
+        newFormData[name] = Array.isArray(value) ? value : [value];
+      } else {
+        newFormData[name] = value;
+      }
+
       if (name === 'locationRadius' && value === 'other') {
         newFormData.customLocationRadius = '';
       }
+
       return newFormData;
     });
   };
@@ -28,7 +38,12 @@ function UserConnectionsForms({ formData, setFormData, setResults }) {
     setIsSubmitting(true);
     setError(null);
 
-    if (!formData.interests || !formData.objectives || !formData.location || !formData.matchType) {
+    if (
+      !formData.interests.length ||
+      !formData.objectives.length ||
+      !formData.location ||
+      !formData.matchType
+    ) {
       setError('Please fill in all required fields.');
       setIsSubmitting(false);
       return;
@@ -68,6 +83,7 @@ function UserConnectionsForms({ formData, setFormData, setResults }) {
       const data = await response.json();
       console.log('Filtered Data:', data);
       setResults(data);
+      if (onSubmitSuccess) onSubmitSuccess();
     } catch (error) {
       console.error('Failed to fetch filtered results:', error);
       setError('Something went wrong. Please try again.');
@@ -187,10 +203,11 @@ function UserConnectionsForms({ formData, setFormData, setResults }) {
         />
 
         <br />
-        <input type="submit" value="Submit" disabled={isSubmitting} />
+        <input className="submit-button" type="submit" value="Submit" disabled={isSubmitting} />
       </form>
 
-      <button type="button" onClick={handleClearResults}>
+      <br />
+      <button className="clear-filtered-results-button" type="button" onClick={handleClearResults}>
         Clear Filtered Results
       </button>
 

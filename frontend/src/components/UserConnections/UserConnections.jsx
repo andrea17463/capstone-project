@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
+import './UserConnections.css';
 
 const UserConnections = () => {
   const user = useSelector(state => state.session.user);
 
   const [formData, setFormData] = useState({
-    interests: '',
-    objectives: '',
+    interests: [],
+    objectives: [],
     location: '',
     locationRadius: '',
     customLocationRadius: '',
@@ -24,6 +25,14 @@ const UserConnections = () => {
     return [];
   });
 
+  const [showForm, setShowForm] = useState(() => {
+    if (user) {
+      const stored = localStorage.getItem(`showForm-${user.id}`);
+      return stored === null ? true : stored === 'true';
+    }
+    return true;
+  });
+
   useEffect(() => {
     if (user) {
       localStorage.setItem(`filteredResults-${user.id}`, JSON.stringify(results));
@@ -32,10 +41,16 @@ const UserConnections = () => {
   console.log('Filtered Results:', results);
 
   useEffect(() => {
+    if (user) {
+      localStorage.setItem(`showForm-${user.id}`, showForm);
+    }
+  }, [showForm, user]);
+
+  useEffect(() => {
     if (!user) {
       const keys = Object.keys(localStorage);
       keys.forEach((key) => {
-        if (key.startsWith('filteredResults-')) {
+        if (key.startsWith('filteredResults-') || key.startsWith('showForm-')) {
           localStorage.removeItem(key);
         }
       });
@@ -51,12 +66,21 @@ const UserConnections = () => {
     <div>
       <h1>User Connections</h1>
 
-      <UserConnectionsForms
-        formData={formData}
-        setFormData={setFormData}
-        setResults={setResults}
-        results={results}
-      />
+      {showForm ? (
+        <UserConnectionsForms
+          formData={formData}
+          setFormData={setFormData}
+          setResults={setResults}
+          results={results}
+          onSubmitSuccess={() => setShowForm(false)}
+        />
+      ) : (
+        <button onClick={() => setShowForm(true)}>Edit Preferences</button>
+      )}
+
+      {!showForm && results.length > 0 && (
+        <p style={{ color: 'green' }}>Preferences saved. You can edit them above.</p>
+      )}
 
       <hr />
 

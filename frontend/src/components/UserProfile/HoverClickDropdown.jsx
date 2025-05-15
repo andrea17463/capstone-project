@@ -1,9 +1,10 @@
+// frontend/src/components/HoverClickDropdown/HoverClickDropdown.jsx
 import { useState, useEffect, useRef } from 'react';
 import './HoverDropdown.css';
 
 function HoverClickDropdown({ label, name, options, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const dropdownRef = useRef(null);
   const itemRefs = useRef([]);
@@ -25,9 +26,14 @@ function HoverClickDropdown({ label, name, options, onChange }) {
   }, [isOpen, focusedIndex]);
 
   const handleSelect = (value) => {
-    setSelected(value);
-    onChange(name, value);
-    setIsOpen(false);
+    let newSelected;
+    if (selected.includes(value)) {
+      newSelected = selected.filter((item) => item !== value);
+    } else {
+      newSelected = [...selected, value];
+    }
+    setSelected(newSelected);
+    onChange(name, newSelected);
   };
 
   const toggleDropdown = () => {
@@ -78,44 +84,55 @@ function HoverClickDropdown({ label, name, options, onChange }) {
         onClick={toggleDropdown}
         onKeyDown={handleKeyDown}
       >
-        {label}: {selected || 'Select'}
+        {label}: {selected.length > 0 ? selected.join(', ') : 'Select'}
       </div>
 
       {isOpen && (
         <div className="dropdown-content" role="menu">
-          {options.map((option, index) => (
-            <div
-              key={option.value}
-              className={`dropdown-item ${focusedIndex === index ? 'focused' : ''}`}
-              tabIndex="0"
-              ref={(el) => (itemRefs.current[index] = el)}
-              onClick={() => handleSelect(option.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowDown') {
-                  e.preventDefault();
-                  const nextIndex = (index + 1) % options.length;
-                  setFocusedIndex(nextIndex);
-                  itemRefs.current[nextIndex].focus();
-                } else if (e.key === 'ArrowUp') {
-                  e.preventDefault();
-                  const prevIndex = index === 0 ? options.length - 1 : index - 1;
-                  setFocusedIndex(prevIndex);
-                  itemRefs.current[prevIndex].focus();
-                } else if (e.key === 'Enter') {
-                  handleSelect(option.value);
-                } else if (e.key === 'Escape') {
-                  setIsOpen(false);
-                }
-              }}
-              role="menuitem"
-            >
-              {option.label}
-            </div>
-          ))}
+          {options.map((option, index) => {
+            const isSelected = selected.includes(option.value);
+            return (
+              <div
+                key={option.value}
+                className={`dropdown-item ${focusedIndex === index ? 'focused' : ''} ${isSelected ? 'selected' : ''}`}
+                tabIndex="0"
+                ref={(el) => (itemRefs.current[index] = el)}
+                onClick={() => handleSelect(option.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % options.length;
+                    setFocusedIndex(nextIndex);
+                    itemRefs.current[nextIndex].focus();
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prevIndex = index === 0 ? options.length - 1 : index - 1;
+                    setFocusedIndex(prevIndex);
+                    itemRefs.current[prevIndex].focus();
+                  } else if (e.key === 'Enter') {
+                    handleSelect(option.value);
+                  } else if (e.key === 'Escape') {
+                    setIsOpen(false);
+                  }
+                }}
+                role="menuitem"
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  readOnly
+                  style={{ marginRight: '0.5em' }}
+                />
+                {option.label}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      <input type="hidden" name={name} value={selected} />
+      {selected.map((value) => (
+        <input key={value} type="hidden" name={`${name}[]`} value={value} />
+      ))}
     </div>
   );
 }

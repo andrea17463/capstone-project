@@ -16,7 +16,7 @@ const LandingPage = () => {
       <br />
       {!user && (
         <>
-          <p>Please sign in or create an account to get started.</p>
+          <p>Please log in or sign up to create a profile.</p>
           <div className="auth-buttons">
             <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
               Sign up

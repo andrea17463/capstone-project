@@ -157,7 +157,6 @@ router.get('/', requireAuth, async (req, res) => {
 
 // PUT /api/users
 // Update the logged-in user's profile (e.g., interests, objectives, availability)
-// router.put('/users', requireAuth, async (req, res) => {
 router.put('/', requireAuth, async (req, res) => {
   const {
     // first_name,
@@ -175,16 +174,17 @@ router.put('/', requireAuth, async (req, res) => {
     console.log('Update the logged-in user\'s profile of user', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // user.first_name = first_name ?? user.first_name;
-    if (age !== undefined) user.age = age;
-    if (location) user.location = location;
-    if (locationRadius) user.locationRadius = locationRadius;
-    if (availability) user.availability = availability;
-    if (interests) user.interests = interests;
-    if (objectives) user.objectives = objectives;
+    const updatedData = {
+      age,
+      location,
+      locationRadius,
+      availability,
+      interests: Array.isArray(interests) ? interests.join(', ') : interests,
+      objectives: Array.isArray(objectives) ? objectives.join(', ') : objectives
+    };
 
-    await user.save();
-    console.log('User after save:', user);
+    await user.update(updatedData);
+    console.log('User after update:', user);
 
     const updatedUser = {
       id: user.id,
@@ -209,7 +209,6 @@ router.put('/', requireAuth, async (req, res) => {
 
 // DELETE /api/users
 // Delete the logged-in user's own account from the system
-// router.delete('/users', requireAuth, async (req, res) => {
 router.delete('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);

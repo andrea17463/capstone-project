@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
+import './UserProfile.css';
 
 function UserProfile() {
   const dispatch = useDispatch();
@@ -12,8 +13,8 @@ function UserProfile() {
 
   const [formData, setFormData] = useState({
     age: '',
-    interests: '',
-    objectives: '',
+    interests: [],
+    objectives: [],
     location: '',
     locationRadius: '',
     customLocationRadius: '',
@@ -30,8 +31,8 @@ function UserProfile() {
       console.log('User data after update:', user);
       setFormData({
         age: user.age?.toString() || '',
-        interests: user.interests || '',
-        objectives: user.objectives || '',
+        interests: Array.isArray(user.interests) ? user.interests : [],
+        objectives: Array.isArray(user.objectives) ? user.objectives : [],
         location: user.location || '',
         locationRadius: user.locationRadius?.toString() || '',
         customLocationRadius: '',
@@ -139,13 +140,13 @@ function UserProfile() {
       <h2>User Profile</h2>
 
       <div>
-        <button onClick={() => setIsEditing((prev) => !prev)}>
+        <button className="edit-profile-button" onClick={() => setIsEditing((prev) => !prev)}>
           {isEditing ? 'Cancel' : 'Edit profile'}
         </button>
       </div>
 
       <div>
-        <button onClick={handleDeleteProfile}>Delete profile</button>
+        <button className="delete-profile-button" onClick={handleDeleteProfile}>Delete profile</button>
       </div>
 
       {showProfileInfo && !isEditing && (
@@ -215,11 +216,16 @@ function UserProfile() {
               <option value="flexible">Flexible</option>
             </select>
 
+            <p>Instructions: If selecting more than one interest, press and hold CTRL or CMD and click on more than one interest from the list or press Shift to select a range of interests.</p>
+
             <label htmlFor="interests">Interests:</label>
             <select
               id="interests"
+              multiple
               value={formData.interests}
-              onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, interests: Array.from(e.target.selectedOptions, opt => opt.value) })
+              }
             >
               <option value="">Select interest</option>
               <option value="sports">Sports</option>
@@ -241,11 +247,15 @@ function UserProfile() {
               <option value="other">Other</option>
             </select>
 
+            <p>Instructions: If selecting more than one objective, press and hold CTRL or CMD and click on more than one objective from the list or press Shift to select a range of objectives.</p>
             <label htmlFor="objectives">Objectives:</label>
             <select
               id="objectives"
+              multiple
               value={formData.objectives}
-              onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, objectives: Array.from(e.target.selectedOptions, opt => opt.value) })
+              }
             >
               <option value="">Select objective</option>
               <option value="Meeting New People">Meeting New People</option>

@@ -23,3 +23,7 @@
   position: absolute;
   background-color: white;
 }
+
+#modal-content label {
+  color: black;
+}

@@ -1,0 +1,44 @@
+/* frontend/src/components/UserConnectionsForms/UserConnectionsForms.css */
+.submit-button {
+    background-color: #1e4a2b;
+    color: black;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submit-button:hover {
+    background-color: #327d4a;
+}
+
+.submit-button:active {
+    background-color: #327d4a;
+    transform: scale(0.98);
+}
+
+.clear-filtered-results-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid #29643a;
+    padding: 10px 26px;
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.clear-filtered-results-button:hover {
+    border: 2px solid #29643a;
+    background-color: #29643a;
+    color: black;
+    border-color: #333333;
+}
+
+.clear-filtered-results-button:active {
+    transform: scale(0.98);
+}
