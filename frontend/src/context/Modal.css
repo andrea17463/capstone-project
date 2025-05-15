@@ -20,10 +20,41 @@
 }
 
 #modal-content {
-  position: absolute;
+  /* position: absolute; */
+  position: relative;
   background-color: white;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 #modal-content label {
   color: black;
 }
+
+#modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+#modal-content input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  /* border-radius: 4px; */
+}
+
+/* #modal-content button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  /* background-color: ; */
+/*   border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  /* color: ; */
+/* } */

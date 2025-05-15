@@ -107,7 +107,7 @@ export const updateConnectionStatus = (connectionId, status) => async (dispatch)
         const res = await csrfFetch(`/api/connections/${connectionId}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify({ connectionStatus: status }),
         });
 
         if (!res.ok) throw new Error('Failed to update connection status');

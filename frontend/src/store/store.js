@@ -8,9 +8,9 @@ import userConnectionsReducer from './user-connections';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
-  chatmessages: chatMessagesReducer,
-  gameplays: gamePlaysReducer,
-  userconnections: userConnectionsReducer
+  chatMessages: chatMessagesReducer,
+  gamePlays: gamePlaysReducer,
+  userConnections: userConnectionsReducer
 });
 
 const loggerMiddleware = store => next => action => {

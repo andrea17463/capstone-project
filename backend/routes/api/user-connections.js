@@ -35,11 +35,10 @@ router.use(restoreUser);
 router.get('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log('GET /api/connections userId', userId);
+    // console.log('GET /api/connections userId', userId);
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Authenticated user:', req.user);
+      console.log('GET /api/connections Authenticated user:', req.user);
     }
-    // console.log('Authenticated user:', req.user);
 
     const connections = await UserConnection.findAll({
       where: {
@@ -84,17 +83,35 @@ router.get('/:userId', requireAuth, async (req, res) => {
     const userId2 = req.params.userId;
     // console.log('GET /api/connections/:userId Authenticated user:', req.user);
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Authenticated user:', req.user);
+      console.log('GET /api/connections/:userId Authenticated user:', req.user);
     }
 
+    // const connection = await UserConnection.findOne({
+    //   where: {
+    //     [Op.or]: [
+    //       { user_1_id: userId1, user_2_id: userId2 },
+    //       { user_1_id: userId2, user_2_id: userId1 }
+    //     ]
+    //   }
+    // });
     const connection = await UserConnection.findOne({
       where: {
+        // [Op.and]: [
+        // {
         [Op.or]: [
+          // { user_1_id, user_2_id },
+          // { user_1_id: user_2_id, user_2_id: user_1_id }
           { user_1_id: userId1, user_2_id: userId2 },
           { user_1_id: userId2, user_2_id: userId1 }
         ]
+        //   },
+        //   { connectionStatus: 'accepted' },
+        //   { meetingStatus: 'active' }
+        // ]
       }
     });
+
+    console.log('Found connection:', connection?.toJSON());
 
     if (!connection) {
       return res.status(404).json({ error: 'Connection not found' });
@@ -112,9 +129,9 @@ router.get('/:userId', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
   const { user2Id, suggestedActivity, meetingTime } = req.body;
-  // console.log('Creating connection for user:', req.user);
+  // console.log('POST /api/connections Authenticated user:', req.user);
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Authenticated user:', req.user);
+    console.log('POST /api/connections Authenticated user:', req.user);
   }
 
   const parsedMeetingTime = new Date(meetingTime);
@@ -178,6 +195,9 @@ router.put('/:connectionId/status', requireAuth, async (req, res) => {
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
     connection.connectionStatus = connectionStatus;
+    if (connectionStatus === 'accepted') {
+      connection.meetingStatus = 'active';
+    }
     await connection.save();
 
     res.json(connection);
@@ -215,7 +235,7 @@ router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
   const { meetAgain } = req.body;
   // console.log('PUT /api/connections/:connectionId/feedback Authenticated user:', req.user);
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Authenticated user:', req.user);
+    console.log('PUT /api/connections/:connectionId/feedback Authenticated user:', req.user);
   }
 
   try {

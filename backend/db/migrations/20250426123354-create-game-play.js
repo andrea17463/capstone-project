@@ -19,69 +19,71 @@ module.exports = {
       user_1_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
       user_2_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
+      traitCategory: {
+        type: Sequelize.TEXT,
+        // allowNull: false
+        allowNull: true
+      },
       traitName: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      traitDescription: {
-        type: Sequelize.TEXT,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       interactionType: {
         type: Sequelize.STRING,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
       guessedValue: {
         type: Sequelize.STRING,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       isCorrect: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
+        // allowNull: false,
+        allowNull: true,
         defaultValue: false
-      },
-      promptText: {
-        type: Sequelize.TEXT,
-        allowNull: false
       },
       status: {
         type: Sequelize.STRING,
+        allowNull: true
+      },
+      gamePlayId: {
+        type: Sequelize.INTEGER,
         allowNull: true
       },
       createdAt: {

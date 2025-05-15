@@ -12,8 +12,7 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         try {
             const users = await User.findAll({
-                attributes: ['id', 'username'],
-                limit: 6
+                attributes: ['id', 'username']
             });
 
             if (users.length < 6) {
@@ -30,74 +29,61 @@ module.exports = {
 
             await GamePlay.bulkCreate([
                 {
-                    // user_1_id: 1,
-                    // user_2_id: 2,
                     user_1_id: user1.id,
                     user_2_id: user2.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Casual Talker',
-                    traitDescription: 'Their idea of a deep conversation is about what\'s for lunch.',
                     interactionType: 'guessing',
-                    guessedValue: 'Philosophical',
-                    isCorrect: false,
-                    // user_id: 1,
+                    guessedValue: null,
+                    isCorrect: null,
                     user_id: user1.id,
-                    promptText: 'What made you choose that card?',
                     status: 'active',
+                    // gamePlayId: 1,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
                 {
-                    // user_1_id: 2,
-                    // user_2_id: 3,
                     user_1_id: user2.id,
                     user_2_id: user3.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Talks About Feelings',
-                    traitDescription: 'Has a mental breakdown over a TV commercial but refuses to talk about it until later.',
                     interactionType: 'roasts',
-                    guessedValue: 'Talks About Feelings',
-                    isCorrect: true,
-                    // user_id: 3,
+                    guessedValue: null,
+                    isCorrect: null,
                     user_id: user3.id,
-                    promptText: 'Aw, cute. You guessed me right. Finally, someone gets me… kind of.',
                     status: 'active',
+                    // gamePlayId: 2,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
                 {
-                    // user_1_id: 3,
-                    // user_2_id: 4,
                     user_1_id: user3.id,
                     user_2_id: user4.id,
+                    traitCategory: 'Food and Drink Preferences',
                     traitName: 'Spicy food lover',
-                    traitDescription: 'Their taste buds are basically fireproof.',
                     interactionType: 'guessing',
-                    guessedValue: 'Mild food lover',
-                    isCorrect: false,
-                    // user_id: 4,
+                    guessedValue: null,
+                    isCorrect: null,
                     user_id: user4.id,
-                    promptText: 'What made you choose that card?',
                     status: 'active',
+                    // gamePlayId: 3,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
                 {
-                    // user_1_id: 5,
-                    // user_2_id: 6,
                     user_1_id: user5.id,
                     user_2_id: user6.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Sarcastic',
-                    traitDescription: 'Their sincerity setting is permanently broken.',
                     interactionType: 'guessing',
-                    guessedValue: 'Sarcastic',
-                    isCorrect: true,
-                    // user_id: 5,
+                    guessedValue: null,
+                    isCorrect: null,
                     user_id: user5.id,
-                    promptText: 'Have people told you this about yourself before?',
                     status: 'active',
+                    // gamePlayId: 4,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 }
-                // ], {});
             ], { validate: true });
         } catch (error) {
             console.error('Error seeding game plays:', error);
@@ -131,7 +117,6 @@ module.exports = {
                     { traitName: 'Spicy food lover' },
                     { traitName: 'Sarcastic' }
                 ]
-                // }, {});
             }, {});
         } catch (error) {
             console.log('Error in game plays seeder down method:', error.message);

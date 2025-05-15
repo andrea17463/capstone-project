@@ -1,14 +1,20 @@
 // src/components/LandingPage/LandingPage.jsx
 import './LandingPage.css';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import SignupFormModal from '../SignupFormModal';
 import LoginFormModal from '../LoginFormModal';
+import { login } from '../../store/session';
 
 const LandingPage = () => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.session.user);
   const { setModalContent } = useModal();
+
+  const handleDemoLogin = () => {
+    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+  };
 
   return (
     <div>
@@ -23,6 +29,9 @@ const LandingPage = () => {
             </button>
             <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
               Log in
+            </button>
+            <button className="btn-demo" onClick={handleDemoLogin}>
+              Demo Login
             </button>
           </div>
         </>

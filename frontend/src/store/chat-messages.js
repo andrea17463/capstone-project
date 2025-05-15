@@ -80,6 +80,7 @@ export const getChatHistory = (userId) => async (dispatch) => {
         if (!response.ok) throw new Error('Failed to get chat history');
 
         const data = await response.json();
+        console.log("Fetched chat history:", data);
         dispatch({
             type: GET_CHAT_HISTORY,
             payload: data

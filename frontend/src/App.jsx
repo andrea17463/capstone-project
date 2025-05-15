@@ -11,6 +11,7 @@ import UserConnections from './components/UserConnections/UserConnections';
 import GuessingGame from './components/GuessingGame/GuessingGame';
 import ConnectionProfile from './components/ConnectionProfile/ConnectionProfile';
 import Chat from './components/Chat/Chat';
+// import GamePlay from './components/GamePlay/GamePlay';
 import { fetchAllConnections } from './store/user-connections';
 import * as sessionActions from './store/session';
 
@@ -43,18 +44,20 @@ function GameWrapper() {
 
 function ChatMessagesIntro() {
   const dispatch = useDispatch();
-  const currentUser = useSelector((state) => state.session.user);
-  console.log("Current user in session in App component:", currentUser);
-  const connections = useSelector((state) => state.userconnections.connections || []);
+  const sessionUser = useSelector((state) => state.session.user);
+  const isLoaded = useSelector((state) => state.session.isLoaded);
+  const connections = useSelector((state) => state.userConnections.connections || []);
+  console.log("Connections in ChatMessagesIntro:", connections);
 
   useEffect(() => {
-    if (currentUser?.id) {
-      console.log("Fetching connections in App component for:", currentUser.id);
-      dispatch(fetchAllConnections(currentUser.id));
+    if (sessionUser?.id) {
+      console.log("Fetching connections in App component for:", sessionUser.id);
+      dispatch(fetchAllConnections(sessionUser.id));
     }
-  }, [dispatch, currentUser?.id]);
+  }, [dispatch, sessionUser?.id]);
 
-  if (!currentUser) return <Navigate to="/" />;
+  if (!isLoaded) return <div>Loading...</div>;
+  if (!sessionUser) return <Navigate to="/" />;
 
   return (
     <div>
@@ -64,20 +67,27 @@ function ChatMessagesIntro() {
       ) : (
         <ul>
           {Array.isArray(connections) &&
-            connections.filter(Boolean).map((connection) => {
-              const otherUserId =
-                currentUser.id === connection.user_1_id
-                  ? connection.user_2_id
-                  : connection.user_1_id;
+            connections
+              // .filter((connection) => connection.connectionStatus === 'accepted')
+              .map((connection) => {
+                const { user1, user2 } = connection;
+                if (!user1 || !user2) return null;
 
-              return (
-                <li key={connection.id}>
-                  <NavLink to={`/chat/${currentUser.id}/${otherUserId}`}>
-                    Chat with user {otherUserId}
-                  </NavLink>
-                </li>
-              );
-            })}
+                const otherUser = sessionUser.id === user1.id ? user2 : user1;
+
+                if (!otherUser?.id || !otherUser?.username) {
+                  console.warn('Missing user info in connection:', connection);
+                  return null;
+                }
+
+                return (
+                  <li key={connection.id}>
+                    <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                      Chat with {otherUser.username}
+                    </NavLink>
+                  </li>
+                );
+              })}
         </ul>
       )}
     </div>
@@ -95,6 +105,8 @@ const router = createBrowserRouter([
       { path: '/chats', element: <ChatMessagesIntro /> },
       { path: '/chat/:user1Id/:user2Id', element: <Chat /> },
       { path: '/game/:gamePlayId', element: <GameWrapper /> },
+      // { path: '/game-play', element: <GamePlay /> },
+      { path: '/guess-me-game', element: <GuessingGame /> },
     ]
   }
 ]);

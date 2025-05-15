@@ -1,31 +1,36 @@
 // frontend/src/components/Navigation/Navigation.jsx
-import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
-  const connections = useSelector((state) => state.userconnections.connections || []);
-  const [showSpecificChats, setShowSpecificChats] = useState(true);
-
+  const connections = useSelector((state) => state.userConnections.connections || []);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  console.log('Navigation component connections:', connections);
+  const [showSpecificChats, setShowSpecificChats] = useState(location.pathname === '/chats');
 
-  useEffect(() => {
+  console.log('Navigation.jsx connections:', connections);
+
+  const handleAllChatsClick = (e) => {
+    e.preventDefault();
     if (location.pathname !== '/chats') {
-      setShowSpecificChats(false);
+      navigate('/chats');
+      setShowSpecificChats(true);
+    } else {
+      setShowSpecificChats(prev => !prev);
     }
-  }, [location]);
-
+  };
 
   return (
     <nav className="navigation">
       <span>
         <NavLink to="/">Home</NavLink>
       </span>
+
       {isLoaded && (
         <>
           <span>
@@ -36,56 +41,57 @@ function Navigation({ isLoaded }) {
           </span>
         </>
       )}
+
       <span>
         <NavLink to="/connections">Connections</NavLink>
       </span>
+
       <span>
-        <NavLink to="/chats" onClick={() => setShowSpecificChats(!showSpecificChats)}>
+        <a href="/chats" onClick={handleAllChatsClick}>
           All Chats
-        </NavLink>
+        </a>
       </span>
 
-      {showSpecificChats && (
+      {showSpecificChats && sessionUser && (
         <>
           <span>Specific Chats</span>
           <ul>
-            {connections
-              .filter((connection) => connection.connectionStatus === 'accepted')
-              .map((connection) => {
-                if (!connection.user1 || !connection.user2 || !sessionUser) return null;
+            {(() => {
+              const seenUserIds = new Set();
+              return connections.map((connection) => {
+                const { user1, user2 } = connection;
+                if (!user1 || !user2) return null;
 
-                const otherUser = sessionUser.id === connection.user1.id ? connection.user2 : connection.user1;
+                const otherUser = sessionUser.id === user1.id ? user2 : user1;
+                console.log('Navigation.jsx sessionUser:', sessionUser);
 
-                console.log('Inspecting Navigation component connection:', connection);
-                console.log('sessionUser:', sessionUser);
-                console.log('otherUser', otherUser);
-
-                if (!otherUser?.id) {
-                  console.warn(`Missing otherUser ID for connection:`, connection);
+                if (!otherUser?.id || !otherUser?.username) {
+                  console.warn('Missing user info in connection:', connection);
+                  return null;
                 }
+
+                if (seenUserIds.has(otherUser.id)) return null;
+                seenUserIds.add(otherUser.id);
 
                 return (
                   <li key={connection.id}>
-                    <NavLink
-                      to={
-                        !otherUser?.id
-                          ? '/chats'
-                          : `/chat/${sessionUser.id}/${otherUser.id}`
-                      }
-                    >
-                      Chat with {otherUser?.username || `User ${otherUser?.id || '?'}`}
+                    <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                      Chat with {otherUser.username}
                     </NavLink>
                   </li>
                 );
-              })}
+              });
+            })()}
           </ul>
         </>
       )}
+
       <span>
-        <NavLink to="/game/guess-me-game">Guess Me Game</NavLink>
+        <NavLink to="/guess-me-game">Guess Me Game</NavLink>
       </span>
-      <span>
-      </span>
+      {/* <span>
+        <NavLink to="/game-play">Game Play</NavLink>
+      </span> */}
     </nav>
   );
 }
