@@ -19,8 +19,7 @@ module.exports = {
       user_1_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
@@ -32,8 +31,7 @@ module.exports = {
       user_2_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
@@ -46,10 +44,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      traitDescription: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
       interactionType: {
         type: Sequelize.STRING,
         allowNull: false
@@ -57,8 +51,7 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: { model: 'Users', key: 'id' },
-        references: { 
+        references: {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
@@ -69,19 +62,21 @@ module.exports = {
       },
       guessedValue: {
         type: Sequelize.STRING,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       isCorrect: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
+        // allowNull: false,
+        allowNull: true,
         defaultValue: false
-      },
-      promptText: {
-        type: Sequelize.TEXT,
-        allowNull: false
       },
       status: {
         type: Sequelize.STRING,
+        allowNull: true
+      },
+      gamePlayId: {
+        type: Sequelize.INTEGER,
         allowNull: true
       },
       createdAt: {

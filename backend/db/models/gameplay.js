@@ -49,14 +49,14 @@ module.exports = (sequelize, DataTypes) => {
       references: { model: 'Users', key: 'id' },
       onDelete: 'SET NULL'
     },
-    promptText: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'active'
+    },
+    gamePlayId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,
