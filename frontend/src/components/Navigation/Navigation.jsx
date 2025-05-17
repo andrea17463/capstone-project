@@ -1,7 +1,6 @@
 // frontend/src/components/Navigation/Navigation.jsx
-import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-// import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
 import './Navigation.css';
@@ -9,20 +8,22 @@ import './Navigation.css';
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
   const connections = useSelector((state) => state.userConnections.connections || []);
-  const [showSpecificChats, setShowSpecificChats] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  const [showSpecificChats, setShowSpecificChats] = useState(location.pathname === '/chats');
 
-  console.log('Navigation component connections:', connections);
+  console.log('Navigation.jsx connections:', connections);
 
-  useEffect(() => {
+  const handleAllChatsClick = (e) => {
+    e.preventDefault();
     if (location.pathname !== '/chats') {
-      setShowSpecificChats(false);
+      navigate('/chats');
+      setShowSpecificChats(true);
+    } else {
+      setShowSpecificChats(prev => !prev);
     }
-  }, [location]);
-  useEffect(() => {
-  setShowSpecificChats(location.pathname === '/chats');
-}, [location.pathname]);
+  };
 
   return (
     <nav className="navigation">
@@ -40,57 +41,51 @@ function Navigation({ isLoaded }) {
           </span>
         </>
       )}
+
       <span>
         <NavLink to="/connections">Connections</NavLink>
       </span>
+
       <span>
-        <NavLink to="/chats" onClick={() => setShowSpecificChats(!showSpecificChats)}>
+        <a href="/chats" onClick={handleAllChatsClick}>
           All Chats
-        </NavLink>
-        {/* <NavLink to="/chats">
-          All Chats
-        </NavLink> */}
+        </a>
       </span>
 
-      {/* {showSpecificChats && ( */}
       {showSpecificChats && sessionUser && (
-      // sessionUser && (
         <>
           <span>Specific Chats</span>
           <ul>
-            {
-              (() => {
-                const seenUserIds = new Set();
-                return connections.map((connection) => {
-                  const { user1, user2 } = connection;
-                  if (!user1 || !user2) return null;
+            {(() => {
+              const seenUserIds = new Set();
+              return connections.map((connection) => {
+                const { user1, user2 } = connection;
+                if (!user1 || !user2) return null;
 
-                  const otherUser = sessionUser.id === user1.id ? user2 : user1;
+                const otherUser = sessionUser.id === user1.id ? user2 : user1;
+                console.log('Navigation.jsx sessionUser:', sessionUser);
 
-                  console.log('Navigation.jsx sessionUser:', sessionUser);
+                if (!otherUser?.id || !otherUser?.username) {
+                  console.warn('Missing user info in connection:', connection);
+                  return null;
+                }
 
-                  if (!otherUser?.id || !otherUser?.username) {
-                    console.warn('Missing user info in connection:', connection);
-                    return null;
-                  }
+                if (seenUserIds.has(otherUser.id)) return null;
+                seenUserIds.add(otherUser.id);
 
-                  if (seenUserIds.has(otherUser.id)) return null;
-                  seenUserIds.add(otherUser.id);
-
-                  return (
-                    <li key={connection.id}>
-                      <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
-                        Chat with {otherUser.username}
-                      </NavLink>
-                    </li>
-                  );
-                });
-              })()
-            }
+                return (
+                  <li key={connection.id}>
+                    <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                      Chat with {otherUser.username}
+                    </NavLink>
+                  </li>
+                );
+              });
+            })()}
           </ul>
         </>
       )}
-      )}
+
       <span>
         <NavLink to="/guess-me-game">Guess Me Game</NavLink>
       </span>

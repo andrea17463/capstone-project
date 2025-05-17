@@ -47,6 +47,7 @@ function ChatMessagesIntro() {
   const sessionUser = useSelector((state) => state.session.user);
   const isLoaded = useSelector((state) => state.session.isLoaded);
   const connections = useSelector((state) => state.userConnections.connections || []);
+  console.log("Connections in ChatMessagesIntro:", connections);
 
   useEffect(() => {
     if (sessionUser?.id) {

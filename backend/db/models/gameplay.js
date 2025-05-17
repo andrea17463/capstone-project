@@ -23,17 +23,20 @@ module.exports = (sequelize, DataTypes) => {
       references: { model: 'Users', key: 'id' },
       onDelete: 'CASCADE'
     },
+    traitCategory: {
+      type: DataTypes.TEXT,
+      // allowNull: false
+      allowNull: true
+    },
     traitName: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    traitDescription: {
-      type: DataTypes.TEXT,
-      allowNull: false
+      // allowNull: false
+      allowNull: true
     },
     interactionType: {
       type: DataTypes.STRING,
-      allowNull: false
+      // allowNull: false
+      allowNull: true
     },
     guessedValue: {
       type: DataTypes.STRING,

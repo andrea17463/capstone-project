@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
+import { login } from '../../store/session';
 // import OpenModalButton from '../OpenModalButton';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal';
@@ -46,6 +47,12 @@ function ProfileButton({ user }) {
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
+  const handleDemoLogin = async () => {
+    await dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+    closeMenu();
+    navigate('/');
+  };
+
   return (
     <>
       <button onClick={toggleMenu}>
@@ -72,6 +79,10 @@ function ProfileButton({ user }) {
               itemText="Sign Up"
               onItemClick={closeMenu}
               modalComponent={<SignupFormModal />}
+            />
+            <OpenModalMenuItem
+              itemText="Demo Login"
+              onItemClick={handleDemoLogin}
             />
           </>
         )}

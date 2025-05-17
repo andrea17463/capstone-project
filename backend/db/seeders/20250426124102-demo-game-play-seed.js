@@ -31,6 +31,7 @@ module.exports = {
                 {
                     user_1_id: user1.id,
                     user_2_id: user2.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Casual Talker',
                     interactionType: 'guessing',
                     guessedValue: null,
@@ -44,6 +45,7 @@ module.exports = {
                 {
                     user_1_id: user2.id,
                     user_2_id: user3.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Talks About Feelings',
                     interactionType: 'roasts',
                     guessedValue: null,
@@ -57,6 +59,7 @@ module.exports = {
                 {
                     user_1_id: user3.id,
                     user_2_id: user4.id,
+                    traitCategory: 'Food and Drink Preferences',
                     traitName: 'Spicy food lover',
                     interactionType: 'guessing',
                     guessedValue: null,
@@ -70,6 +73,7 @@ module.exports = {
                 {
                     user_1_id: user5.id,
                     user_2_id: user6.id,
+                    traitCategory: 'Conversation Style and Humor',
                     traitName: 'Sarcastic',
                     interactionType: 'guessing',
                     guessedValue: null,

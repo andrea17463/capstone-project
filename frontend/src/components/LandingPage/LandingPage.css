@@ -68,3 +68,37 @@
 .btn-login:active {
   transform: scale(0.98);
 }
+
+.btn-demo {
+  background-color: transparent;
+  /* color: #001935; */
+  /* color: #3c9759; */
+  /* color: #29643a; */
+  color: white;
+  /* border: 2px solid #001935; */
+  /* border: 2px solid #3c9759; */
+  border: 2px solid #29643a;
+  padding: 10px 26px;
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-demo:hover {
+  /* background-color: rgba(0, 25, 53, 0.05); */
+  /* background-color: #333333; */
+  border: 2px solid #29643a;
+  background-color: #29643a;
+  color: black;
+  /* color: white; */
+  border-color: #333333;
+  /* border-color: #29643a; */
+  /* border-color: white; */
+  /* border-color: black; */
+}
+
+.btn-demo:active {
+  transform: scale(0.98);
+}

@@ -23,8 +23,8 @@ module.exports = {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
@@ -35,18 +35,25 @@ module.exports = {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },
+      traitCategory: {
+        type: Sequelize.TEXT,
+        // allowNull: false
+        allowNull: true
+      },
       traitName: {
         type: Sequelize.STRING,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       interactionType: {
         type: Sequelize.STRING,
-        allowNull: false
+        // allowNull: false
+        allowNull: true
       },
       user_id: {
         type: Sequelize.INTEGER,
@@ -55,8 +62,8 @@ module.exports = {
           model: {
             tableName: 'Users',
             schema: process.env.NODE_ENV === 'production' ? process.env.SCHEMA : undefined
-          }, 
-          key: 'id' 
+          },
+          key: 'id'
         },
         onDelete: 'CASCADE'
       },

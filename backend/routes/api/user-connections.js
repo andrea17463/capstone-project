@@ -35,7 +35,7 @@ router.use(restoreUser);
 router.get('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log('GET /api/connections userId', userId);
+    // console.log('GET /api/connections userId', userId);
     if (process.env.NODE_ENV !== 'production') {
       console.log('GET /api/connections Authenticated user:', req.user);
     }
@@ -81,6 +81,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
   try {
     const userId1 = req.user.id;
     const userId2 = req.params.userId;
+    // console.log('GET /api/connections/:userId Authenticated user:', req.user);
     if (process.env.NODE_ENV !== 'production') {
       console.log('GET /api/connections/:userId Authenticated user:', req.user);
     }
@@ -128,6 +129,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const user1Id = req.user.id;
   const { user2Id, suggestedActivity, meetingTime } = req.body;
+  // console.log('POST /api/connections Authenticated user:', req.user);
   if (process.env.NODE_ENV !== 'production') {
     console.log('POST /api/connections Authenticated user:', req.user);
   }
@@ -231,6 +233,7 @@ router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
   const userId = req.user.id;
   const { meetAgain } = req.body;
+  // console.log('PUT /api/connections/:connectionId/feedback Authenticated user:', req.user);
   if (process.env.NODE_ENV !== 'production') {
     console.log('PUT /api/connections/:connectionId/feedback Authenticated user:', req.user);
   }

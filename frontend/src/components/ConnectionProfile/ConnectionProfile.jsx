@@ -29,7 +29,7 @@ function ConnectionProfile() {
   const [timeError, setTimeError] = useState('');
   const [statusType, setStatusType] = useState('');
 
-  const connections = useSelector((state) => state.userconnections?.connections || []);
+  const connections = useSelector((state) => state.userConnections?.connections || []);
   const userIdNumber = Number(userId);
   const currentUserId = useSelector(state => state.session.user?.id);
   // const currentUser = useSelector((state) => state.session.user);
