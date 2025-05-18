@@ -25,10 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     connectionStatus: {
       type: DataTypes.STRING,
       allowNull: false,
-      // defaultValue: 'pending'
       defaultValue: 'pending',
       validate: {
-        isIn: [['pending', 'accepted', 'declined']]
+        isIn: [[ 'active', 'pending', 'accepted', 'declined']]
       }
     },
     meetingStatus: {

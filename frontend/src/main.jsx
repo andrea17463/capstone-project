@@ -28,5 +28,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ModalProvider>
   </React.StrictMode>
 );
-
-console.log('store:', store);

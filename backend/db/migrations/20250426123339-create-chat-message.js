@@ -9,8 +9,6 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up(queryInterface, Sequelize) {
     options.tableName = 'ChatMessages';
-    try {
-      // await queryInterface.createTable('ChatMessages', {
       await queryInterface.createTable(options, {
         id: {
           type: Sequelize.INTEGER,
@@ -21,7 +19,6 @@ module.exports = {
         senderId: {
           type: Sequelize.INTEGER,
           allowNull: false,
-          // references: { model: 'Users', key: 'id' },
           references: {
             model: {
               tableName: 'Users',
@@ -34,7 +31,6 @@ module.exports = {
         receiverId: {
           type: Sequelize.INTEGER,
           allowNull: false,
-          // references: { model: 'Users', key: 'id' },
           references: {
             model: {
               tableName: 'Users',
@@ -73,16 +69,9 @@ module.exports = {
           defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
         }
       });
-    } catch (error) {
-      console.error('Error creating chat messages table:', error);
-    }
   },
   async down(queryInterface, Sequelize) {
     options.tableName = 'ChatMessages';
-    try {
       return queryInterface.dropTable(options);
-    } catch (error) {
-      console.error('Error deleting chat messages table:', error);
-    }
   }
 };

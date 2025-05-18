@@ -259,11 +259,11 @@ function ConnectionProfile() {
     }
   };
 
-  const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
+  // const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
 
-  { gameLoading && <p>Starting game...</p> }
-  { error && <p>Error: {error}</p> }
-  { game && <p>Game started with {profile?.username}!</p> }
+  // { gameLoading && <p>Starting game...</p> }
+  // { error && <p>Error: {error}</p> }
+  // { game && <p>Game started with {profile?.username}!</p> }
 
   if (userConnectionsLoading) return <p>Loading connection...</p>;
 
@@ -326,12 +326,15 @@ function ConnectionProfile() {
       <button onClick={handleEndMeeting}>End Meeting</button>
       {/* <button disabled>Connection already exists</button> */}
       <br />
-      <button
+      <button onClick={() => alert('Feature Coming Soon')}>Block</button>
+      <button onClick={() => alert('Feature Coming Soon')}>Report</button>
+      <br />
+      {/* <button
         // onClick={handleStartGame}
         className="start-game-button"
       >
         Start Game
-      </button>
+      </button> */}
     </div>
   );
 }

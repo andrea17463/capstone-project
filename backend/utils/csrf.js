@@ -1,4 +1,4 @@
-// frontend/src/utils/csrf.js
+// backend/utils/csrf.js
 // export async function restoreCsrf() {
 //     await fetch('http://localhost:3001/api/csrf/restore', {
 //       credentials: 'include',

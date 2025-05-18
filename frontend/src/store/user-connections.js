@@ -53,6 +53,7 @@ export const fetchAllConnections = () => async (dispatch) => {
             type: GET_CONNECTIONS,
             payload: data
         });
+        console.log('All fetched connections data:', data);
     } catch (err) {
         console.error('Error:', err);
         dispatch(setError(err.message));

@@ -14,10 +14,6 @@ const rootReducer = combineReducers({
 });
 
 const loggerMiddleware = store => next => action => {
-  console.log('Dispatching:', action);
-  console.log('Action Type:', action.type);
-  console.log('Action Payload:', action.payload);
-  console.log('Current State:', store.getState());
   const result = next(action);
   console.log('New State:', store.getState());
   return result;

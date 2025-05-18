@@ -71,23 +71,6 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     options.tableName = 'UserConnections';
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        const tableExists = await queryInterface.sequelize.query(
-          `SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = '${process.env.SCHEMA}'
-            AND table_name = 'UserConnections'
-          );`,
-          { type: Sequelize.QueryTypes.SELECT }
-        );
-
-        if (!tableExists[0].exists) {
-          console.log('UserConnections table does not exist, skipping deletion');
-          return;
-        }
-      }
-
       const Op = Sequelize.Op;
       return queryInterface.bulkDelete(options, {
         [Op.or]: [
@@ -102,8 +85,5 @@ module.exports = {
           }
         ]
       }, {});
-    } catch (error) {
-      console.log('Error in user connections seeder down method:', error.message);
-    }
   }
 };

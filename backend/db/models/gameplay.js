@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       GamePlay.belongsTo(models.User, { foreignKey: 'user_1_id', as: 'user1' });
       GamePlay.belongsTo(models.User, { foreignKey: 'user_2_id', as: 'user2' });
-      GamePlay.belongsTo(models.User, { foreignKey: 'user_id', as: 'guesser' });
+      GamePlay.belongsTo(models.User, { foreignKey: 'guesser_id', as: 'guesser' });
     }
   }
   GamePlay.init({
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    user_id: {
+    guesser_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: { model: 'Users', key: 'id' },
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'active'
     },
-    gamePlayId: {
+    gameSessionId: {
       type: DataTypes.INTEGER,
       allowNull: true
     }

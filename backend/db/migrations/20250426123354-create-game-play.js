@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // options.tableName = "GamePlays";
+    options.tableName = 'GamePlays';
     await queryInterface.createTable('GamePlays', {
       id: {
         type: Sequelize.INTEGER,
@@ -55,7 +55,7 @@ module.exports = {
         // allowNull: false
         allowNull: true
       },
-      user_id: {
+      guesser_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -82,7 +82,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      gamePlayId: {
+      gameSessionId: {
         type: Sequelize.INTEGER,
         allowNull: true
       },

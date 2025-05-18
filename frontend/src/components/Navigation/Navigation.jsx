@@ -12,6 +12,7 @@ function Navigation({ isLoaded }) {
   const navigate = useNavigate();
 
   const [showSpecificChats, setShowSpecificChats] = useState(location.pathname === '/chats');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   console.log('Navigation.jsx connections:', connections);
 
@@ -25,74 +26,84 @@ function Navigation({ isLoaded }) {
     }
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev);
+  };
+
   return (
-    <nav className="navigation">
-      <span>
-        <NavLink to="/">Home</NavLink>
-      </span>
+    <>
+      <button className="sidebar-toggle-button" onClick={toggleSidebar}>
+        {sidebarOpen ? '☰' : '☰'}
+      </button>
 
-      {isLoaded && (
-        <>
-          <span>
-            <ProfileButton user={sessionUser} />
-          </span>
-          <span>
-            <NavLink to="/profile">Profile</NavLink>
-          </span>
-        </>
-      )}
+      <nav className={`navigation ${sidebarOpen ? 'open' : 'closed'}`}>
+        <span>
+          <NavLink to="/">Home</NavLink>
+        </span>
 
-      <span>
-        <NavLink to="/connections">Connections</NavLink>
-      </span>
+        {isLoaded && (
+          <>
+            <span>
+              <ProfileButton user={sessionUser} />
+            </span>
+            <span>
+              <NavLink to="/profile">Profile</NavLink>
+            </span>
+          </>
+        )}
 
-      <span>
-        <a href="/chats" onClick={handleAllChatsClick}>
-          All Chats
-        </a>
-      </span>
+        <span>
+          <NavLink to="/connections">Connections</NavLink>
+        </span>
 
-      {showSpecificChats && sessionUser && (
-        <>
-          <span>Specific Chats</span>
-          <ul>
-            {(() => {
-              const seenUserIds = new Set();
-              return connections.map((connection) => {
-                const { user1, user2 } = connection;
-                if (!user1 || !user2) return null;
+        <span>
+          <a href="/chats" onClick={handleAllChatsClick}>
+            All Chats
+          </a>
+        </span>
 
-                const otherUser = sessionUser.id === user1.id ? user2 : user1;
-                console.log('Navigation.jsx sessionUser:', sessionUser);
+        {showSpecificChats && sessionUser && (
+          <>
+            <span>Specific Chats</span>
+            <ul>
+              {(() => {
+                const seenUserIds = new Set();
+                return connections.map((connection) => {
+                  const { user1, user2 } = connection;
+                  if (!user1 || !user2) return null;
 
-                if (!otherUser?.id || !otherUser?.username) {
-                  console.warn('Missing user info in connection:', connection);
-                  return null;
-                }
+                  const otherUser = sessionUser.id === user1.id ? user2 : user1;
+                  console.log('Navigation.jsx sessionUser:', sessionUser);
 
-                if (seenUserIds.has(otherUser.id)) return null;
-                seenUserIds.add(otherUser.id);
+                  if (!otherUser?.id || !otherUser?.username) {
+                    console.warn('Missing user info in connection:', connection);
+                    return null;
+                  }
 
-                return (
-                  <li key={connection.id}>
-                    <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
-                      Chat with {otherUser.username}
-                    </NavLink>
-                  </li>
-                );
-              });
-            })()}
-          </ul>
-        </>
-      )}
+                  if (seenUserIds.has(otherUser.id)) return null;
+                  seenUserIds.add(otherUser.id);
 
-      <span>
-        <NavLink to="/guess-me-game">Guess Me Game</NavLink>
-      </span>
-      {/* <span>
-        <NavLink to="/game-play">Game Play</NavLink>
-      </span> */}
-    </nav>
+                  return (
+                    <li key={connection.id}>
+                      <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                        Chat with {otherUser.username}
+                      </NavLink>
+                    </li>
+                  );
+                });
+              })()}
+            </ul>
+          </>
+        )}
+
+        <span>
+          <NavLink to="/guess-me-game">Guess Me Game</NavLink>
+        </span>
+        {/* <span>
+          <NavLink to="/game-play">Game Play</NavLink>
+        </span> */}
+      </nav>
+    </>
   );
 }
 

@@ -110,18 +110,6 @@ router.post('/', validateSignup, async (req, res) => {
   }
 });
 
-const validateUserInput = [
-  check('email')
-    .isEmail()
-    .withMessage('Please provide a valid email address'),
-  check('username')
-    .isLength({ min: 4 })
-    .withMessage('Username must be at least 4 characters long'),
-  check('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
-];
-
 // GET /api/users
 // Retrieve the logged-in user's profile
 

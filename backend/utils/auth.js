@@ -28,8 +28,6 @@ const setTokenCookie = (res, user) => {
 
 const restoreUser = (req, res, next) => {
   const { token } = req.cookies;
-  // console.log("Token from cookies:", token);
-  // console.log(req.cookies);
   req.user = null;
   if (!token) return next();
   return jwt.verify(token, secret, null, async (err, jwtPayload) => {
@@ -50,7 +48,6 @@ const restoreUser = (req, res, next) => {
       res.clearCookie('token');
     }
     if (!req.user) {
-      // console.log("User not found, clearing token");
       res.clearCookie('token');
     }
     return next();

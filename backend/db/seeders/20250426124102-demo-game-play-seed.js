@@ -36,7 +36,7 @@ module.exports = {
                     interactionType: 'guessing',
                     guessedValue: null,
                     isCorrect: null,
-                    user_id: user1.id,
+                    guesser_id: user1.id,
                     status: 'active',
                     // gamePlayId: 1,
                     createdAt: new Date(),
@@ -50,7 +50,7 @@ module.exports = {
                     interactionType: 'roasts',
                     guessedValue: null,
                     isCorrect: null,
-                    user_id: user3.id,
+                    guesser_id: user3.id,
                     status: 'active',
                     // gamePlayId: 2,
                     createdAt: new Date(),
@@ -64,7 +64,7 @@ module.exports = {
                     interactionType: 'guessing',
                     guessedValue: null,
                     isCorrect: null,
-                    user_id: user4.id,
+                    guesser_id: user4.id,
                     status: 'active',
                     // gamePlayId: 3,
                     createdAt: new Date(),
@@ -78,7 +78,7 @@ module.exports = {
                     interactionType: 'guessing',
                     guessedValue: null,
                     isCorrect: null,
-                    user_id: user5.id,
+                    guesser_id: user5.id,
                     status: 'active',
                     // gamePlayId: 4,
                     createdAt: new Date(),
@@ -92,23 +92,6 @@ module.exports = {
 
     async down(queryInterface, Sequelize) {
         options.tableName = 'GamePlays';
-        try {
-            if (process.env.NODE_ENV === 'production') {
-                const tableExists = await queryInterface.sequelize.query(
-                    `SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = '${process.env.SCHEMA}'
-                    AND table_name = 'GamePlays'
-                  );`,
-                    { type: Sequelize.QueryTypes.SELECT }
-                );
-
-                if (!tableExists[0].exists) {
-                    console.log('GamePlays table does not exist, skipping deletion');
-                    return;
-                }
-            }
-
             const Op = Sequelize.Op;
             return queryInterface.bulkDelete(options, {
                 [Op.or]: [
@@ -118,8 +101,5 @@ module.exports = {
                     { traitName: 'Sarcastic' }
                 ]
             }, {});
-        } catch (error) {
-            console.log('Error in game plays seeder down method:', error.message);
-        }
     }
 };

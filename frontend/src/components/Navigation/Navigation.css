@@ -9,8 +9,9 @@ div {
 
 a {
   /* color: rgb(77, 74, 74); */
-  background: black;
-  color: white;
+  /* background: black; */
+  /* color: white; */
+  color: black;
   text-decoration: none;
   font-size: 1.1em;
 }
@@ -24,7 +25,14 @@ a {
   /* color: #311B3F; */
   /* color: #702963; */
   /* color: #003153; */
-  color: #1e4a2b;
+
+  /* color: #1e4a2b; */
+color: #1e4a2b;
+/* Darker 1	#193e25	
+Darker 2	#15321f	
+Darker 3	#10271a	
+Darker 4	#0b1b14	
+Darker 5 #060f0e */
   /* background: black; */
   /* color: white; */
   font-weight: bold;
@@ -35,6 +43,11 @@ a {
 li {
   /* color: rgb(77, 74, 74); */
   color: black;
+  background-color: transparent;
+}
+
+ul {
+  background-color: transparent;
 }
 
 /*
@@ -74,9 +87,14 @@ input {
   color: black;
 }
 
+ul.profile-dropdown li {
+background: white;
+}
+
 .navigation span {
   display: inline-block;
   /* margin-right: 15px; */
+  
   margin-right: 200px;
   margin-left: 200px;
 }
@@ -104,3 +122,172 @@ input {
 .specific-chats-section li {
   margin: 4px 0;
 }
+
+/*
+.navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  /* height: 120px; */
+  /* width: 250px; */
+  /* width: 100%; */
+/*  width: 300px;
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  /* overflow-x: auto; */
+  /*overflow-y: auto;
+  /* overflow-y: hidden; */
+  /*transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  /* align-items: center; */
+  /*flex-direction: column;
+  /* gap: 20px; */
+  /*gap: 15px;
+  /* transform: translateY(-100%); */
+  /*transform: translateX(-100%);
+}
+*/
+  
+/* .navigation-container {
+  position: fixed;
+  top: 0;
+  right: 0; /*
+/*  height: 100vh;
+  width: 300px;
+  background-color: #1e4a2b;
+  color: white;
+  transform: translateX(100%); /* Start hidden to the right */
+  /* transition: transform 0.3s ease-in-out; */
+/*  transition: transform 0.3s ease;
+  z-index: 1000;
+  padding: 1rem;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  background-color: #222;
+  /* overflow-x: auto; */
+/* overflow-y: auto; */
+/* overflow-y: hidden; */
+/* display: flex; */
+  /* align-items: center; */
+  /* flex-direction: column; */
+  /* gap: 20px; */
+  /* gap: 15px; */
+/*} */
+
+.navigation {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 300px;
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  transform: translateX(100%);
+}
+
+/*
+.navigation.closed {
+  transform: translateX(-100%);
+  /* transform: translateY(0); */
+/*}
+*/
+
+.navigation.closed {
+  transform: translateX(100%);
+}
+
+.navigation.open {
+  transform: translateX(0);
+  /* transform: translateY(-100%) */
+}
+
+.navigation span, .navigation ul, .navigation li {
+  /* margin: 10px 0; */
+  /* margin: 0 10px; */
+  margin: 5px 0;
+  /* display: inline-block; */
+  /* color: white; */
+  /* background-color: transparent; */
+  /* background-color: #222; */
+}
+
+.navigation li {
+  background-color: #222;
+}
+
+.navigation a {
+  color: white;
+  /* color: #1e4a2b; */
+/* color: #193e25; */
+/* color: #15321f; */
+/* color: #10271a; */
+/* Darker 4	#0b1b14	 */
+/* Almost Black	#060f0e */
+  text-decoration: none;
+  /* background-color: transparent; */
+  background-color: #222;
+}
+
+.navigation.active {
+  color: #1e4a2b;
+}
+
+.navigation ul {
+  padding-left: 20px;
+}
+
+/* .sidebar-toggle-button {
+  position: fixed;
+  top: 20px;
+  /* top: 10px; */
+  /* left: 10px; */
+ /* left: 20px;
+  /* right: 10px; */
+  /*z-index: 1100;
+  background-color: #444;
+  /* color: white; */
+  /*color: black;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 4px;
+} */
+ .sidebar-toggle-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  /* background-color: #15321f; */
+  background-color: #444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+ /*
+.sidebar-toggle-button {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1100;
+  background-color: #444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px 0 0 5px;
+}
+  */

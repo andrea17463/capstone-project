@@ -23,8 +23,8 @@ module.exports = {
       }
     },
     define: {
-      // schema: process.env.SCHEMA
-      schema: 'capstone_project_schema'
+      schema: process.env.SCHEMA
+      // schema: 'capstone_project_schema'
     }
   }
 };

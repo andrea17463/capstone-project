@@ -5,7 +5,6 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export async function csrfFetch(url, options = {}) {
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-  // console.log('csrfFetch:', fullUrl);
   options.method = options.method || 'GET';
   options.headers = options.headers || {};
 
@@ -25,5 +24,3 @@ export async function csrfFetch(url, options = {}) {
 export function restoreCSRF() {
   return csrfFetch('/csrf/restore');
 }
-
-// console.log(Cookies.get('XSRF-TOKEN'));

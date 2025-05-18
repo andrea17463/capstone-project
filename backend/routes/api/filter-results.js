@@ -6,6 +6,13 @@ const { requireAuth } = require('../../utils/auth');
 const router = require('express').Router();
 
 // POST /api/filter-results
+// Filter connection results
+
+// POST /api/filter-results/reset
+// Clear filtered connection results
+
+// POST /api/filter-results
+// Filter connection results
 router.post('/', requireAuth, async (req, res) => {
   console.log('Request body:', req.body);
   const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
@@ -199,7 +206,7 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 // POST /api/filter-results/reset
-// Clear filtered results
+// Clear filtered connection results
 router.post('/reset', requireAuth, async (req, res) => {
   const { userId } = req.body;
   console.log('Request body:', req.body);
