@@ -1,8 +1,8 @@
-# `Capstone Project`
+# `Two Way`
 
 ## Database Schema Design
 
-![](https://res.cloudinary.com/dk6ayq1by/image/upload/capstone-project-database-schema_e0x0or.png)
+![](https://res.cloudinary.com/dk6ayq1by/image/upload/v1747586069/capstone-project-database-schema_jr2rxa.png)
 
 ## API Documentation
 

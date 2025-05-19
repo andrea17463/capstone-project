@@ -1,11 +1,17 @@
 // frontend/src/components/UserConnections/UserConnections.jsx
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
+import { useSelector, useDispatch } from 'react-redux';
+import { useModal } from '../../context/Modal';
+import SignupFormModal from '../SignupFormModal';
+import LoginFormModal from '../LoginFormModal';
+import { login } from '../../store/session';
 import './UserConnections.css';
 
 const UserConnections = () => {
+  const dispatch = useDispatch();
+  const { setModalContent } = useModal();
   const user = useSelector(state => state.session.user);
 
   const [formData, setFormData] = useState({
@@ -33,12 +39,15 @@ const UserConnections = () => {
     return true;
   });
 
+  const handleDemoLogin = () => {
+    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+  };
+
   useEffect(() => {
     if (user) {
       localStorage.setItem(`filteredResults-${user.id}`, JSON.stringify(results));
     }
   }, [results, user]);
-  console.log('Filtered Results:', results);
 
   useEffect(() => {
     if (user) {
@@ -59,7 +68,22 @@ const UserConnections = () => {
   }, [user]);
 
   if (!user) {
-    return <p>Please log in to view and manage your connection results.</p>;
+    return (
+      <>
+        <p>Please log in to view and manage your connection results.</p>
+        <div className="auth-buttons">
+          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
+            Sign up
+          </button>
+          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
+            Log in
+          </button>
+          <button className="btn-demo" onClick={handleDemoLogin}>
+            Demo Login
+          </button>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -93,9 +117,9 @@ const UserConnections = () => {
 
             return (
               <p key={index}>
-                <strong>{item.username}</strong> ({item.fullName}) — Interests: {item.interests} — Objectives: {item.objectives}
+                <strong>{item.username}</strong> ({item.fullName?.split(' ')[0]}) — Interests: {item.interests} — Objectives: {item.objectives}
                 <br />
-                <Link to={`/profile/${item.id}`}>
+                <Link to={`/connection-profile/${item.id}`}>
                   <button>View Connection Profile</button>
                 </Link>
               </p>

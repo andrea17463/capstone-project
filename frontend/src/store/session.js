@@ -98,7 +98,6 @@ const initialState = { user: null, gamePlayId: null };
 
 // SESSION REDUCER
 const sessionReducer = (state = initialState, action) => {
-  console.log("Received action in sessionReducer:", action);
   // if (!action || typeof action.type !== 'string') return state;
   if (action.type.startsWith('@@redux/')) return state;
 

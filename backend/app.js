@@ -6,6 +6,7 @@ const cors = require('cors');
 const csurf = require('csurf');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const { ValidationError } = require('sequelize');
 const { environment } = require('./config');
 const isProduction = environment === 'production';
@@ -16,6 +17,18 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
+
+app.use(session({
+  secret: 'secret_session_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: isProduction,
+    httpOnly: true,
+    sameSite: isProduction ? 'Lax' : false,
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
 
 // Security Middleware
 if (!isProduction) {

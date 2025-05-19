@@ -25,43 +25,42 @@
 }
 
 .messages {
-  background-color: white;
-  height: 300px;
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px inset #ccc;
-  margin-bottom: 10px;
+  background-color: white !important;
+  height: 300px !important;
+  overflow-y: auto !important;
+  padding: 10px !important;
+  border: 1px inset #ccc !important;
+  margin-bottom: 10px !important;
 }
 
 .message-bubble {
-  margin-bottom: 10px;
-  background-color: #f2f2ff;
-  border: 1px solid #9999cc;
-  border-radius: 8px;
-  padding: 6px 10px;
+  margin-bottom: 10px !important;
+  background-color: #f2f2ff !important;
+  border: 1px solid #9999cc !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
 }
 
 .message-meta {
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: bold !important;
+  margin-bottom: 4px !important;
 }
 
 .message-content {
-  margin-bottom: 4px;
+  margin-bottom: 4px !important;
 }
 
 .message-actions button {
-  margin-right: 5px;
-  font-size: 0.8em;
-  background-color: #d0d0ff;
-  border: 1px solid #6666cc;
-  border-radius: 3px;
-  cursor: pointer;
+  margin-right: 5px !important;
+  font-size: 0.8em !important;
+  background-color: #d0d0ff !important;
+  border: 1px solid #6666cc !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
 }
 
 .timestamp {
-  font-size: 0.75em;
-  /* color: #777; */
+  font-size: 0.75em !important;
 }
 
 .chat-input-form {
@@ -71,33 +70,32 @@
 }
 
 .chat-input {
-  resize: none;
-  margin-bottom: 5px;
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #aaa;
+  resize: none !important;
+  margin-bottom: 5px !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  border: 1px solid #aaa !important;
 }
 
 .send-button {
-  align-self: flex-end;
-  background-color: #9999ff;
-  border: none;
-  /* color: white; */
-  color: black;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+  align-self: flex-end !important;
+  background-color: #9999ff !important;
+  border: none !important;
+  color: black !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
 }
 
 .error-text {
-  color: red;
-  font-size: 0.85em;
+  color: red !important;
+  font-size: 0.85em !important;
 }
 
 .chat-box-container {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 20px !important;
 }
 
 .edit-textarea {

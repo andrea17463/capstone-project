@@ -11,15 +11,13 @@ function Navigation({ isLoaded }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [showSpecificChats, setShowSpecificChats] = useState(location.pathname === '/chats');
+  const [showSpecificChats, setShowSpecificChats] = useState(location.pathname === '/chat-messages');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  console.log('Navigation.jsx connections:', connections);
 
   const handleAllChatsClick = (e) => {
     e.preventDefault();
-    if (location.pathname !== '/chats') {
-      navigate('/chats');
+    if (location.pathname !== '/chat-messages') {
+      navigate('/chat-messages');
       setShowSpecificChats(true);
     } else {
       setShowSpecificChats(prev => !prev);
@@ -57,7 +55,7 @@ function Navigation({ isLoaded }) {
         </span>
 
         <span>
-          <a href="/chats" onClick={handleAllChatsClick}>
+          <a href="/chat-messages" onClick={handleAllChatsClick}>
             All Chats
           </a>
         </span>
@@ -73,7 +71,6 @@ function Navigation({ isLoaded }) {
                   if (!user1 || !user2) return null;
 
                   const otherUser = sessionUser.id === user1.id ? user2 : user1;
-                  console.log('Navigation.jsx sessionUser:', sessionUser);
 
                   if (!otherUser?.id || !otherUser?.username) {
                     console.warn('Missing user info in connection:', connection);
@@ -85,7 +82,7 @@ function Navigation({ isLoaded }) {
 
                   return (
                     <li key={connection.id}>
-                      <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                      <NavLink to={`/chat-messages/${sessionUser.id}/${otherUser.id}`}>
                         Chat with {otherUser.username}
                       </NavLink>
                     </li>

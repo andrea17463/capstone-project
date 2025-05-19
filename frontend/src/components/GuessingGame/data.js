@@ -1156,6 +1156,30 @@ const data = {
                 ]
             }
         ]
+    },
+
+    "Discussion Prompts": {
+        general: [
+            "Why'd you pick that card for me?",
+            "Is that how people usually see you?",
+            "Was it a hard choice?",
+            "Did I surprise you with my answer?",
+            "What card would you pick for yourself?",
+            "Do you think I'd change this about myself?",
+            "Do you think that makes us compatible?",
+            "What would be your 'wild card' guess for me?"
+        ],
+        match: [
+            "Why do you think we both saw that in each other?",
+            "Do you think that means we're alike?",
+            "Have people told you this about yourself before?"
+        ],
+        notAMatch: [
+            "What made you choose that card?",
+            "Do you feel like that description fits you better?",
+            "Was there a second choice you almost picked?",
+            "What card do you think is most unlike me?"
+        ]
     }
 };
 

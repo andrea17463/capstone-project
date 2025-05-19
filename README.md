@@ -1,8 +1,10 @@
-# `Capstone Project`
+# `Two Way`
+
+A website that is designed to help people meet up, one-on-one for fun, low-pressure hangouts—complete with a lighthearted game during the meetup to spark conversation and make it easier to form new friendships. After two users are matched based on interests and goals such as someone to vent to, have lunch with, explore new spots with, text memes or random thoughts to, join for hobbies or classes, go on walks or get fresh air with, game or binge shows with, help stay accountable (gym, goals, etc.), celebrate little wins with, or just be around when life feels a little too quiet, they can chat through messages before choosing to meet up or unmatch. Users can play the "Guess Me" game, where they guess each other's traits using themed cards such as personality and traits; food and drink; music, movies, and TV shows; travel and adventure; conversation style and humor; and mindset and lifestyle with the option to add banter through "Roast Me Gently" mode. After the game, users can either plan another hangout by tapping, "Meet Again" or part ways with no pressure by tapping, "End Meeting".
 
 ## Database Schema Design
 
-![](https://res.cloudinary.com/dk6ayq1by/image/upload/capstone-project-database-schema_e0x0or.png)
+![](https://res.cloudinary.com/dk6ayq1by/image/upload/v1747586069/capstone-project-database-schema_jr2rxa.png)
 
 ## API Documentation
 

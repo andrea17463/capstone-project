@@ -11,7 +11,7 @@ import UserConnections from './components/UserConnections/UserConnections';
 import GuessingGame from './components/GuessingGame/GuessingGame';
 import ConnectionProfile from './components/ConnectionProfile/ConnectionProfile';
 import Chat from './components/Chat/Chat';
-// import GamePlay from './components/GamePlay/GamePlay';
+import GamePlay from './components/GamePlay/GamePlay';
 import { fetchAllConnections } from './store/user-connections';
 import * as sessionActions from './store/session';
 
@@ -47,16 +47,14 @@ function ChatMessagesIntro() {
   const sessionUser = useSelector((state) => state.session.user);
   const isLoaded = useSelector((state) => state.session.isLoaded);
   const connections = useSelector((state) => state.userConnections.connections || []);
-  console.log("Connections in ChatMessagesIntro:", connections);
 
   useEffect(() => {
     if (sessionUser?.id) {
-      console.log("Fetching connections in App component for:", sessionUser.id);
       dispatch(fetchAllConnections(sessionUser.id));
     }
   }, [dispatch, sessionUser?.id]);
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <h3 style={{ color: 'white' }}>Select a chat from your connections to start messaging.</h3>;
   if (!sessionUser) return <Navigate to="/" />;
 
   return (
@@ -82,7 +80,7 @@ function ChatMessagesIntro() {
 
                 return (
                   <li key={connection.id}>
-                    <NavLink to={`/chat/${sessionUser.id}/${otherUser.id}`}>
+                    <NavLink to={`/chat-messages/${sessionUser.id}/${otherUser.id}`}>
                       Chat with {otherUser.username}
                     </NavLink>
                   </li>
@@ -100,12 +98,12 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LandingPage /> },
       { path: '/profile', element: <UserProfile /> },
-      { path: '/profile/:userId', element: <ConnectionProfile /> },
+      { path: '/connection-profile/:userId', element: <ConnectionProfile /> },
       { path: '/connections', element: <UserConnections /> },
-      { path: '/chats', element: <ChatMessagesIntro /> },
-      { path: '/chat/:user1Id/:user2Id', element: <Chat /> },
+      { path: '/chat-messages', element: <ChatMessagesIntro /> },
+      { path: '/chat-messages/:user1Id/:user2Id', element: <Chat /> },
       { path: '/game/:gamePlayId', element: <GameWrapper /> },
-      // { path: '/game-play', element: <GamePlay /> },
+      { path: '/game-play', element: <GamePlay /> },
       { path: '/guess-me-game', element: <GuessingGame /> },
     ]
   }

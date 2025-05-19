@@ -4,11 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
 import { csrfFetch } from '../../store/csrf';
+import { useModal } from '../../context/Modal';
+import SignupFormModal from '../SignupFormModal';
+import LoginFormModal from '../LoginFormModal';
+import { login } from '../../store/session';
 import './UserProfile.css';
 
 function UserProfile() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.session.user);
+  const { setModalContent } = useModal();
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
 
@@ -23,13 +28,16 @@ function UserProfile() {
     matchType: 'any',
   });
 
+  const handleDemoLogin = () => {
+    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+  };
+
   useEffect(() => {
     dispatch(restoreUser());
   }, [dispatch]);
 
   useEffect(() => {
     if (user) {
-      console.log('User data after update:', user);
       setFormData({
         age: user.age?.toString() || '',
         interests: Array.isArray(user.interests) ? user.interests : [],
@@ -42,7 +50,6 @@ function UserProfile() {
       });
       setShowProfileInfo(true);
     }
-    console.log('User data after update:', user);
   }, [user]);
 
   const handleLocationRadiusChange = (e) => {
@@ -121,7 +128,22 @@ function UserProfile() {
   };
 
   if (!user) {
-    return <p>Please sign up or log in to view your profile.</p>;
+    return (
+      <>
+        <p>Please log in or sign up to create a profile.</p>
+        <div className="auth-buttons">
+          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
+            Sign up
+          </button>
+          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
+            Log in
+          </button>
+          <button className="btn-demo" onClick={handleDemoLogin}>
+            Demo Login
+          </button>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -141,7 +163,15 @@ function UserProfile() {
       {showProfileInfo && !isEditing && (
         <div className="user-info">
           <h3>Profile Information</h3>
-          <p><strong>Full Name:</strong> {user.fullName || 'N/A'}</p>
+          {/* <p><strong>Full Name:</strong> {user.fullName || 'N/A'}</p> */}
+          <p>
+            <strong>Full Name:</strong>{" "}
+            {user && user.fullName
+              ? (user.id === (user?.id)
+                ? user.fullName
+                : user.fullName.split(' ')[0])
+              : 'N/A'}
+          </p>
           <p><strong>Username:</strong> {user.username}</p>
           <p><strong>Age:</strong> {user.age}</p>
           <p><strong>Interests:</strong> {user.interests || 'No interests added'}</p>

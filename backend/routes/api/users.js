@@ -55,7 +55,6 @@ router.post('/', validateSignup, async (req, res) => {
     interests,
     objectives
   } = req.body;
-  console.log('signup req body', req.body);
 
   try {
     const hashedPassword = bcrypt.hashSync(password);
@@ -73,13 +72,10 @@ router.post('/', validateSignup, async (req, res) => {
       interests,
       objectives
     });
-    console.log('signed up user', user);
 
     const safeUser = {
       id: user.id,
       fullName: user.fullName,
-      // firstName: user.firstName,
-      // lastName: user.lastName,
       email: user.email,
       username: user.username,
       location: user.location,
@@ -132,7 +128,6 @@ router.get('/', requireAuth, async (req, res) => {
         exclude: ['hashedPassword', 'email']
       }
     });
-    console.log('Retrieve the logged-in user\'s profile of user', user);
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -155,11 +150,9 @@ router.put('/', requireAuth, async (req, res) => {
     interests,
     objectives
   } = req.body;
-  console.log('update profile req body', req.body);
 
   try {
     const user = await User.findByPk(req.user.id);
-    console.log('Update the logged-in user\'s profile of user', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const updatedData = {
@@ -172,7 +165,6 @@ router.put('/', requireAuth, async (req, res) => {
     };
 
     await user.update(updatedData);
-    console.log('User after update:', user);
 
     const updatedUser = {
       id: user.id,
@@ -200,7 +192,6 @@ router.put('/', requireAuth, async (req, res) => {
 router.delete('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
-    console.log('Delete the logged-in user\'s profile of user', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     await user.destroy();
@@ -215,7 +206,6 @@ router.delete('/', requireAuth, async (req, res) => {
 // Filter user connections by interests, objectives, location, and/or location radius
 router.post('/filter-results', requireAuth, async (req, res) => {
   const { interests, objectives, location, locationRadius } = req.body;
-  console.log('filter results req body', req.body);
 
   const userId = req.user?.id;
 
@@ -253,7 +243,6 @@ router.get('/:id', requireAuth, async (req, res) => {
     const user = await User.findByPk(userId, {
       attributes: ['id', 'username', 'fullName', 'age', 'location', 'interests', 'objectives']
     });
-    console.log('Retrieve profile info of a user connection user', user);
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 

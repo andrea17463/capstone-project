@@ -17,7 +17,6 @@ import {
 function ConnectionProfile() {
   const userConnectionsLoading = useSelector(state => state.userConnections.loading);
   const { userId } = useParams();
-  console.log('userId:', userId, 'Type:', typeof userId);
   const dispatch = useDispatch();
   // const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -32,15 +31,10 @@ function ConnectionProfile() {
   const connections = useSelector((state) => state.userConnections?.connections || []);
   const userIdNumber = Number(userId);
   const currentUserId = useSelector(state => state.session.user?.id);
-  // const currentUser = useSelector((state) => state.session.user);
+  const currentUser = useSelector((state) => state.session.user);
   const connection = connections.find(
     (conn) => conn.user_2_id === userIdNumber || conn.user_1_id === userIdNumber
   );
-
-  console.log('Redux state:', useSelector(state => state));
-  console.log('All connections:', connections);
-  console.log('userIdNumber:', userIdNumber);
-  console.log('Current connection:', connection);
 
   const clearMessages = () => {
     setStatusMessage('');
@@ -153,10 +147,6 @@ function ConnectionProfile() {
     const suggestedActivity = suggestedActivityInput.trim();
     const rawDate = new Date(meetingTimeInput);
 
-    console.log("Suggested activity:", `"${suggestedActivity}"`);
-    console.log("Meeting time input:", meetingTimeInput);
-    console.log("Raw date is valid:", !isNaN(rawDate));
-
     let hasError = false;
     setActivityError('');
     setTimeError('');
@@ -259,11 +249,11 @@ function ConnectionProfile() {
     }
   };
 
-  // const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
+  const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
 
-  // { gameLoading && <p>Starting game...</p> }
-  // { error && <p>Error: {error}</p> }
-  // { game && <p>Game started with {profile?.username}!</p> }
+  { gameLoading && <p>Starting game...</p> }
+  { error && <p>Error: {error}</p> }
+  { game && <p>Game started with {profile?.username}!</p> }
 
   if (userConnectionsLoading) return <p>Loading connection...</p>;
 
@@ -271,7 +261,15 @@ function ConnectionProfile() {
 
   return (
     <div>
-      <h1>{profile.fullName || profile.username}</h1>
+      {/* <h1>{profile.fullName ? profile.fullName.split(' ')[0] : profile.username}</h1> */}
+      <h1>
+        {profile.fullName
+          ? (currentUser && profile.id === currentUser.id
+            ? profile.fullName
+            : profile.fullName.split(' ')[0])
+          : profile.username}
+      </h1>
+      <p>Username: {profile.username}</p>
       <p>Age: {profile.age}</p>
       <p>Interests: {profile.interests}</p>
       <p>Objectives: {profile.objectives}</p>
@@ -326,15 +324,12 @@ function ConnectionProfile() {
       <button onClick={handleEndMeeting}>End Meeting</button>
       {/* <button disabled>Connection already exists</button> */}
       <br />
-      <button onClick={() => alert('Feature Coming Soon')}>Block</button>
-      <button onClick={() => alert('Feature Coming Soon')}>Report</button>
-      <br />
-      {/* <button
+      <button
         // onClick={handleStartGame}
         className="start-game-button"
       >
         Start Game
-      </button> */}
+      </button>
     </div>
   );
 }

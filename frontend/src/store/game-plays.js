@@ -5,7 +5,6 @@ import { csrfFetch } from '../utils/csrf';
 const START_GAME = 'START_GAME';
 const GET_GAME_PLAY = 'GET_GAME_PLAY';
 const GET_USER_GAME_PLAYS = 'GET_USER_GAME_PLAYS';
-const UPDATE_GUESS = 'UPDATE_GUESS';
 const UPDATE_PROMPT = 'UPDATE_PROMPT';
 const DELETE_ALL_GAME_PLAYS = 'DELETE_ALL_GAME_PLAYS';
 const SET_LOADING = 'SET_LOADING';
@@ -19,7 +18,6 @@ const UPDATE_GAME_SUCCESS = 'UPDATE_GAME_SUCCESS';
 const GAME_REQUEST_FAILURE = 'GAME_REQUEST_FAILURE';
 const SET_CURRENT_GAME = 'SET_CURRENT_GAME';
 const RESET_GAME_STATE = 'RESET_GAME_STATE';
-const RESET_GAME_GUESS = 'RESET_GAME_GUESS';
 
 // Action Creators
 export const setLoading = (isLoading) => ({
@@ -51,14 +49,8 @@ export const resetGameState = () => ({
   type: RESET_GAME_STATE
 });
 
-export const resetGameGuess = (gameId) => ({
-  type: RESET_GAME_GUESS,
-  payload: { id: gameId }
-});
-
 // Thunk Action Creators
 export const startGame = ({ user1Id, user2Id }) => async (dispatch) => {
-  console.log("Dispatching startGame with:", { user1Id, user2Id });
   dispatch(setLoading(true));
 
   try {
@@ -87,8 +79,7 @@ export const startGame = ({ user1Id, user2Id }) => async (dispatch) => {
       type: START_GAME,
       payload: data
     });
-    console.log("Dispatching SET_GAME with:", data);
-return data;
+    return data;
   } catch (error) {
     console.error('Error creating game:', error);
     dispatch(setError(error.message || 'Something went wrong'));
@@ -133,29 +124,6 @@ export const getUserGamePlays = () => async (dispatch) => {
   }
 };
 
-export const updateGuess = (gamePlayId, guessResult) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const res = await csrfFetch(`/api/game-plays/${gamePlayId}/guess`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(guessResult),
-    });
-
-    if (!res.ok) throw new Error('Failed to update guess');
-
-    const data = await res.json();
-    dispatch({
-      type: UPDATE_GUESS,
-      payload: data
-    });
-  } catch (error) {
-    dispatch(setError(error.message));
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
 export const updatePrompt = (gamePlayId, promptData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
@@ -180,14 +148,12 @@ export const updatePrompt = (gamePlayId, promptData) => async (dispatch) => {
 };
 
 export const deleteAllGamePlays = (user_1_id, user_2_id) => async (dispatch) => {
-  // export const deleteAllGamePlays = (user_1_id) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const res = await csrfFetch('/api/game-plays', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_1_id, user_2_id }),
-      // body: JSON.stringify({ user_1_id }),
     });
 
     if (!res.ok) throw new Error('Failed to delete all game plays');
@@ -205,14 +171,11 @@ export const deleteAllGamePlays = (user_1_id, user_2_id) => async (dispatch) => 
 export const updateGameTrait = (gamePlayId, traitData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    console.log(`Making PUT request to /api/game-plays/${gamePlayId}/trait with data:`, traitData);
     const res = await csrfFetch(`/api/game-plays/${gamePlayId}/trait`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(traitData),
     });
-
-    console.log('Response status:', res.status);
 
     if (!res.ok) {
       const errorText = await res.text();
@@ -221,7 +184,6 @@ export const updateGameTrait = (gamePlayId, traitData) => async (dispatch) => {
     }
 
     const data = await res.json();
-    console.log('Successful response data:', data);
     dispatch({
       type: UPDATE_GAME_TRAIT,
       payload: data
@@ -339,15 +301,6 @@ const gamePlaysReducer = (state = initialState, action) => {
         loading: false,
         error: null,
       };
-    case UPDATE_GUESS:
-      return {
-        ...state,
-        gamePlays: state.gamePlays.map((game) =>
-          game.id === action.payload.id ? action.payload : game
-        ),
-        game: state.game && state.game.id === action.payload.id ? action.payload : state.game,
-        error: null,
-      };
     case UPDATE_PROMPT:
       return {
         ...state,
@@ -375,7 +328,6 @@ const gamePlaysReducer = (state = initialState, action) => {
         error: action.payload,
       };
     case SET_GAME:
-      console.log("SET_GAME reducer hit. New game:", action.game);
       return { ...state, game: action.game };
     case SET_SELECTED_TRAIT:
       if (!state.game) return state;
@@ -388,20 +340,15 @@ const gamePlaysReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_GAME_TRAIT: {
-      const updatedPayload = {
-    ...action.payload,
-    guessedValue: action.payload.traitName !== state.game?.traitName ? 
-      null : action.payload.guessedValue
-  };
+      const updatedPayload = action.payload;
       return {
         ...state,
-          gamePlays: state.gamePlays.map((gamePlay) =>
-        gamePlay.id === updatedPayload.id ? updatedPayload : gamePlay
-    ),
-    game: state.game && state.game.id === updatedPayload.id
-      ? 
-      updatedPayload
-      : state.game,
+        gamePlays: state.gamePlays.map((gamePlay) =>
+          gamePlay.id === updatedPayload.id ? updatedPayload : gamePlay
+        ),
+        game: state.game && state.game.id === updatedPayload.id
+          ? updatedPayload
+          : state.game,
         error: null,
       };
     }
@@ -429,33 +376,20 @@ const gamePlaysReducer = (state = initialState, action) => {
         error: action.payload,
       };
     case SET_CURRENT_GAME:
-  return {
-    ...state,
-    game: action.payload,
-    loading: false,
-    error: null
-  };
-  case RESET_GAME_STATE:
-  return {
-    ...state,
-    game: null,
-    gamePlays: [],
-    loading: false,
-    error: null
-  };
-  case RESET_GAME_GUESS:
-  return {
-    ...state,
-    game: state.game && state.game.id === action.payload.id 
-      ? { ...state.game, guessedValue: null, isCorrect: null } 
-      : state.game,
-      gamePlays: state.gamePlays.map(game => 
-      game.id === action.payload.id 
-        ? { ...game, guessedValue: null, isCorrect: null } 
-        : game
-    ),
-    error: null
-  };
+      return {
+        ...state,
+        game: action.payload,
+        loading: false,
+        error: null
+      };
+    case RESET_GAME_STATE:
+      return {
+        ...state,
+        game: null,
+        gamePlays: [],
+        loading: false,
+        error: null
+      };
     default:
       return state;
   }

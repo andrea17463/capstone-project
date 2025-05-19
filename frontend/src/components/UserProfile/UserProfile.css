@@ -42,3 +42,11 @@
 .delete-profile-button:active {
   transform: scale(0.98);
 }
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: black;
+  color: black;
+}

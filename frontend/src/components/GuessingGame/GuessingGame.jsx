@@ -1,10 +1,16 @@
 // frontend/src/components/GuessingGame/GuessingGame.jsx
 import { useState, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useModal } from '../../context/Modal';
+import SignupFormModal from '../SignupFormModal';
+import LoginFormModal from '../LoginFormModal';
+import { login } from '../../store/session';
 import './GuessingGame.css';
 
 const GuessingGame = () => {
-  const user = useSelector(state => state.session.user);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.session.user);
+  const { setModalContent } = useModal();
   const allCards =
     useMemo(() => ({
       "Personality and Traits": [
@@ -617,7 +623,6 @@ const GuessingGame = () => {
       remainingCards
     };
 
-    console.log("Saving game data:", gameData);
     localStorage.setItem("guessMeGameData", JSON.stringify(gameData));
   }, [
     hasRestored,
@@ -735,12 +740,11 @@ const GuessingGame = () => {
     return [];
   };
 
-  const getChoiceRoast = (category, guess) => {
-    console.log("CATEGORY:", category);
-    console.log("GUESS:", guess);
-    console.log("RoastBank Category Roasts:", roastBank[category]);
-    console.log("RoastBank Second Roasts:", roastBank[`${category} Second Roast`]);
+  const handleDemoLogin = () => {
+    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+  };
 
+  const getChoiceRoast = (category, guess) => {
     const categoryRoasts = roastBank[category];
     const secondCategoryName = `${category} Second Roast`;
     const secondCategoryRoasts = roastBank[secondCategoryName];
@@ -792,10 +796,8 @@ const GuessingGame = () => {
   };
 
   const nextPlayerTurn = () => {
-    console.log("Next player turn triggered");
     if (players.length === 0) return;
     const nextPlayer = (currentPlayer + 1) % players.length;
-    console.log("Next player index:", nextPlayer);
     if (nextPlayer === 0 && selectedCard && selectedCategory) {
       setUsedCards((prev) => [
         ...prev,
@@ -813,7 +815,22 @@ const GuessingGame = () => {
   };
 
   if (!user) {
-    return <p>Please sign up or log in to start or resume a game.</p>;
+    return (
+      <>
+        <p>Please sign up or log in to start or resume a game.</p>
+        <div className="auth-buttons">
+          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
+            Sign up
+          </button>
+          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
+            Log in
+          </button>
+          <button className="btn-demo" onClick={handleDemoLogin}>
+            Demo Login
+          </button>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -885,7 +902,7 @@ const GuessingGame = () => {
           {showRules && (
             <div className="rules">
               <h3>How to Play</h3>
-              <h4>The game consists of six themed categories: Personality and Traits, Food and Drink, Music, Movies, and TV Shows, Travel and Adventure, Conversation Style and Humor, and Mindset and Lifestyle. Each category has a set of possible traits, preferences, or interests for each of you to guess about your match. You will be presented with two options for each category. At the start of the game, you both have the option to activate Roast Me Gently Mode. If both of you opt in, a lighthearted, sarcastic twist will be added to the game. When Roast Mode is on, each guess is followed by a playful roast that adds humor to the conversation. These roasts are meant to be light-hearted and funny, not mean-spirited. After both of you make your guess, the game will reveal whether each guess was correct or incorrect. For correct guesses, a playful or humorous response will appear. For incorrect guesses, the game might make a sarcastic comment or ask a follow-up question to spark conversation. After each guess, you will receive &quot;Talk About This&quot; prompts, which are designed to spark deeper or more playful conversations.</h4>
+              <h4>The game consists of six themed categories: Personality and Traits; Food and Drink; Music, Movies, and TV Shows; Travel and Adventure; Conversation Style and Humor; and Mindset and Lifestyle. Each category has a set of possible traits, preferences, or interests for each of you to guess about your match. You will be presented with two options for each category. At the start of the game, you both have the option to activate Roast Me Gently Mode. If both of you opt in, a lighthearted, sarcastic twist will be added to the game. When Roast Mode is on, each guess is followed by a playful roast that adds humor to the conversation. These roasts are meant to be light-hearted and funny, not mean-spirited. After both of you make your guess, the game will reveal whether each guess was correct or incorrect. For correct guesses, a playful or humorous response will appear. For incorrect guesses, the game might make a sarcastic comment or ask a follow-up question to spark conversation. After each guess, you will receive &quot;Talk About This&quot; prompts, which are designed to spark deeper or more playful conversations.</h4>
             </div>
           )}
         </div>
@@ -1034,9 +1051,8 @@ const GuessingGame = () => {
                     ))}
                   </ul>
 
-                  {userGuess && selectedCategory && (
                     <div className="choice-roast">
-                      <h4>Based on your guess:</h4>
+                      <h4>Roasts based on your guess:</h4>
                       <ul className="roasts-list">
                         {getChoiceRoast(selectedCategory, userGuess)
                           .split(' • ')
@@ -1045,7 +1061,6 @@ const GuessingGame = () => {
                           ))}
                       </ul>
                     </div>
-                  )}
                 </div>
               )}
 

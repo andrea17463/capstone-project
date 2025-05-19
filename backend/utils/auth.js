@@ -32,7 +32,6 @@ const restoreUser = (req, res, next) => {
   if (!token) return next();
   return jwt.verify(token, secret, null, async (err, jwtPayload) => {
     if (err) {
-      console.log("JWT Verification Error:", err);
       return next();
     }
 
@@ -44,7 +43,6 @@ const restoreUser = (req, res, next) => {
         }
       });
     } catch (e) {
-      console.log("Error finding user:", e);
       res.clearCookie('token');
     }
     if (!req.user) {

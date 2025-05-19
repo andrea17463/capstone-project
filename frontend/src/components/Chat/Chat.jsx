@@ -8,12 +8,17 @@ import {
   deleteMessage,
   getChatHistory,
 } from '../../store/chat-messages';
+import { useModal } from '../../context/Modal';
+import SignupFormModal from '../SignupFormModal';
+import LoginFormModal from '../LoginFormModal';
+import { login } from '../../store/session';
 import './Chat.css';
 
 function Chat() {
   const dispatch = useDispatch();
   const { user1Id, user2Id } = useParams();
   const navigate = useNavigate();
+  const { setModalContent } = useModal();
 
   const currentUserId = useSelector((state) => state.session.user?.id);
   const sessionUser = useSelector((state) => state.session.user);
@@ -30,6 +35,10 @@ function Chat() {
   const [chatPartnerUsername, setChatPartnerUsername] = useState('');
 
   const messagesEndRef = useRef(null);
+
+  const handleDemoLogin = () => {
+    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
+  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -94,7 +103,7 @@ function Chat() {
         setChatPartnerUsername(userData.username);
       } catch (err) {
         console.error(err);
-        navigate('/chats');
+        navigate('/chats-messages');
       }
     };
 
@@ -103,7 +112,24 @@ function Chat() {
     }
   }, [chatPartnerId, navigate]);
 
-  if (!sessionUser) return <div>Loading user...</div>;
+  if (!sessionUser) {
+    return (
+      <>
+        <div>Loading user...</div>
+        <div className="auth-buttons">
+          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
+            Sign up
+          </button>
+          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
+            Log in
+          </button>
+          <button className="btn-demo" onClick={handleDemoLogin}>
+            Demo Login
+          </button>
+        </div>
+      </>
+    )
+  }
 
   const isParticipant = currentUserId === id1 || currentUserId === id2;
   if (!isParticipant) {

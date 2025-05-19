@@ -60,9 +60,9 @@ router.get('/:gamePlayId', requireAuth, async (req, res) => {
 // Get all game rounds involving the user (active meetings only)
 router.get('/', requireAuth, async (req, res) => {
   try {
-  const userId = req.user.id;
+    const userId = req.user.id;
 
-  // try {
+    // try {
     const games = await GamePlay.findAll({
       where: {
         status: 'active',
@@ -91,24 +91,18 @@ router.get('/', requireAuth, async (req, res) => {
 // POST /api/game-plays
 // Start a new game round (requires active meeting)
 router.post('/', requireAuth, async (req, res) => {
-  try{
-  const userId = req.user.id;
-  const { user_1_id, user_2_id, traitCategory, traitName, interactionType } = req.body;
-  // const { user_1_id, traitCategory, traitName, interactionType } = req.body;
-  console.log('POST /api/game-plays Received POST body:', req.body);
-  console.log('Authenticated user:', userId);
-// console.log('user_1_id:', user_1_id, 'user_2_id:', user_2_id);
-console.log('user_1_id:', user_1_id);
-console.log("Creating GamePlay with:", {
-  user_1_id, user_2_id, traitCategory, traitName, interactionType
-});
-// console.log("Creating GamePlay with:", {
-//   user_1_id, traitCategory, traitName, interactionType
-// });
+  try {
+    const userId = req.user.id;
+    const { user_1_id, user_2_id, traitCategory, traitName, interactionType } = req.body;
+    // const { user_1_id, traitCategory, traitName, interactionType } = req.body;
+    // console.log('user_1_id:', user_1_id, 'user_2_id:', user_2_id);
+    // console.log("Creating GamePlay with:", {
+    //   user_1_id, traitCategory, traitName, interactionType
+    // });
 
-  // try {
+    // try {
     if (![user_1_id, user_2_id].includes(userId)) {
-    // if (![user_1_id].includes(userId)) {
+      // if (![user_1_id].includes(userId)) {
       return res.status(403).json({ error: 'You are not part of this meeting' });
     }
 
@@ -123,15 +117,15 @@ console.log("Creating GamePlay with:", {
     //   }
     // });
     const connection = await UserConnection.findOne({
-  where: {
-    [Op.or]: [
-      { user_1_id: user_1_id, user_2_id: user_2_id },
-      { user_1_id: user_2_id, user_2_id: user_1_id }
-    ],
-  //   connectionStatus: 'active',
-  //   meetingStatus: 'active'
-  }
-});
+      where: {
+        [Op.or]: [
+          { user_1_id: user_1_id, user_2_id: user_2_id },
+          { user_1_id: user_2_id, user_2_id: user_1_id }
+        ],
+        //   connectionStatus: 'active',
+        //   meetingStatus: 'active'
+      }
+    });
 
     // if (!connection) {
     //   return res.status(400).json({ error: 'No active connection found between the users' });
@@ -146,14 +140,14 @@ console.log("Creating GamePlay with:", {
     //   status: 'active'
     // });
     const newGame = await GamePlay.create({
-  user_1_id,
-  user_2_id,
-  guesser_id: userId,
-  traitCategory,
-  traitName,
-  interactionType: interactionType || "guessing",
-  status: 'active'
-});
+      user_1_id,
+      user_2_id,
+      guesser_id: userId,
+      traitCategory,
+      traitName,
+      interactionType: interactionType || "guessing",
+      status: 'active'
+    });
 
     res.status(201).json(newGame);
   } catch (err) {
@@ -200,7 +194,7 @@ router.put('/:gamePlayId/guess', requireAuth, async (req, res) => {
   const { gamePlayId } = req.params;
   const { guessedValue, isCorrect, guesser_id } = req.body;
 
-    if (guessedValue === undefined || guessedValue === null) {
+  if (guessedValue === undefined || guessedValue === null) {
     return res.status(400).json({ error: 'guessedValue is required' });
   }
 
@@ -209,17 +203,17 @@ router.put('/:gamePlayId/guess', requireAuth, async (req, res) => {
 
     if (!game) return res.status(404).json({ error: 'Game not found' });
 
-        const currentUserId = req.user.id;
+    const currentUserId = req.user.id;
 
     if (![game.user_1_id, game.user_2_id].includes(currentUserId)) {
-    // if (![game.user_1_id].includes(currentUserId)) {
+      // if (![game.user_1_id].includes(currentUserId)) {
       return res.status(403).json({ error: 'You are not a participant in this game' });
     }
 
     game.guessedValue = guessedValue;
     game.isCorrect = isCorrect;
     game.guesser_id = guesser_id;
-        if (game.traitName) {
+    if (game.traitName) {
       game.isCorrect = guessedValue === game.traitName;
     }
     await game.save();
@@ -245,7 +239,7 @@ router.put('/:gamePlayId/correctness', requireAuth, async (req, res) => {
     }
 
     if (game.user_1_id !== req.user.id && game.user_2_id !== req.user.id) {
-    // if (game.user_1_id !== req.user.id) {
+      // if (game.user_1_id !== req.user.id) {
       return res.status(403).json({
         error: 'You are not authorized to update this game'
       });
@@ -282,7 +276,7 @@ router.put('/:gamePlayId/interaction-type', requireAuth, async (req, res) => {
     }
 
     if (game.user_1_id !== req.user.id && game.user_2_id !== req.user.id) {
-    // if (game.user_1_id !== req.user.id) {
+      // if (game.user_1_id !== req.user.id) {
       return res.status(403).json({
         error: 'You are not authorized to update this game'
       });
@@ -327,9 +321,9 @@ router.delete('/', requireAuth, async (req, res) => {
   const { user_1_id, user_2_id } = req.body;
   // const { user_1_id} = req.body;
 
-    const currentUserId = req.user.id;
+  const currentUserId = req.user.id;
   if (![user_1_id, user_2_id].includes(currentUserId)) {
-  // if (![user_1_id].includes(currentUserId)) {
+    // if (![user_1_id].includes(currentUserId)) {
     return res.status(403).json({ error: 'Unauthorized to delete these game rounds' });
   }
 

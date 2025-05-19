@@ -1,12 +1,14 @@
 // frontend/src/components/UserConnectionsForms/UserConnectionsForms.jsx
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
 import { csrfFetch } from '../../store/csrf';
+import { setFilteredResults } from '../../store/user-connections';
 import './UserConnectionsForms.css';
 
 function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSuccess,
 }) {
+  const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
@@ -75,8 +77,8 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
       if (!response.ok) throw new Error('Server responded with an error');
 
       const data = await response.json();
-      console.log('Filtered Data:', data);
       setResults(data);
+      dispatch(setFilteredResults(data));
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (error) {
       console.error('Failed to fetch filtered results:', error);

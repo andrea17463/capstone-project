@@ -14,10 +14,8 @@ const router = require('express').Router();
 // POST /api/filter-results
 // Filter connection results
 router.post('/', requireAuth, async (req, res) => {
-  console.log('Request body:', req.body);
   const { interests, objectives, location, locationRadius, matchType, userId } = req.body;
   const parsedUserId = parseInt(userId);
-  console.log('userId:', userId, 'parsedUserId:', parsedUserId);
 
   if (isNaN(parsedUserId)) {
     return res.status(400).json({ error: 'Invalid userId' });
@@ -89,14 +87,11 @@ router.post('/', requireAuth, async (req, res) => {
 
       case 'one': {
         const allUsers = await User.findAll({
-          // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
           attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
         });
 
         const matchingUsers = allUsers.filter(user => {
-          console.log('Checking user:', user.id, user.username, 'vs', parsedUserId);
           if (user.id === parsedUserId) {
-            console.log('Skipping self-match:', user.username);
             return false;
           }
 
@@ -125,7 +120,6 @@ router.post('/', requireAuth, async (req, res) => {
         return res.json(matchingUsers.map(user => ({
           id: user.id,
           username: user.username,
-          // firstName: user.firstName,
           fullName: user.fullName,
           interests: user.interests,
           objectives: user.objectives
@@ -134,15 +128,12 @@ router.post('/', requireAuth, async (req, res) => {
 
       case 'more': {
         const allUsers = await User.findAll({
-          // attributes: ['id', 'username', 'firstName', 'location', 'interests', 'objectives', 'locationRadius']
           attributes: ['id', 'username', 'fullName', 'location', 'interests', 'objectives', 'locationRadius']
         });
 
         const multipleMatches = allUsers.filter(user => {
-          console.log('Checking user:', user.id, user.username, 'vs', parsedUserId);
 
           if (user.id === parsedUserId) {
-            console.log('Skipping self-match:', user.username);
             return false;
           }
 
@@ -171,7 +162,6 @@ router.post('/', requireAuth, async (req, res) => {
         return res.json(multipleMatches.map(user => ({
           id: user.id,
           username: user.username,
-          // firstName: user.firstName,
           fullName: user.fullName,
           interests: user.interests,
           objectives: user.objectives
@@ -193,7 +183,6 @@ router.post('/', requireAuth, async (req, res) => {
 
     const filteredUsers = await User.findAll({
       where,
-      // attributes: ['username', 'firstName', 'interests', 'objectives']
       attributes: ['id', 'username', 'fullName', 'interests', 'objectives']
     });
 
@@ -209,7 +198,6 @@ router.post('/', requireAuth, async (req, res) => {
 // Clear filtered connection results
 router.post('/reset', requireAuth, async (req, res) => {
   const { userId } = req.body;
-  console.log('Request body:', req.body);
   const parsedUserId = parseInt(userId);
   if (isNaN(parsedUserId)) {
     return res.status(400).json({ error: 'Invalid userId' });
@@ -217,7 +205,6 @@ router.post('/reset', requireAuth, async (req, res) => {
 
   try {
     const user = await User.findByPk(parsedUserId);
-    console.log('Clear filtered results of user', user);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

@@ -8,7 +8,6 @@ router.use(restoreUser);
 
 router.get("/api/csrf/restore", (req, res) => {
   const csrfToken = req.csrfToken();
-  console.log("XSRF-TOKEN", csrfToken);
   res.cookie("XSRF-TOKEN", csrfToken);
   res.status(200).json({
     'XSRF-Token': csrfToken
@@ -35,7 +34,6 @@ if (process.env.NODE_ENV === 'production') {
 
   // Serve the frontend's index.html file at all other routes NOT starting with /api
   router.get(/^(?!\/?api).*/, (req, res) => {
-    // console.log('Catching non-API route:', req.path);
     res.cookie('XSRF-TOKEN', req.csrfToken());
     res.sendFile(
       path.resolve(__dirname, '../../frontend', 'dist', 'index.html')

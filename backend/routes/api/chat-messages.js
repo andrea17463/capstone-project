@@ -21,13 +21,11 @@ const { Op } = require('sequelize');
 
 const router = express.Router();
 
-// GET /api/messages/:userId
+// GET /api/chat-messages/:userId
 // Get chat history between current user and another user
 router.get('/:userId2', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
   const userId2 = parseInt(req.params.userId2);
-
-  console.log(`[GET] Request to fetch chat history between user ${userId1} and user ${userId2}`);
 
   try {
     const messages = await ChatMessage.findAll({
@@ -44,7 +42,6 @@ router.get('/:userId2', requireAuth, async (req, res) => {
       ],
     });
 
-    console.log(`[GET] Retrieved ${messages.length} messages`);
     res.json(messages);
   } catch (err) {
     console.error(`[GET] Error fetching messages between users ${userId1} and ${userId2}:`, err);
@@ -52,13 +49,11 @@ router.get('/:userId2', requireAuth, async (req, res) => {
   }
 });
 
-// PUT /api/messages/:messageId
+// PUT /api/chat-messages/:messageId
 // Edit a message (only by sender)
 router.put('/:messageId', requireAuth, async (req, res) => {
   const { messageId } = req.params;
   const { content } = req.body;
-
-  console.log(`[PUT] User ${req.user.id} attempting to edit message ${messageId}`);
 
   try {
     const message = await ChatMessage.findByPk(messageId);
@@ -77,7 +72,6 @@ router.put('/:messageId', requireAuth, async (req, res) => {
     message.editedAt = new Date();
     await message.save();
 
-    console.log(`[PUT] Message ${messageId} successfully edited`);
     res.json(message);
   } catch (err) {
     console.error(`[PUT] Error editing message ${messageId}:`, err);
@@ -85,13 +79,11 @@ router.put('/:messageId', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/messages
+// POST /api/chat-messages
 // Send a message between two users
 router.post('/', requireAuth, async (req, res) => {
   const senderId = req.user.id;
   const { receiverId, content } = req.body;
-
-  console.log(`[POST] User ${senderId} sending message to ${receiverId}: "${content}"`);
 
   if (!receiverId || !content) {
     console.warn(`[POST] Missing receiver or content in message from user ${senderId}`);
@@ -116,7 +108,6 @@ router.post('/', requireAuth, async (req, res) => {
       content
     });
 
-    console.log(`[POST] Message from user ${senderId} to ${receiverId} created with ID ${newMessage.id}`);
     res.status(201).json(newMessage);
   } catch (err) {
     console.error(`[POST] Error sending message from user ${senderId} to ${receiverId}:`, err);
@@ -124,13 +115,11 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/messages/:messageId
+// DELETE /api/chat-messages/:messageId
 // Only the sender can delete their own message permanently
 router.delete('/:messageId', requireAuth, async (req, res) => {
   const { messageId } = req.params;
   const userId = req.user.id;
-
-  console.log(`[DELETE] User ${userId} attempting to delete message ${messageId}`);
 
   try {
     const message = await ChatMessage.findByPk(messageId);
@@ -146,7 +135,6 @@ router.delete('/:messageId', requireAuth, async (req, res) => {
     }
 
     await message.destroy();
-    console.log(`[DELETE] Message ${messageId} successfully deleted by user ${userId}`);
     return res.json({ message: 'Message deleted successfully' });
   } catch (err) {
     console.error(`[DELETE] Error deleting message ${messageId} by user ${userId}:`, err);

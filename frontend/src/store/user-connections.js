@@ -11,6 +11,7 @@ const UPDATE_CONNECTION_STATUS = 'UPDATE_CONNECTION_STATUS';
 const UPDATE_MEETING_STATUS = 'UPDATE_MEETING_STATUS';
 const UPDATE_CONNECTION_FEEDBACK = 'UPDATE_CONNECTION_FEEDBACK';
 const DELETE_CONNECTION = 'DELETE_CONNECTION';
+const SET_FILTERED_RESULTS = 'SET_FILTERED_RESULTS';
 
 // Action Creators
 export const setLoading = (loading) => ({
@@ -21,6 +22,11 @@ export const setLoading = (loading) => ({
 export const setError = (error) => ({
     type: SET_ERROR,
     payload: error,
+});
+
+export const setFilteredResults = (results) => ({
+    type: SET_FILTERED_RESULTS,
+    payload: results,
 });
 
 // Thunk Action Creators
@@ -34,7 +40,6 @@ export const getConnection = (userId) => async (dispatch) => {
             type: GET_CONNECTION,
             payload: data,
         });
-        console.log('Fetched connection data:', data);
     } catch (err) {
         console.error('Error:', err);
         dispatch(setError(err.message));
@@ -53,7 +58,6 @@ export const fetchAllConnections = () => async (dispatch) => {
             type: GET_CONNECTIONS,
             payload: data
         });
-        console.log('All fetched connections data:', data);
     } catch (err) {
         console.error('Error:', err);
         dispatch(setError(err.message));
@@ -159,7 +163,6 @@ export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
 
         if (!res.ok) throw new Error('Failed to update feedback');
         const data = await res.json();
-        console.log('Updated connection:', data);
         dispatch({
             type: UPDATE_CONNECTION_FEEDBACK,
             payload: data
@@ -192,9 +195,34 @@ export const removeConnection = (connectionId) => async (dispatch) => {
     }
 };
 
+export const fetchFilteredResults = () => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const res = await csrfFetch('/api/filter-results/current', {
+            method: 'GET',
+        });
+
+        if (!res.ok) {
+            const allConnectionsRes = await csrfFetch('/api/connections');
+            if (!allConnectionsRes.ok) throw new Error('Failed to fetch connections');
+            const data = await allConnectionsRes.json();
+            dispatch(setFilteredResults(data));
+        } else {
+            const data = await res.json();
+            dispatch(setFilteredResults(data));
+        }
+    } catch (err) {
+        console.error('Error fetching filtered results:', err);
+        dispatch(setError(err.message));
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
+
 // Initial State
 const initialState = {
     connections: [],
+    filteredResults: [],
     loading: false,
     error: null,
 };
@@ -221,7 +249,6 @@ const userConnectionsReducer = (state = initialState, action) => {
             };
         }
         case GET_CONNECTIONS:
-            console.log('Received GET_CONNECTION action payload:', action.payload);
             return { ...state, connections: action.payload, error: null };
         case ADD_CONNECTION:
             return {
@@ -258,6 +285,11 @@ const userConnectionsReducer = (state = initialState, action) => {
                 connections: state.connections.filter(
                     (conn) => conn.id !== action.payload
                 ),
+            };
+        case SET_FILTERED_RESULTS:
+            return {
+                ...state,
+                filteredResults: action.payload,
             };
         default:
             return state;
