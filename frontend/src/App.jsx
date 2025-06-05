@@ -9,9 +9,10 @@ import LandingPage from './components/LandingPage/LandingPage';
 import UserProfile from './components/UserProfile/UserProfile';
 import UserConnections from './components/UserConnections/UserConnections';
 import GuessingGame from './components/GuessingGame/GuessingGame';
-import ConnectionProfile from './components/ConnectionProfile/ConnectionProfile';
+// import ConnectionProfile from './components/ConnectionProfile/ConnectionProfile';
 import Chat from './components/Chat/Chat';
 import GamePlay from './components/GamePlay/GamePlay';
+import ProtectedConnectionProfile from './components/ConnectionProfile/ProtectedConnectionProfile';
 import { fetchAllConnections } from './store/user-connections';
 import * as sessionActions from './store/session';
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -46,7 +47,6 @@ function GameWrapper() {
 function ChatMessagesIntro() {
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
-  // const isLoaded = useSelector((state) => state.session.isLoaded);
   const connections = useSelector((state) => state.userConnections.connections || []);
 
   useEffect(() => {
@@ -55,7 +55,6 @@ function ChatMessagesIntro() {
     }
   }, [dispatch, sessionUser?.id]);
 
-  // if (!isLoaded) return <h3 style={{ color: 'white', padding: '0 20px', boxSizing: 'border-box' }}>Select a chat from your connections to start messaging.</h3>;
   if (!sessionUser) return <Navigate to="/" />;
 
   const containerStyle = {
@@ -114,7 +113,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/connection-profile/:userId', element: (
-          <ProtectedRoute> <ConnectionProfile /> </ProtectedRoute>
+          <ProtectedRoute> <ProtectedConnectionProfile /> </ProtectedRoute>
         ),
       },
       {

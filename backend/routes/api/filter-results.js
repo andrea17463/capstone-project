@@ -5,11 +5,34 @@ const { requireAuth } = require('../../utils/auth');
 
 const router = require('express').Router();
 
+// GET /api/filter-results/current
+// Get current filtered results for the authenticated user
+
 // POST /api/filter-results
 // Filter connection results
 
 // POST /api/filter-results/reset
 // Clear filtered connection results
+
+// GET /api/filter-results/current
+// Get current filtered results for the authenticated user
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const allUsers = await User.findAll({
+      where: {
+        id: { [Op.ne]: userId }
+      },
+      attributes: ['id', 'username', 'fullName', 'interests', 'objectives']
+    });
+
+    return res.json(allUsers);
+  } catch (err) {
+    console.error('Error fetching current filtered results:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // POST /api/filter-results
 // Filter connection results

@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'pending',
       validate: {
-        isIn: [[ 'active', 'pending', 'accepted', 'declined']]
+        isIn: [[ 'active', 'pending', 'accepted', 'declined', 'inactive']]
       }
     },
     meetingStatus: {
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'pending',
       validate: {
-        isIn: [['active', 'pending', 'accepted', 'confirmed', 'canceled', 'completed']]
+        isIn: [['active', 'pending', 'accepted', 'confirmed', 'canceled', 'completed', 'inactive']]
       }
     },
     // chatEnabled: {

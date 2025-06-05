@@ -1,16 +1,13 @@
 // frontend/src/components/ConnectionProfile/ConnectionProfile.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-// import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addConnection,
   getConnection,
-  fetchAllConnections,
   updateMeetingStatus,
   updateConnectionStatus,
-  updateFeedback,
-  removeConnection,
+  updateFeedback
 } from '../../store/user-connections';
 // import { startGame } from '../../store/game-plays';
 import './ConnectionProfile.css';
@@ -19,7 +16,6 @@ function ConnectionProfile() {
   const userConnectionsLoading = useSelector(state => state.userConnections.loading);
   const { userId } = useParams();
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
@@ -29,13 +25,15 @@ function ConnectionProfile() {
   const [timeError, setTimeError] = useState('');
   const [statusType, setStatusType] = useState('');
 
+  const profileFetched = useRef(false);
+  const connectionFetched = useRef(false);
+
   const connections = useSelector((state) => state.userConnections?.connections || []);
   const userIdNumber = Number(userId);
   const currentUserId = useSelector(state => state.session.user?.id);
+  const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
   const currentUser = useSelector((state) => state.session.user);
-  const connection = connections.find(
-    (conn) => conn.user_2_id === userIdNumber || conn.user_1_id === userIdNumber
-  );
+  const connection = connections.find((conn) => conn.user_2_id === userIdNumber || conn.user_1_id === userIdNumber);
 
   const clearMessages = () => {
     setStatusMessage('');
@@ -62,7 +60,9 @@ function ConnectionProfile() {
   // };
 
   useEffect(() => {
-    if (userId) {
+    if (userId && !profileFetched.current) {
+      profileFetched.current = true;
+
       const fetchProfile = async () => {
         try {
           const profileRes = await fetch(`/api/users/${userId}`, { credentials: 'include' });
@@ -81,16 +81,42 @@ function ConnectionProfile() {
       };
 
       fetchProfile();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId && !connectionFetched.current) {
+      connectionFetched.current = true;
       dispatch(getConnection(userId));
     }
   }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (connection) {
+      if (connection.suggestedActivity) {
+        setSuggestedActivityInput(connection.suggestedActivity);
+      }
+      const localDateTimeString = (date) => {
+        const pad = (n) => n.toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      if (connection.meetingTime) {
+        const date = new Date(connection.meetingTime);
+        setMeetingTimeInput(localDateTimeString(date));
+      }
+    }
+  }, [connection]);
 
   const handleAcceptConnection = async () => {
     clearMessages();
     if (connection) {
       try {
         await dispatch(updateConnectionStatus(connection.id, 'accepted'));
-        await dispatch(fetchAllConnections());
         setMessage('Connection accepted.');
       } catch (err) {
         console.error('Error accepting connection:', err);
@@ -106,7 +132,6 @@ function ConnectionProfile() {
     if (connection) {
       try {
         await dispatch(updateConnectionStatus(connection.id, 'declined'));
-        await dispatch(fetchAllConnections());
         setMessage('Connection declined.');
       } catch (err) {
         console.error('Error declining connection:', err);
@@ -121,12 +146,10 @@ function ConnectionProfile() {
       setMessage("No connection request to cancel.");
       return;
     }
-
     const confirmed = window.confirm('Are you sure you want to cancel the meeting request?');
     if (confirmed) {
       try {
-        await dispatch(removeConnection(connection.id));
-        await dispatch(fetchAllConnections());
+        await dispatch(updateConnectionStatus(connection.id, 'pending'));
         setMessage('Connection request canceled.');
         setSuggestedActivityInput('');
         setMeetingTimeInput('');
@@ -144,8 +167,8 @@ function ConnectionProfile() {
     const user2Id = parseInt(userId);
     const suggestedActivity = suggestedActivityInput.trim();
     const rawDate = new Date(meetingTimeInput);
-
     let hasError = false;
+
     setActivityError('');
     setTimeError('');
 
@@ -154,27 +177,24 @@ function ConnectionProfile() {
       hasError = true;
     }
 
-    if (isNaN(rawDate)) {
-      setTimeError("Please select a valid meeting time.");
-      hasError = true;
-    }
+    if (isNaN(rawDate.getTime())) {
+  setTimeError("Please select a valid meeting time.");
+  hasError = true;
+}
 
     if (hasError) return;
 
     const meetingTime = rawDate.toISOString();
 
-    if (!connection) {
+    if (!connection || connection.connectionStatus === 'pending') {
       try {
-        await dispatch(
-          addConnection(
-            {
-              user1Id: currentUserId, user2Id, suggestedActivity, meetingTime
-            },
-            (errMsg) => setStatusMessage(errMsg)
-          )
-        );
-        await dispatch(fetchAllConnections());
-        await dispatch(getConnection(userId));
+        await dispatch(addConnection({
+          user1Id: currentUserId,
+          user2Id,
+          suggestedActivity,
+          meetingTime
+        }, (errMsg) => setStatusMessage(errMsg)));
+
         setMessage('Connection request sent!');
         setSuggestedActivityInput('');
         setMeetingTimeInput('');
@@ -193,8 +213,6 @@ function ConnectionProfile() {
       try {
         await dispatch(updateMeetingStatus(connection.id, 'confirmed'));
         setMessage('Meeting confirmed.');
-        await dispatch(fetchAllConnections());
-        setMessage('Meeting confirmed.');
       } catch (err) {
         console.error('Error confirming meeting:', err);
         setMessage('Failed to confirm meeting.');
@@ -207,7 +225,6 @@ function ConnectionProfile() {
     if (connection) {
       try {
         await dispatch(updateFeedback(connection.id, true));
-        await dispatch(fetchAllConnections());
         setMessage('Your interest in meeting again has been noted.');
       } catch (err) {
         console.error('Error updating feedback:', err);
@@ -220,8 +237,8 @@ function ConnectionProfile() {
     clearMessages();
     if (connection) {
       try {
-        await dispatch(removeConnection(connection.id));
-        await dispatch(fetchAllConnections());
+        await dispatch(updateConnectionStatus(connection.id, 'declined'));
+        await dispatch(updateFeedback(connection.id, false));
         setMessage('Meeting ended and connection removed.');
       } catch (err) {
         console.error('Error ending meeting:', err);
@@ -235,10 +252,8 @@ function ConnectionProfile() {
     if (connection) {
       const confirmed = window.confirm('Are you sure you want to cancel the meeting?');
       if (!confirmed) return;
-
       try {
         await dispatch(updateMeetingStatus(connection.id, 'canceled'));
-        await dispatch(fetchAllConnections());
         setMessage('Meeting has been canceled.');
       } catch (err) {
         console.error('Error canceling meeting:', err);
@@ -247,19 +262,15 @@ function ConnectionProfile() {
     }
   };
 
-  const { game, loading: gameLoading, error } = useSelector((state) => state.gamePlays);
-
-  { gameLoading && <p>Starting game...</p> }
-  { error && <p>Error: {error}</p> }
-  { game && <p>Game started with {profile?.username}!</p> }
-
   if (userConnectionsLoading) return <p>Loading connection...</p>;
-
   if (!profile) return <p>Loading...</p>;
 
   return (
     <div className="connection-profile-wrapper">
-      {/* <h1>{profile.fullName ? profile.fullName.split(' ')[0] : profile.username}</h1> */}
+      {gameLoading && <p>Starting game...</p>}
+      {error && <p>Error: {error}</p>}
+      {game && <p>Game started with {profile?.username}!</p>}
+
       <h1>
         {profile.fullName
           ? (currentUser && profile.id === currentUser.id
@@ -272,43 +283,72 @@ function ConnectionProfile() {
       <p>Interests: {profile.interests}</p>
       <p>Objectives: {profile.objectives}</p>
       <br />
+
+      {connection && (
+        <>
+          <p><strong>Connection Status:</strong> {connection.connectionStatus}</p>
+          <p><strong>Meeting Status:</strong> {connection.meetingStatus}</p>
+          <p><strong>Suggested Activity:</strong> {connection.suggestedActivity}</p>
+          <p><strong>Meeting Time:</strong> {connection.meetingTime ? new Date(connection.meetingTime).toLocaleString() : 'N/A'}</p>
+          {currentUser.id === connection.user_1_id ? (
+            <>
+              <p><strong>Meet Again Choice (You):</strong> {String(connection.meetAgainChoiceUser1)}</p>
+              <p><strong>Meet Again Choice (Them):</strong> {String(connection.meetAgainChoiceUser2)}</p>
+            </>
+          ) : (
+            <>
+              <p><strong>Meet Again Choice (You):</strong> {String(connection.meetAgainChoiceUser2)}</p>
+              <p><strong>Meet Again Choice (Them):</strong> {String(connection.meetAgainChoiceUser1)}</p>
+            </>
+          )}
+          <br />
+        </>
+      )}
+
       {statusMessage && (
         <p style={{ color: statusType === 'error' ? 'red' : 'green' }}>
           {statusMessage}
         </p>
       )}
       {message && <p style={{ color: 'green' }}>{message}</p>}
-      < br />
-      <label>
-        Suggested Activity:
-        <input
-          type="text"
-          value={suggestedActivityInput}
-          onChange={(e) => {
-            setSuggestedActivityInput(e.target.value);
-            setStatusMessage('');
-          }}
-          placeholder="e.g., Coffee chat"
-        />
-      </label>
-      {activityError && <p style={{ color: 'red' }}>{activityError}</p>}
-      < br />
+      <br />
 
-      <label>
-        Meeting Time:
-        <input
-          type="datetime-local"
-          value={meetingTimeInput}
-          onChange={(e) => {
-            setMeetingTimeInput(e.target.value);
-            setStatusMessage('');
-          }}
-        />
-      </label>
-      {timeError && <p style={{ color: 'red' }}>{timeError}</p>}
-      < br />
+      <div className="form-group">
+  {activityError && <p style={{ color: 'red', marginBottom: '4px' }}>{activityError}</p>}
+  <label>
+    Suggested Activity:
+    <input
+      type="text"
+      value={suggestedActivityInput}
+      onChange={(e) => {
+        setSuggestedActivityInput(e.target.value);
+        setStatusMessage('');
+        setActivityError('');
+      }}
+      placeholder="e.g., Coffee chat"
+    />
+  </label>
+</div>
+
+      <div className="form-group">
+  {timeError && <p style={{ color: 'red', marginBottom: '4px' }}>{timeError}</p>}
+  <label>
+    Meeting Time:
+    <input
+      type="datetime-local"
+      value={meetingTimeInput}
+      onChange={(e) => {
+        setMeetingTimeInput(e.target.value);
+        setStatusMessage('');
+        setTimeError('');
+      }}
+    />
+  </label>
+</div>
 
       {!connection ? (
+        <button onClick={handleWantToMeet}>Want to meet</button>
+      ) : connection.connectionStatus === 'pending' ? (
         <button onClick={handleWantToMeet}>Want to meet</button>
       ) : (
         <button disabled>Request already sent</button>

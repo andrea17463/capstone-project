@@ -1,5 +1,5 @@
 // frontend/src/components/UserConnectionsForms/UserConnectionsForms.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
 import { csrfFetch } from '../../store/csrf';
@@ -12,6 +12,7 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.session.user);
+  const results = useSelector(state => state.userConnections.filteredResults || []);
 
   const handleDropdownChange = (name, value) => {
     setFormData((prev) => {
@@ -111,6 +112,12 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
       setError('Failed to clear results.');
     }
   };
+
+  useEffect(() => {
+    if (user && results.length) {
+      dispatch(setFilteredResults(results));
+    }
+  }, [user, results, dispatch]);
 
   return (
     <div>

@@ -154,8 +154,23 @@ router.post('/', requireAuth, async (req, res) => {
       }
     });
 
+    if (existingConnection && existingConnection.connectionStatus === 'pending') {
+      existingConnection.suggestedActivity = suggestedActivity;
+      existingConnection.meetingTime = parsedMeetingTime;
+      await existingConnection.save();
+
+      const fullConnection = await UserConnection.findByPk(existingConnection.id, {
+        include: [
+          { model: User, as: 'user1', attributes: ['id', 'username', 'interests'] },
+          { model: User, as: 'user2', attributes: ['id', 'username', 'interests'] }
+        ]
+      });
+
+      return res.status(200).json(fullConnection);
+    }
+
     if (existingConnection) {
-      return res.status(409).json({ message: "A connection already exists between these users" });
+      return res.status(200).json({ message: "A connection already exists between these users" });
     }
 
     const newConnection = await UserConnection.create({
@@ -186,23 +201,31 @@ router.post('/', requireAuth, async (req, res) => {
 // Update connection status (e.g., "pending" → "accepted")
 router.put('/:connectionId/status', requireAuth, async (req, res) => {
   const { connectionId } = req.params;
-  const { connectionStatus } = req.body;
+  const { connectionStatus: newStatus } = req.body;
 
   try {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    const validStatuses = ['active', 'pending', 'accepted', 'declined'];
-    if (!validStatuses.includes(connectionStatus)) {
+    const validStatuses = ['active', 'pending', 'accepted', 'declined', 'inactive'];
+    if (!validStatuses.includes(newStatus)) {
       return res.status(400).json({ error: 'Invalid connection status' });
     }
 
-    const updatedConnection = await connection.update({
-      connectionStatus,
-      ...(connectionStatus === 'accepted' && { meetingStatus: 'active' })
-    });
+    connection.connectionStatus = newStatus;
 
-    res.json(updatedConnection);
+    if (newStatus === 'accepted') {
+      connection.meetingStatus = 'active';
+    }
+
+    if (newStatus === 'pending') {
+      connection.suggestedActivity = null;
+      connection.meetingTime = null;
+    }
+
+    await connection.save();
+
+    res.json(connection);
   } catch (err) {
     console.error('Error updating connection status:', err);
     res.status(500).json({ error: 'Failed to update connection status', details: err.message });
@@ -219,7 +242,7 @@ router.put('/:connectionId/meeting', requireAuth, async (req, res) => {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    const validStatuses = ['active', 'pending', 'accepted', 'confirmed', 'canceled', 'completed'];
+    const validStatuses = ['active', 'pending', 'accepted', 'confirmed', 'canceled', 'completed', 'inactive'];
     if (!validStatuses.includes(meetingStatus)) {
       return res.status(400).json({ error: 'Invalid meeting status' });
     }

@@ -203,7 +203,7 @@ export const removeConnection = (connectionId) => async (dispatch) => {
 export const fetchFilteredResults = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch('/api/filter-results/current', {
+        const res = await csrfFetch('/filter-results/current', {
             method: 'GET',
         });
 
