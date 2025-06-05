@@ -4,16 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { restoreUser } from '../../store/session';
 import { deleteUser } from '../../store/users';
 import { csrfFetch } from '../../store/csrf';
-import { useModal } from '../../context/Modal';
-import SignupFormModal from '../SignupFormModal';
-import LoginFormModal from '../LoginFormModal';
-import { login } from '../../store/session';
 import './UserProfile.css';
 
 function UserProfile() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.session.user);
-  const { setModalContent } = useModal();
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
 
@@ -27,10 +22,6 @@ function UserProfile() {
     availability: '',
     matchType: 'any',
   });
-
-  const handleDemoLogin = () => {
-    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
-  };
 
   useEffect(() => {
     dispatch(restoreUser());
@@ -131,23 +122,12 @@ function UserProfile() {
     return (
       <>
         <p>Please log in or sign up to create a profile.</p>
-        <div className="auth-buttons">
-          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
-            Sign up
-          </button>
-          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
-            Log in
-          </button>
-          <button className="btn-demo" onClick={handleDemoLogin}>
-            Demo Login
-          </button>
-        </div>
       </>
     );
   }
 
   return (
-    <div>
+    <div className="user-profile-wrapper">
       <h2>User Profile</h2>
 
       <div>
@@ -155,6 +135,7 @@ function UserProfile() {
           {isEditing ? 'Cancel' : 'Edit profile'}
         </button>
       </div>
+      < br />
 
       <div>
         <button className="delete-profile-button" onClick={handleDeleteProfile}>Delete profile</button>

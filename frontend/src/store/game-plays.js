@@ -1,5 +1,5 @@
 // frontend/src/store/game-plays.js
-import { csrfFetch } from '../utils/csrf';
+import { csrfFetch } from '../store/csrf';
 
 // Action Types
 const START_GAME = 'START_GAME';

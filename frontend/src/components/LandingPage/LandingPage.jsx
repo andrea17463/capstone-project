@@ -17,7 +17,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div>
+    <div className="landing-page-wrapper">
       <div>
         <Link to="/profile">Go to Profile</Link>
         <br />

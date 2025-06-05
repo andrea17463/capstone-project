@@ -1,11 +1,15 @@
+/* frontend/src/components/Chat/Chat.css */
 .chat-box-outer-theme {
   font-family: "Comic Sans MS", cursive, sans-serif;
   background-color: #e0e0f8;
   border: 2px ridge #6666cc;
   border-radius: 5px;
   /* padding: 10px; */
-  max-width: 500px;
-  margin: 20px auto;
+  /* max-width: 500px; */
+  max-width: 100%;
+  /* margin: 20px auto; */
+  width: 100%;
+  margin: 20px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -119,4 +123,10 @@
 .chat-header,
 .messages {
   width: 100%;
+}
+
+.not-allowed-to-chat {
+  color: white;
+  padding: 0 20px;
+  box-sizing: border-box;
 }

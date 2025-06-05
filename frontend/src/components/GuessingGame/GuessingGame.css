@@ -1,18 +1,16 @@
 /* frontend/src/components/GuessingGame/GuessingGame.css */
-
 li,
-/* body, */
 h1 {
     color: white;
     background-color: black;
 }
 
-html, 
+html,
 body {
-  height: 100%;
-  margin: 0;
-  background: black;
-  color: black;
+    height: 100%;
+    margin: 0;
+    background: black;
+    color: black;
 }
 
 span,
@@ -23,29 +21,103 @@ h4 {
     color: white;
 }
 
-/* 
+.guessing-game-wrapper {
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+    box-shadow: 0 0 10px white;
+}
+
+
 button.start-game-btn,
 button.reset-saved-game-btn,
 button.remove.button,
 button.add-button,
 button.settings-btn,
-button.div.navigation-buttons {
-    /* padding: 5px 5px; */
-/* margin: 10px; */
-/*     width: 80px;
-      height: 40px;
-      /* background-color: #4CAF50; */
-/* color: white; */
-
-/* border: none;
-      border-radius: 2px;
-      font-size: 16px;
-      cursor: pointer; */
-
-/*       font-weight: regular;
+button.reset-game-btn,
+button.force-match-btn,
+button.undo-match-btn,
+button.try-again-btn,
+button.another-card-btn,
+button.back-btn,
+button.next-player-btn,
+button.submit,
+button.rules-btn,
+button.add-player-btn,
+button.remove-player-btn,
+button.roast-mode-btn,
+button.remove-player-btn,
+.add-btn,
+.remove-btn,
+.add-player-btn {
+    width: 140px;
+    height: 40px;
+    font-weight: normal;
     font-size: 14px;
-    /* background-color: #E2E0DC; */
-/* color: #242424; */
-/*     padding: 4px 10px;
+    background-color: skyblue;
+    color: #242424;
+    padding: 4px 10px;
+    min-width: 200px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 40px;
+    word-break: break-word;
+    margin: 4px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-wrap: balance;
 }
-/*
+
+.category-btn,
+.card-btn,
+.option-btn {
+    min-width: 200px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: normal;
+    white-space: normal;
+    word-break: break-word;
+    background-color: skyblue;
+    color: #242424;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 4px;
+    padding: 4px 10px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.navigation-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 1rem 0;
+}
+
+.game-button {
+    min-width: 240px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: normal;
+    white-space: normal;
+    text-align: center;
+    padding: 6px 12px;
+    background-color: skyblue;
+    color: #242424;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

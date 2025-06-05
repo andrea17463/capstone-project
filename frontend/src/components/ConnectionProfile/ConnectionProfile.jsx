@@ -13,6 +13,7 @@ import {
   removeConnection,
 } from '../../store/user-connections';
 // import { startGame } from '../../store/game-plays';
+import './ConnectionProfile.css';
 
 function ConnectionProfile() {
   const userConnectionsLoading = useSelector(state => state.userConnections.loading);
@@ -67,7 +68,6 @@ function ConnectionProfile() {
           const profileRes = await fetch(`/api/users/${userId}`, { credentials: 'include' });
           if (profileRes.ok) {
             const data = await profileRes.json();
-            console.log('API response data:', data);
             setProfile(data);
             setStatusMessage('');
           } else {
@@ -81,7 +81,6 @@ function ConnectionProfile() {
       };
 
       fetchProfile();
-      console.log('Dispatching getConnection for userId:', userId);
       dispatch(getConnection(userId));
     }
   }, [userId, dispatch]);
@@ -119,7 +118,6 @@ function ConnectionProfile() {
   const handleCancelRequest = async () => {
     clearMessages();
     if (!connection) {
-      console.log("No connection found to cancel");
       setMessage("No connection request to cancel.");
       return;
     }
@@ -239,7 +237,7 @@ function ConnectionProfile() {
       if (!confirmed) return;
 
       try {
-        await dispatch(updateMeetingStatus(connection.id, 'cancelled'));
+        await dispatch(updateMeetingStatus(connection.id, 'canceled'));
         await dispatch(fetchAllConnections());
         setMessage('Meeting has been canceled.');
       } catch (err) {
@@ -260,7 +258,7 @@ function ConnectionProfile() {
   if (!profile) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="connection-profile-wrapper">
       {/* <h1>{profile.fullName ? profile.fullName.split(' ')[0] : profile.username}</h1> */}
       <h1>
         {profile.fullName

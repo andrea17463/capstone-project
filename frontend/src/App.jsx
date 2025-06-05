@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, createBrowserRouter, RouterProvider, useParams } from 'react-router-dom';
 import { NavLink, Navigate } from 'react-router-dom';
-import { restoreCsrf } from './utils/csrf';
+import { restoreCSRF } from './store/csrf';
 import Navigation from './components/Navigation/Navigation';
 import LandingPage from './components/LandingPage/LandingPage';
 import UserProfile from './components/UserProfile/UserProfile';
@@ -14,13 +14,14 @@ import Chat from './components/Chat/Chat';
 import GamePlay from './components/GamePlay/GamePlay';
 import { fetchAllConnections } from './store/user-connections';
 import * as sessionActions from './store/session';
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    restoreCsrf();
+    restoreCSRF();
   }, []);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ function GameWrapper() {
 function ChatMessagesIntro() {
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
-  const isLoaded = useSelector((state) => state.session.isLoaded);
+  // const isLoaded = useSelector((state) => state.session.isLoaded);
   const connections = useSelector((state) => state.userConnections.connections || []);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ function ChatMessagesIntro() {
     }
   }, [dispatch, sessionUser?.id]);
 
-  if (!isLoaded) return <h3 style={{ color: 'white' }}>Select a chat from your connections to start messaging.</h3>;
+  // if (!isLoaded) return <h3 style={{ color: 'white', padding: '0 20px', boxSizing: 'border-box' }}>Select a chat from your connections to start messaging.</h3>;
   if (!sessionUser) return <Navigate to="/" />;
 
   return (
@@ -97,14 +98,34 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: '/', element: <LandingPage /> },
-      { path: '/profile', element: <UserProfile /> },
-      { path: '/connection-profile/:userId', element: <ConnectionProfile /> },
-      { path: '/connections', element: <UserConnections /> },
+      {
+        path: '/profile', element: (
+          <ProtectedRoute> <UserProfile /> </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/connection-profile/:userId', element: (
+          <ProtectedRoute> <ConnectionProfile /> </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/connections', element: (
+          <ProtectedRoute> <UserConnections /> </ProtectedRoute>
+        ),
+      },
       { path: '/chat-messages', element: <ChatMessagesIntro /> },
-      { path: '/chat-messages/:user1Id/:user2Id', element: <Chat /> },
+      {
+        path: '/chat-messages/:user1Id/:user2Id', element: (
+          <ProtectedRoute> <Chat /> </ProtectedRoute>
+        ),
+      },
       { path: '/game/:gamePlayId', element: <GameWrapper /> },
       { path: '/game-play', element: <GamePlay /> },
-      { path: '/guess-me-game', element: <GuessingGame /> },
+      {
+        path: '/guess-me-game', element: (
+          <ProtectedRoute> <GuessingGame /> </ProtectedRoute>
+        ),
+      },
     ]
   }
 ]);

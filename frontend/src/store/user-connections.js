@@ -1,5 +1,5 @@
 // frontend/src/store/user-connections.js
-import { csrfFetch } from '../utils/csrf';
+import { csrfFetch } from '../store/csrf';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -33,7 +33,7 @@ export const setFilteredResults = (results) => ({
 export const getConnection = (userId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch(`/api/connections/${userId}`);
+        const res = await csrfFetch(`/connections/${userId}`);
         if (!res.ok) throw new Error('Failed to fetch connection');
         const data = await res.json();
         dispatch({
@@ -51,7 +51,7 @@ export const getConnection = (userId) => async (dispatch) => {
 export const fetchAllConnections = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await fetch('/api/connections');
+        const res = await csrfFetch('/connections');
         if (!res.ok) throw new Error('Failed to fetch connections');
         const data = await res.json();
         dispatch({
@@ -79,7 +79,7 @@ export const addConnection = (connectionData, onError) => async (dispatch, getSt
 
     try {
         const { user2Id, suggestedActivity, meetingTime } = connectionData;
-        const res = await csrfFetch('/api/connections', {
+        const res = await csrfFetch('/connections', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,21 +109,26 @@ export const addConnection = (connectionData, onError) => async (dispatch, getSt
 export const updateConnectionStatus = (connectionId, status) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch(`/api/connections/${connectionId}/status`, {
+        const res = await csrfFetch(`/connections/${connectionId}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ connectionStatus: status }),
         });
 
-        if (!res.ok) throw new Error('Failed to update connection status');
-        const data = await res.json();
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to update connection status');
+        }
+        const updatedConnection = await res.json();
         dispatch({
             type: UPDATE_CONNECTION_STATUS,
-            payload: data
+            payload: updatedConnection
         });
+        return updatedConnection;
     } catch (err) {
-        console.error('Error:', err);
+        console.error('Error in updateConnectionStatus:', err);
         dispatch(setError(err.message));
+        throw err;
     } finally {
         dispatch(setLoading(false));
     }
@@ -132,7 +137,7 @@ export const updateConnectionStatus = (connectionId, status) => async (dispatch)
 export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch(`/api/connections/${connectionId}/meeting`, {
+        const res = await csrfFetch(`/connections/${connectionId}/meeting`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ meetingStatus }),
@@ -155,7 +160,7 @@ export const updateMeetingStatus = (connectionId, meetingStatus) => async (dispa
 export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch(`/api/connections/${connectionId}/feedback`, {
+        const res = await csrfFetch(`/connections/${connectionId}/feedback`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ meetAgain: feedback }),
@@ -178,7 +183,7 @@ export const updateFeedback = (connectionId, feedback) => async (dispatch) => {
 export const removeConnection = (connectionId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const res = await csrfFetch(`/api/connections/${connectionId}`, {
+        const res = await csrfFetch(`/connections/${connectionId}`, {
             method: 'DELETE',
         });
 
@@ -203,7 +208,7 @@ export const fetchFilteredResults = () => async (dispatch) => {
         });
 
         if (!res.ok) {
-            const allConnectionsRes = await csrfFetch('/api/connections');
+            const allConnectionsRes = await csrfFetch('/connections');
             if (!allConnectionsRes.ok) throw new Error('Failed to fetch connections');
             const data = await allConnectionsRes.json();
             dispatch(setFilteredResults(data));

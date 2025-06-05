@@ -834,7 +834,7 @@ const GuessingGame = () => {
   }
 
   return (
-    <div className="game-container">
+    <div className="guessing-game-wrapper">
       <h1>Guess Me Game</h1>
 
       {showPlayerForm && (
@@ -869,12 +869,12 @@ const GuessingGame = () => {
               </button>
             )}
 
-            <button type="submit">Add Player</button>
+            <button type="submit" className="add-player-btn">Add Player</button>
           </form>
 
           {players.length > 0 && (
             <div>
-              <button onClick={() => setShowRemovePlayerForm(!showRemovePlayerForm)}>
+              <button className="remove-player-btn" onClick={() => setShowRemovePlayerForm(!showRemovePlayerForm)}>
                 Remove Player
               </button>
 
@@ -889,13 +889,13 @@ const GuessingGame = () => {
                       <option key={index} value={player}>{player}</option>
                     ))}
                   </select>
-                  <button type="submit">Remove</button>
+                  <button type="submit" className="remove-btn">Remove</button>
                 </form>
               )}
             </div>
           )}
 
-          <button onClick={() => setShowRules(!showRules)}>
+          <button className="rules-btn" onClick={() => setShowRules(!showRules)}>
             {showRules ? "Hide Rules" : "Show Rules"}
           </button>
 
@@ -914,7 +914,7 @@ const GuessingGame = () => {
             <h2>Round {roundNumber - 1}</h2>
             <p>Current Player: {players[currentPlayer]}</p>
             <p>Cards Remaining: {remainingCards} / {totalCards}</p>
-            <button onClick={toggleRoastMode}>
+            <button className="roast-mode-btn" onClick={toggleRoastMode}>
               {isRoastMode ? "Disable Roast Mode" : "Enable Roast Mode"}
             </button>
           </div>
@@ -1051,30 +1051,30 @@ const GuessingGame = () => {
                     ))}
                   </ul>
 
-                    <div className="choice-roast">
-                      <h4>Roasts based on your guess:</h4>
-                      <ul className="roasts-list">
-                        {getChoiceRoast(selectedCategory, userGuess)
-                          .split(' • ')
-                          .map((roast, i) => (
-                            <li key={i}>{roast}</li>
-                          ))}
-                      </ul>
-                    </div>
+                  <div className="choice-roast">
+                    <h4>Roasts based on your guess:</h4>
+                    <ul className="roasts-list">
+                      {getChoiceRoast(selectedCategory, userGuess)
+                        .split(' • ')
+                        .map((roast, i) => (
+                          <li key={i}>{roast}</li>
+                        ))}
+                    </ul>
+                  </div>
                 </div>
               )}
 
               <div className="navigation-buttons">
-                <button onClick={resetGamePlay} className="try-again-btn">
+                <button onClick={resetGamePlay} className="game-button">
                   Try Again
                 </button>
-                <button onClick={() => setSelectedCard(null)} className="another-card-btn">
+                <button onClick={() => setSelectedCard(null)} className="game-button">
                   Choose Another Card
                 </button>
-                <button onClick={handleGoBack} className="back-btn">
+                <button onClick={handleGoBack} className="game-button">
                   Go Back to Category Selection
                 </button>
-                <button onClick={nextPlayerTurn} className="next-player-btn">
+                <button onClick={nextPlayerTurn} className="game-button">
                   Next Player&apos;s Turn
                 </button>
               </div>
@@ -1103,7 +1103,7 @@ const GuessingGame = () => {
             </>
             <br />
 
-            <button onClick={() => setShowAddPlayerForm(!showAddPlayerForm)}>
+            <button className="add-player-btn" onClick={() => setShowAddPlayerForm(!showAddPlayerForm)}>
               {showAddPlayerForm ? "Cancel" : "Add Player"}
             </button>
 
@@ -1115,13 +1115,13 @@ const GuessingGame = () => {
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   placeholder="Enter player name"
                 />
-                <button type="submit">Add</button>
+                <button type="submit" className="add-btn">Add</button>
               </form>
             )}
 
             {players.length > 0 && (
               <>
-                <button onClick={() => setShowRemovePlayerForm(!showRemovePlayerForm)}>
+                <button className="remove-player-btn" onClick={() => setShowRemovePlayerForm(!showRemovePlayerForm)}>
                   {showRemovePlayerForm ? "Cancel" : "Remove Player"}
                 </button>
 
@@ -1136,7 +1136,7 @@ const GuessingGame = () => {
                         <option key={index} value={player}>{player}</option>
                       ))}
                     </select>
-                    <button type="submit">Remove</button>
+                    <button type="submit" className="remove-btn">Remove</button>
                   </form>
                 )}
               </>

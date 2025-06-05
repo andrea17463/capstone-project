@@ -2,16 +2,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UserConnectionsForms from './UserConnectionsForms';
-import { useSelector, useDispatch } from 'react-redux';
-import { useModal } from '../../context/Modal';
-import SignupFormModal from '../SignupFormModal';
-import LoginFormModal from '../LoginFormModal';
-import { login } from '../../store/session';
+import { useSelector } from 'react-redux';
 import './UserConnections.css';
 
 const UserConnections = () => {
-  const dispatch = useDispatch();
-  const { setModalContent } = useModal();
   const user = useSelector(state => state.session.user);
 
   const [formData, setFormData] = useState({
@@ -38,10 +32,6 @@ const UserConnections = () => {
     }
     return true;
   });
-
-  const handleDemoLogin = () => {
-    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
-  };
 
   useEffect(() => {
     if (user) {
@@ -71,23 +61,12 @@ const UserConnections = () => {
     return (
       <>
         <p>Please log in to view and manage your connection results.</p>
-        <div className="auth-buttons">
-          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
-            Sign up
-          </button>
-          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
-            Log in
-          </button>
-          <button className="btn-demo" onClick={handleDemoLogin}>
-            Demo Login
-          </button>
-        </div>
       </>
     )
   }
 
   return (
-    <div>
+    <div className="user-connections-wrapper">
       <h1>User Connections</h1>
 
       {showForm ? (

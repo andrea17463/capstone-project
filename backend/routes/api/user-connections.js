@@ -111,8 +111,6 @@ router.get('/:userId', requireAuth, async (req, res) => {
       }
     });
 
-    console.log('Found connection:', connection?.toJSON());
-
     if (!connection) {
       return res.status(404).json({ error: 'Connection not found' });
     }
@@ -194,16 +192,20 @@ router.put('/:connectionId/status', requireAuth, async (req, res) => {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    connection.connectionStatus = connectionStatus;
-    if (connectionStatus === 'accepted') {
-      connection.meetingStatus = 'active';
+    const validStatuses = ['active', 'pending', 'accepted', 'declined'];
+    if (!validStatuses.includes(connectionStatus)) {
+      return res.status(400).json({ error: 'Invalid connection status' });
     }
-    await connection.save();
 
-    res.json(connection);
+    const updatedConnection = await connection.update({
+      connectionStatus,
+      ...(connectionStatus === 'accepted' && { meetingStatus: 'active' })
+    });
+
+    res.json(updatedConnection);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update connection status' });
+    console.error('Error updating connection status:', err);
+    res.status(500).json({ error: 'Failed to update connection status', details: err.message });
   }
 });
 
@@ -217,13 +219,17 @@ router.put('/:connectionId/meeting', requireAuth, async (req, res) => {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
-    connection.meetingStatus = meetingStatus;
-    await connection.save();
+    const validStatuses = ['active', 'pending', 'accepted', 'confirmed', 'canceled', 'completed'];
+    if (!validStatuses.includes(meetingStatus)) {
+      return res.status(400).json({ error: 'Invalid meeting status' });
+    }
 
-    res.json(connection);
+    const updatedConnection = await connection.update({ meetingStatus });
+
+    res.json(updatedConnection);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update meeting status' });
+    console.error('Error updating meeting status:', err);
+    res.status(500).json({ error: 'Failed to update meeting status', details: err.message });
   }
 });
 
@@ -242,19 +248,21 @@ router.put('/:connectionId/feedback', requireAuth, async (req, res) => {
     const connection = await UserConnection.findByPk(connectionId);
     if (!connection) return res.status(404).json({ error: 'Connection not found' });
 
+    let updateData = {};
+
     if (userId === connection.user_1_id) {
-      connection.meetAgainChoiceUser1 = meetAgain;
+      updateData.meetAgainChoiceUser1 = meetAgain;
     } else if (userId === connection.user_2_id) {
-      connection.meetAgainChoiceUser2 = meetAgain;
+      updateData.meetAgainChoiceUser2 = meetAgain;
     } else {
       return res.status(403).json({ error: 'Not authorized to give feedback on this connection' });
     }
 
-    await connection.save();
-    res.json(connection);
+    const updatedConnection = await connection.update(updateData);
+    res.json(updatedConnection);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to submit feedback' });
+    console.error('Error updating feedback:', err);
+    res.status(500).json({ error: 'Failed to submit feedback', details: err.message });
   }
 });
 

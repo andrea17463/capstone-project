@@ -1,5 +1,5 @@
 // frontend/src/store/users.js
-import { csrfFetch } from '../utils/csrf';
+import { csrfFetch } from '../store/csrf';
 
 // Action Types
 const SET_LOADING = 'user/SET_LOADING';

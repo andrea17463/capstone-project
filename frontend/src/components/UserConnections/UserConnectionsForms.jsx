@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import HoverClickDropdown from '../UserProfile/HoverClickDropdown';
 import { csrfFetch } from '../../store/csrf';
-import { setFilteredResults } from '../../store/user-connections';
+import { setFilteredResults, fetchAllConnections } from '../../store/user-connections';
 import './UserConnectionsForms.css';
 
 function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSuccess,
@@ -79,6 +79,7 @@ function UserConnectionsForms({ formData, setFormData, setResults, onSubmitSucce
       const data = await response.json();
       setResults(data);
       dispatch(setFilteredResults(data));
+      await dispatch(fetchAllConnections());
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (error) {
       console.error('Failed to fetch filtered results:', error);

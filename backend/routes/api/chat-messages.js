@@ -1,4 +1,15 @@
 // backend/routes/api/chat-messages.js
+const express = require('express');
+const { requireAuth } = require('../../utils/auth');
+// const { handleValidationErrors } = require('../../utils/validation');
+const { ChatMessage, User } = require('../../db/models');
+// const { check } = require('express-validator');
+const { Op } = require('sequelize');
+
+const router = express.Router();
+
+// GET /api/chat-messages/conversations
+// Get chat history between current user and all other users
 
 // GET /api/messages/:userId
 // Get chat history between current user and user2
@@ -12,20 +23,48 @@
 // DELETE /api/messages/:messageId
 // Only the sender can delete their own message permanently
 
-const express = require('express');
-const { requireAuth } = require('../../utils/auth');
-// const { handleValidationErrors } = require('../../utils/validation');
-const { ChatMessage, User } = require('../../db/models');
-// const { check } = require('express-validator');
-const { Op } = require('sequelize');
+// GET /api/chat-messages/conversations
+// Get chat history between current user and all other users
+router.get('/conversations', requireAuth, async (req, res) => {
+  const userId = req.user.id;
 
-const router = express.Router();
+  const messages = await ChatMessage.findAll({
+    where: {
+      [Op.or]: [
+        { senderId: userId },
+        { receiverId: userId },
+      ]
+    },
+    include: [
+      { model: User, as: 'sender', attributes: ['id', 'username'] },
+      { model: User, as: 'receiver', attributes: ['id', 'username'] },
+    ],
+    order: [['createdAt', 'DESC']]
+  });
+
+  const conversationsMap = new Map();
+  for (const msg of messages) {
+    const otherUser = msg.senderId === userId ? msg.receiver : msg.sender;
+    if (!conversationsMap.has(otherUser.id)) {
+      conversationsMap.set(otherUser.id, {
+        user: otherUser,
+        lastMessage: msg,
+      });
+    }
+  }
+
+  return res.json(Array.from(conversationsMap.values()));
+});
 
 // GET /api/chat-messages/:userId
 // Get chat history between current user and another user
 router.get('/:userId2', requireAuth, async (req, res) => {
   const userId1 = req.user.id;
   const userId2 = parseInt(req.params.userId2);
+
+  if (isNaN(userId2)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
 
   try {
     const messages = await ChatMessage.findAll({
@@ -72,7 +111,14 @@ router.put('/:messageId', requireAuth, async (req, res) => {
     message.editedAt = new Date();
     await message.save();
 
-    res.json(message);
+    const messageWithUsers = await ChatMessage.findByPk(messageId, {
+      include: [
+        { model: User, as: 'sender', attributes: ['id', 'username'] },
+        { model: User, as: 'receiver', attributes: ['id', 'username'] }
+      ]
+    });
+
+    res.json(messageWithUsers);
   } catch (err) {
     console.error(`[PUT] Error editing message ${messageId}:`, err);
     res.status(500).json({ error: 'Something went wrong while editing the message' });
@@ -108,7 +154,14 @@ router.post('/', requireAuth, async (req, res) => {
       content
     });
 
-    res.status(201).json(newMessage);
+    const messageWithUsers = await ChatMessage.findByPk(newMessage.id, {
+      include: [
+        { model: User, as: 'sender', attributes: ['id', 'username'] },
+        { model: User, as: 'receiver', attributes: ['id', 'username'] }
+      ]
+    });
+
+    res.status(201).json(messageWithUsers);
   } catch (err) {
     console.error(`[POST] Error sending message from user ${senderId} to ${receiverId}:`, err);
     res.status(500).json({ error: 'Failed to send message.' });

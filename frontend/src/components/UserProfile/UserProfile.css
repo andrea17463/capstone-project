@@ -50,3 +50,8 @@ body {
   background: black;
   color: black;
 }
+
+.user-profile-wrapper {
+  padding: 0 20px;
+  box-sizing: border-box;
+}

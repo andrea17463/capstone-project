@@ -1,5 +1,5 @@
 // frontend/src/store/chat-messages.js
-import { csrfFetch } from '../utils/csrf';
+import { csrfFetch } from './csrf';
 
 // Action Types
 const SEND_MESSAGE = 'SEND_MESSAGE';
@@ -10,6 +10,7 @@ const DELETE_MESSAGE = 'DELETE_MESSAGE';
 const GET_CHAT_HISTORY = 'GET_CHAT_HISTORY';
 const SET_LOADING = 'SET_LOADING';
 const SET_ERROR = 'SET_ERROR';
+const FETCH_CONVERSATIONS = 'FETCH_CONVERSATIONS';
 
 // Action Creators
 export const setLoading = (isLoading) => ({
@@ -31,23 +32,30 @@ export const addIncomingMessage = (message) => ({
 export const sendMessage = (messageData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await csrfFetch('/api/chat-messages', {
 
+        const response = await csrfFetch('/chat-messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(messageData),
         });
 
-        if (!response.ok) throw new Error('Failed to send message');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to send message');
+        }
 
         const data = await response.json();
+
         dispatch({
             type: SEND_MESSAGE,
             payload: data
         });
+
         return data;
     } catch (error) {
+        console.error('Error sending message:', error);
         dispatch(setError(error.message));
+        throw error;
     } finally {
         dispatch(setLoading(false));
     }
@@ -56,8 +64,7 @@ export const sendMessage = (messageData) => async (dispatch) => {
 export const getMessages = () => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await fetch('/api/chat-messages');
-
+        const response = await csrfFetch('/chat-messages');
         if (!response.ok) throw new Error('Failed to fetch messages');
 
         const data = await response.json();
@@ -66,6 +73,7 @@ export const getMessages = () => async (dispatch) => {
             payload: data
         });
     } catch (error) {
+        console.error('Error fetching messages:', error);
         dispatch(setError(error.message));
     } finally {
         dispatch(setLoading(false));
@@ -75,16 +83,18 @@ export const getMessages = () => async (dispatch) => {
 export const getChatHistory = (userId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await fetch(`/api/chat-messages/${userId}`);
 
+        const response = await csrfFetch(`/chat-messages/${userId}`);
         if (!response.ok) throw new Error('Failed to get chat history');
 
         const data = await response.json();
+
         dispatch({
             type: GET_CHAT_HISTORY,
             payload: data
         });
     } catch (error) {
+        console.error('Error fetching chat history:', error);
         dispatch(setError(error.message));
     } finally {
         dispatch(setLoading(false));
@@ -94,42 +104,74 @@ export const getChatHistory = (userId) => async (dispatch) => {
 export const editMessage = (messageId, updatedMessage) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-        const response = await csrfFetch(`/api/chat-messages/${messageId}`, {
+
+        const response = await csrfFetch(`/chat-messages/${messageId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedMessage),
         });
 
-        if (!response.ok) throw new Error('Failed to edit message');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to edit message');
+        }
 
         const data = await response.json();
+
         dispatch({
             type: EDIT_MESSAGE,
             payload: data
         });
+
+        return data;
     } catch (error) {
+        console.error('Error editing message:', error);
         dispatch(setError(error.message));
+        throw error;
     } finally {
         dispatch(setLoading(false));
     }
 };
 
 export const deleteMessage = (messageId) => async (dispatch) => {
-
     dispatch(setLoading(true));
     try {
-        const response = await csrfFetch(`/api/chat-messages/${messageId}`, {
 
+        const response = await csrfFetch(`/chat-messages/${messageId}`, {
             method: 'DELETE',
         });
 
-        if (!response.ok) throw new Error('Failed to delete message');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete message');
+        }
 
         dispatch({
             type: DELETE_MESSAGE,
             payload: messageId
         });
     } catch (error) {
+        console.error('Error deleting message:', error);
+        dispatch(setError(error.message));
+        throw error;
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
+
+export const fetchConversations = () => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const response = await csrfFetch('/chat-messages/conversations');
+        if (!response.ok) throw new Error('Failed to fetch conversations');
+
+        const data = await response.json();
+        dispatch({
+            type: FETCH_CONVERSATIONS,
+            payload: data
+        });
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
         dispatch(setError(error.message));
     } finally {
         dispatch(setLoading(false));
@@ -140,6 +182,7 @@ export const deleteMessage = (messageId) => async (dispatch) => {
 const initialState = {
     messages: [],
     chatHistory: [],
+    conversations: [],
     loading: false,
     error: null,
 };
@@ -154,50 +197,71 @@ const chatMessagesReducer = (state = initialState, action) => {
             return {
                 ...state,
                 messages: [...state.messages, action.payload],
+                chatHistory: [...state.chatHistory, action.payload],
                 error: null,
             };
+
         case ADD_INCOMING_MESSAGE:
             return {
                 ...state,
                 messages: [...state.messages, action.payload],
+                chatHistory: [...state.chatHistory, action.payload],
                 error: null
             };
+
         case GET_MESSAGES:
             return {
                 ...state,
                 messages: action.payload,
                 error: null,
             };
+
         case GET_CHAT_HISTORY:
             return {
                 ...state,
                 chatHistory: action.payload,
                 error: null,
             };
+
         case EDIT_MESSAGE:
             return {
                 ...state,
                 messages: state.messages.map((msg) =>
-                    msg.id === action.payload._id ? action.payload : msg
+                    msg.id === action.payload.id ? action.payload : msg
+                ),
+                chatHistory: state.chatHistory.map((msg) =>
+                    msg.id === action.payload.id ? action.payload : msg
                 ),
                 error: null,
             };
+
         case DELETE_MESSAGE:
             return {
                 ...state,
                 messages: state.messages.filter((msg) => msg.id !== action.payload),
+                chatHistory: state.chatHistory.filter((msg) => msg.id !== action.payload),
                 error: null,
             };
+
         case SET_LOADING:
             return {
                 ...state,
                 loading: action.payload,
             };
+
         case SET_ERROR:
             return {
                 ...state,
                 error: action.payload,
             };
+
+        case FETCH_CONVERSATIONS:
+            return {
+                ...state,
+                conversations: action.payload,
+                error: null,
+            };
+
         default:
             return state;
     }

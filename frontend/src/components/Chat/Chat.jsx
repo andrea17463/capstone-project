@@ -8,17 +8,18 @@ import {
   deleteMessage,
   getChatHistory,
 } from '../../store/chat-messages';
-import { useModal } from '../../context/Modal';
-import SignupFormModal from '../SignupFormModal';
-import LoginFormModal from '../LoginFormModal';
-import { login } from '../../store/session';
 import './Chat.css';
+
+const getFilteredUserIds = (userId) => {
+  const results = localStorage.getItem(`filteredResults-${userId}`);
+  if (!results) return [];
+  return JSON.parse(results).map(user => user.id);
+};
 
 function Chat() {
   const dispatch = useDispatch();
   const { user1Id, user2Id } = useParams();
   const navigate = useNavigate();
-  const { setModalContent } = useModal();
 
   const currentUserId = useSelector((state) => state.session.user?.id);
   const sessionUser = useSelector((state) => state.session.user);
@@ -28,17 +29,21 @@ function Chat() {
   const id2 = parseInt(user2Id, 10);
   const chatPartnerId = currentUserId === id1 ? id2 : id1;
 
+  useEffect(() => {
+    if (!sessionUser || !chatPartnerId) return;
+    const allowedIds = getFilteredUserIds(sessionUser.id);
+    setAllowedToChat(allowedIds.includes(chatPartnerId));
+  }, [sessionUser, chatPartnerId]);
+
   const [newMessage, setNewMessage] = useState('');
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editedContent, setEditedContent] = useState('');
   const [error, setError] = useState(null);
   const [chatPartnerUsername, setChatPartnerUsername] = useState('');
+  // const [allowedToChat, setAllowedToChat] = useState(false);
+  const [, setAllowedToChat] = useState(false);
 
   const messagesEndRef = useRef(null);
-
-  const handleDemoLogin = () => {
-    dispatch(login({ credential: 'demo@user.io', password: 'password' }));
-  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -116,20 +121,13 @@ function Chat() {
     return (
       <>
         <div>Loading user...</div>
-        <div className="auth-buttons">
-          <button className="btn-signup" onClick={() => setModalContent(<SignupFormModal />)}>
-            Sign up
-          </button>
-          <button className="btn-login" onClick={() => setModalContent(<LoginFormModal />)}>
-            Log in
-          </button>
-          <button className="btn-demo" onClick={handleDemoLogin}>
-            Demo Login
-          </button>
-        </div>
       </>
     )
   }
+
+  // if (!allowedToChat) {
+  //   return <div className="not-allowed-to-chat">You can only chat with users who match your connection filters.</div>;
+  // }
 
   const isParticipant = currentUserId === id1 || currentUserId === id2;
   if (!isParticipant) {

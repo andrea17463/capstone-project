@@ -1,0 +1,9 @@
+/* frontend/src/components/ConnectionProfile/ConnectionProfile.css */
+.connection-profile-wrapper {
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  box-shadow: 0 0 10px white;
+}
