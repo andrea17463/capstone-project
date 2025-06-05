@@ -58,8 +58,17 @@ function ChatMessagesIntro() {
   // if (!isLoaded) return <h3 style={{ color: 'white', padding: '0 20px', boxSizing: 'border-box' }}>Select a chat from your connections to start messaging.</h3>;
   if (!sessionUser) return <Navigate to="/" />;
 
+  const containerStyle = {
+    border: '2px solid #ccc',
+    borderRadius: '12px',
+    padding: '2rem',
+    margin: '0 auto',
+    maxWidth: '800px',
+    boxShadow: '0 0 10px white'
+  };
+
   return (
-    <div>
+    <div style={containerStyle}>
       <h2>Select a chat from your connections to start messaging</h2>
       {connections.length === 0 ? (
         <p>No connections yet.</p>
